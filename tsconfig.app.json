@@ -16,5 +16,5 @@
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/app.tsbuildinfo"
   },
-  "include": ["src", "shared", "tests"]
+  "include": ["src", "shared"]
 }

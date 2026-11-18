@@ -5,8 +5,9 @@
  *
  * Order within a module is the recommended order.
  *
- * Learner language: Python 3 only (MASTER_PROMPT Amendment 1). Runnable examples and
- * solutions live in python/ and are verified with pytest.
+ * Learner language: Python 3 (MASTER_PROMPT Amendments 1–4). Worked code lives in python/ and is
+ * verified with pytest. Objectives describe understanding, prediction and decisions; required exercises
+ * are small (predict, fill one condition, change a line, pick a line, choose a design, explain briefly).
  */
 import type { Module, Topic, TopicKind } from './types';
 import { SRC, type SourceKey } from './sources';
@@ -63,13 +64,13 @@ export const TOPICS: Topic[] = [
     'Manipulate a doubly linked list (unlink, push front, remove tail) and state the cost of each operation.',
     ['linked lists'], [], 'Linked lists'),
   T('bridge-sql', 'How do you ask a database a question?', 'bridges', 'bridge', ['bridge-json'],
-    'Write SELECT, INSERT, UPDATE with WHERE, and a JOIN, and predict their results on a small table.',
+    'Read SELECT, INSERT, UPDATE with WHERE, and a JOIN, predict their results on a small table, and complete one clause.',
     ['SQL'], ['ddia2', 'pgIndexes'], 'SQL basics'),
   T('bridge-interfaces', 'How can two classes promise the same behaviour?', 'bridges', 'bridge', [],
-    'Define a shared interface in Python (duck typing, then typing.Protocol), implement it twice, and call both through the same code.',
+    'Recognise a shared interface in Python (duck typing, then typing.Protocol) and predict which implementation runs when both are called through the same code.',
     ['interfaces', 'Protocol', 'duck typing'], ['pyProtocol'], 'Interfaces'),
   T('bridge-threads', 'What happens when two things run at once in one program?', 'bridges', 'bridge', [],
-    'Start two Python threads that share a counter and explain why the final count can be wrong.',
+    'Predict the result of two Python threads incrementing a shared counter and explain why the final count can be wrong.',
     ['threads'], ['ostepThreads', 'pyThreading'], 'Threads'),
 
   // ---------------- Foundations ----------------
@@ -147,7 +148,7 @@ export const TOPICS: Topic[] = [
     'Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints.',
     ['requirements', 'constraints'], ['sdi1', 'sap'], 'Requirements'),
   T('api-design', 'How should the app ask for page 2 of results?', 'distributed', 'lesson', ['http-rest-rpc', 'requirements'],
-    'Write an API contract with cursor pagination, errors and a versioning plan.',
+    'Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice.',
     ['API contracts', 'pagination', 'versioning'], ['rfc9110', 'ddia4'], 'API design'),
   T('proxies-gateways', 'What sits between the internet and your servers?', 'distributed', 'lesson', ['api-design', 'stateless-scaling'],
     'Place reverse proxies, API gateways and service discovery in a request path and state each one’s job.',
@@ -165,7 +166,7 @@ export const TOPICS: Topic[] = [
     'Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede.',
     ['invalidation', 'stampedes'], ['ablCaching'], 'Invalidation and stampedes'),
   T('lru-cache', 'Which item should the cache forget?', 'lld', 'lesson', ['bridge-maps', 'bridge-linked-lists'],
-    'Predict LRU evictions, then implement an O(1) LRU cache in Python with a dict and a doubly linked list, and test it with pytest.',
+    'Predict LRU evictions, then explain from the worked Python code how a dict plus a doubly linked list make every operation O(1).',
     ['eviction', 'LRU', 'linked lists', 'maps'], ['ablCaching', 'pyOrderedDict'], 'LRU cache'),
   T('timeouts', 'The payment service is slow. Should we keep waiting?', 'distributed', 'lesson', ['latency'],
     'Pick a timeout from latency percentiles and explain how partial failure cascades without one.',
@@ -227,7 +228,7 @@ export const TOPICS: Topic[] = [
     'Apply encryption in transit and at rest, hash passwords properly, and minimise personal data.',
     ['encryption', 'privacy'], ['rfc8446'], 'Encryption and privacy'),
   T('rate-limiting', 'One client sends 10,000 requests a second. What do we do?', 'architecture', 'lesson', ['throughput-bandwidth'],
-    'Implement token bucket and sliding window limiters and choose where to enforce them.',
+    'Trace token bucket and sliding window limiters step by step, compare their behaviour on bursts, and choose where to enforce them.',
     ['rate limiting'], ['rfc6585', 'sdi1'], 'Rate limiting'),
   T('observability', 'Checkout is slow. Where do you look first?', 'architecture', 'lesson', ['latency'],
     'Use logs, metrics and traces together to localise a slow request.',
@@ -265,7 +266,7 @@ export const TOPICS: Topic[] = [
     'Distinguish entities from value objects, and put persistence behind a repository interface.',
     ['entities', 'value objects', 'repositories'], ['ddd', 'poeaa'], 'Entities, value objects, repositories'),
   T('dependency-injection', 'How do you test checkout without charging a real card?', 'lld', 'lesson', ['polymorphism-composition'],
-    'Inject dependencies through constructors and swap them for test doubles.',
+    'Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake.',
     ['dependency injection', 'test doubles'], ['pytest', 'pyMock'], 'Dependency injection'),
   T('uml', 'Can you draw the design before writing it?', 'lld', 'lesson', ['responsibilities'],
     'Read and draw UML class, sequence and state diagrams for a small design.',
@@ -274,10 +275,10 @@ export const TOPICS: Topic[] = [
     'Model a resource lifecycle as an explicit state machine with guarded transitions.',
     ['state machines', 'resource lifecycle'], ['gof'], 'State machines'),
   T('testing', 'How do you know the hold expiry works?', 'lld', 'lesson', ['dependency-injection'],
-    'Write unit tests with arrange/act/assert, inject a clock, and choose between fakes, stubs and mocks.',
+    'Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks.',
     ['tests', 'test doubles'], ['pytest', 'pyMock', 'refactoring'], 'Tests and test doubles'),
   T('refactoring-lesson', 'This method is 200 lines. Where do you start?', 'lld', 'lesson', ['testing', 'cohesion-coupling'],
-    'Apply small behaviour-preserving refactorings under test: extract function, replace conditional with polymorphism.',
+    'Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each.',
     ['refactoring'], ['refactoring'], 'Refactoring'),
   T('concurrency-lld', 'Two threads, one counter, wrong answer. Why?', 'lld', 'lesson', ['bridge-threads', 'processes-threads'],
     'Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering.',
@@ -286,7 +287,7 @@ export const TOPICS: Topic[] = [
     'Recognise each Gang of Four pattern by the problem it solves and its cost.',
     ['Gang of Four patterns'], ['gof', 'headFirst'], 'Pattern reference'),
   T('pattern-strategy', 'Refactor: pricing rules keep multiplying', 'lld', 'lesson', ['gof-reference', 'solid'],
-    'Replace a growing conditional with the Strategy pattern and test each strategy alone.',
+    'Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state.',
     ['Strategy', 'refactoring'], ['gof', 'refactoring'], 'Strategy (refactoring)'),
   T('pattern-observer', 'Refactor: checkout knows about every notification', 'lld', 'lesson', ['gof-reference'],
     'Decouple event producers from listeners with Observer and discuss ordering and failure.',
@@ -366,7 +367,7 @@ export const TOPICS: Topic[] = [
     ['lld-board-game', 'Board game (tic-tac-toe → Connect Four)', ['polymorphism-composition', 'testing']],
   ] as [string, string, string[]][]).map(([id, title, pre]) =>
     T(id, `Design a ${title.charAt(0).toLowerCase() + title.slice(1)}`, 'cases-lld', 'case-lld', pre,
-      `Produce Python classes, protocols, invariants and pytest tests for: ${title}.`, [title], ['gof', 'pytest'], title)),
+      `Decide responsibilities, states and invariants for ${title}; read the worked Python design and complete small checks against it.`, [title], ['gof', 'pytest'], title)),
 
   T('capstone', 'Capstone: an unfamiliar system with a surprise requirement', 'capstone', 'capstone', ['case-ticket-booking', 'lld-booking', 'case-notifications'],
     'Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design.',

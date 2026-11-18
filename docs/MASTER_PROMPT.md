@@ -225,3 +225,57 @@ patterns, machine-coding exercises, interview problems, starter code, worked sol
 - Verify runnable examples and exercise solutions with **pytest** (see `python/` in the repository).
 - The website itself continues to use TypeScript/React. This decision concerns the language learners read
   and write. Java-specific sources (e.g. Effective Java) may remain as optional further reading only.
+
+### Amendment 2 (2026-11-18) — Visual-first, Python only where it helps
+
+Clarifies Amendment 1:
+
+- Python 3 replaces Java for **all learner-facing code**. The website's implementation stack (TypeScript/React,
+  Node server) is unchanged.
+- The course stays **visual-first**. Show short, readable Python snippets (roughly 3–15 lines) only when they help
+  explain a concept, and introduce each one at the step where it becomes relevant — never a full file dumped
+  beside a diagram. Full listings are available on request (collapsed) or in `python/`.
+- In hands-on LLD and machine-coding exercises, learners **write and test Python in the browser**. Starter code
+  and tests come from `python/`; the same tests run with real pytest in CI/local (`cd python && python3 -m pytest`).
+  **[Narrowed by Amendment 3: hands-on coding is limited to filling one blank in a complete snippet.]**
+
+### Amendment 3 (2026-11-18) — Lightweight exercises
+
+Exercises are short and focused. Supersedes requirements for full-class implementations and long
+machine-coding assignments (§7 "exercise", §8 LLD cases, §11 "coding exercises").
+
+Learner activities are limited to:
+1. **Predict** what happens next (then watch it happen).
+2. **Spot the mistake** — or "which line explains it?" — by selecting a line in a short snippet.
+3. **Choose between two designs** under stated assumptions.
+4. **Explain a trade-off in one or two sentences**, then compare with a model answer and a short checklist.
+5. **Fill one blank** in an otherwise complete snippet (e.g. a single condition), checked by running tests.
+
+Use short Python snippets wherever code makes an idea clearer, with the relevant line highlighted. Example: in
+the seat-booking lesson, show the completed `reserve` function and highlight `if seat.is_reserved:`; the learner
+clicks Reserve twice and answers "What does the second buyer see, and which line explains it?". A later exercise
+leaves that one condition blank.
+
+Keep useful worked code available to read or expand (collapsed by default; full files in `python/`, tested with
+pytest). LLD case studies and interviews use the same activity types: decisions, invariants, a highlighted
+snippet, a fill-in, a changed requirement — not a full implementation.
+
+### Amendment 4 (2026-11-18) — Scope of the language and exercise changes (consolidates 1–3)
+
+Amendments 1–3 change **only** (a) the language of learner-facing code and (b) the size of *required* coding
+exercises. Everything else in the original specification stands:
+
+- **Full curriculum preserved.** Every planned topic, bridge lesson, lab, HLD and LLD case study, design pattern,
+  production trade-off, and interview-preparation feature remains in scope. Shortening an exercise must never
+  reduce topic coverage or technical depth.
+- **Visual teaching first.** One idea at a time, a spacious diagram, a short explanation tied to the current step,
+  learner-controlled animation. Learners predict an outcome, change an input, and see what happens. Code and deeper
+  detail are revealed when they help. Pages stay calm.
+- **Python 3 wherever Java would have appeared.** Short, readable snippets where useful; worked code is supplied
+  (collapsed or in `python/`, tested with pytest).
+- **Required exercises are small:** predict an output, fill in one condition, change a line, spot the line that
+  explains a behaviour, choose between two designs, or explain a decision in one or two sentences. Example: the LRU
+  lesson animates a read changing recency order, asks which item is evicted next, then reveals the responsible
+  Python lines. Learners understand the mechanism without implementing the whole cache.
+- Self-paced structure, public access, optional sign-in, saved progress, and source-verification requirements are
+  unchanged.

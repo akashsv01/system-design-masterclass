@@ -73,15 +73,33 @@ export interface OrderQuestion {
   explain: string;
 }
 
-export interface OpenExercise {
+/** Explain a decision or trade-off in one or two sentences (Amendment 3/4). */
+export interface ShortExercise {
   id: string;
   prompt: string;
-  hints: string[];
-  rubric: string[];
-  model: string[];
+  hint?: string;
+  checklist: string[];
+  model: string;
 }
 
-export type Check = ({ kind: 'choice' } & ChoiceQuestion) | ({ kind: 'numeric' } & NumericQuestion) | ({ kind: 'order' } & OrderQuestion);
+/** Select the line that explains a behaviour, or the line with the mistake. */
+export interface LinePickQuestion {
+  id: string;
+  prompt: string;
+  /** Path under python/ whose function is shown, or inline code. */
+  code: string;
+  answer: number[];
+  explain: string;
+  wrong?: Record<number, string>;
+  hint?: string;
+  highlight?: number[];
+}
+
+export type Check =
+  | ({ kind: 'choice' } & ChoiceQuestion)
+  | ({ kind: 'numeric' } & NumericQuestion)
+  | ({ kind: 'order' } & OrderQuestion)
+  | ({ kind: 'line' } & LinePickQuestion);
 
 export interface GenericLesson {
   id: string;
@@ -92,8 +110,10 @@ export interface GenericLesson {
   worked: { title: string; blocks: Block[] };
   /** Objective checks of the learning objective (graded automatically). */
   checks: Check[];
-  /** Open exercise with progressive hints, a rubric and a model answer. */
-  exercise: OpenExercise;
+  /** One small exercise: explain a decision in one or two sentences. */
+  exercise: ShortExercise;
+  /** Short Python snippets revealed at the step where they help (shown as an optional "See it in code" panel). */
+  code?: { step: number; code: string; highlight?: number[]; caption: string }[];
   deeper?: Block[];
   /** Where a beginner's analogy breaks, misconceptions, or variations. */
   next?: { id: string; reason: string };

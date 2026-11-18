@@ -90,7 +90,7 @@ describe('progress sync', () => {
     // Device A edits based on rev 1.
     await pushAs(c, { mutationId: 'm-dev-a-002', records: [{ key: 'draft:first-booking:race', value: { text: 'from A' }, updatedAt: 2, baseRev: 1 }] });
     // Device B still thinks rev 1 is current.
-    const res = await (await pushAs(c, { mutationId: 'm-dev-b-001', records: [{ key: 'draft:first-booking:race', value: { text: 'from B' }, updatedAt: 3, baseRev: 1 }] })).json();
+    const res = (await (await pushAs(c, { mutationId: 'm-dev-b-001', records: [{ key: 'draft:first-booking:race', value: { text: 'from B' }, updatedAt: 3, baseRev: 1 }] })).json()) as { conflicts: unknown };
     expect(res.conflicts).toEqual([{ key: 'draft:first-booking:race', keptAs: 'draft:first-booking:race@conflict-1' }]);
     const view = await pullAs(c);
     const byKey = Object.fromEntries(view.records.map((r) => [r.key, r.value]));

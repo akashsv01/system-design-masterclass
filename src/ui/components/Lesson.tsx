@@ -46,6 +46,23 @@ export function useStep(lessonId: string, count: number, opts: { onReplay?: () =
   const replayRef = useRef(opts.onReplay);
   replayRef.current = opts.onReplay;
 
+  // After a step change, bring the stage into view if it is hidden under the header or far above/below.
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const stage = document.querySelector<HTMLElement>('.lesson .stage') ?? document.querySelector<HTMLElement>('.lesson .caption');
+    if (!stage) return;
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+    const top = stage.getBoundingClientRect().top;
+    if (top < header || top > window.innerHeight * 0.45) {
+      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: window.scrollY + top - header - 8, behavior: reduce ? 'auto' : 'smooth' });
+    }
+  }, [step]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
@@ -134,11 +151,20 @@ export function Controls({
         </button>
       )}
       <span className="count" aria-live="polite">
-        Step {step + 1} of {count}
+        <span className="count-long">Step {step + 1} of {count}</span>
+        <span className="count-short" aria-hidden="true">{step + 1}/{count}</span>
       </span>
       {!last && (
         <button className="btn btn-primary btn-next" onClick={onNext} disabled={nextDisabled} title={nextHint}>
-          {nextDisabled && nextHint ? nextHint : nextLabel ? `Next: ${nextLabel}` : 'Next'} →
+          {nextDisabled && nextHint ? (
+            <span className="next-name">{nextHint}</span>
+          ) : (
+            <span className="next-text">
+              <span className="next-k">Next{nextLabel ? ':' : ''}</span>
+              {nextLabel && <span className="next-name">{nextLabel}</span>}
+            </span>
+          )}
+          <span aria-hidden="true">→</span>
         </button>
       )}
     </nav>
@@ -211,6 +237,17 @@ export function Question({
     setSaved({ attempts });
     setRetrying(false);
     onAnswered?.(id);
+    if (isPrediction) {
+      // The answer usually triggers motion on the stage; make sure the learner can see it.
+      setTimeout(() => {
+        const stage = document.querySelector<HTMLElement>('.lesson .stage');
+        const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+        if (stage && stage.getBoundingClientRect().top < header) {
+          const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - header - 8, behavior: reduce ? 'auto' : 'smooth' });
+        }
+      }, 50);
+    }
   };
   return (
     <div className="question" role="group" aria-label={isPrediction ? 'Prediction' : 'Check your understanding'}>

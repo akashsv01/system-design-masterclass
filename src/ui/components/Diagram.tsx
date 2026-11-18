@@ -20,6 +20,8 @@ export interface DNode {
   state?: NodeState;
   /** A small tag drawn just above the node: e.g. "was: available". */
   tag?: { text: string; tone?: 'changed' | 'ok' | 'fail' | 'plain' };
+  /** Draw this node as a stack of n similar things (replicas, shards, a server pool). */
+  stack?: number;
 }
 
 export interface DEdge {
@@ -58,6 +60,8 @@ interface Props {
   description: string;
   /** Container width below which the narrow layout is used. */
   breakpoint?: number;
+  /** 'layered' adds a subtle depth offset to every node; use it where structure, not flow, is the point. */
+  depth?: 'flat' | 'layered';
 }
 
 const GLYPH: Record<NodeKind, string> = {
@@ -117,15 +121,22 @@ function Token({ t, layout, offset }: { t: DToken; layout: Layout; offset: numbe
   const rest = t.at ?? 1;
   const target = { x: start.x + (end.x - start.x) * rest, y: start.y + (end.y - start.y) * rest };
   const [pos, setPos] = useState(start);
+  const [arrived, setArrived] = useState(false);
   useEffect(() => {
     setPos(start);
+    setArrived(false);
     const id = requestAnimationFrame(() => requestAnimationFrame(() => setPos(target)));
-    return () => cancelAnimationFrame(id);
+    // A message that reaches its destination fades away so the node's new state is readable.
+    const fade = rest >= 1 ? setTimeout(() => setArrived(true), 1100) : undefined;
+    return () => {
+      cancelAnimationFrame(id);
+      if (fade) clearTimeout(fade);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t.id, layout.width]);
   const w = Math.max(64, t.label.length * 8 + 18);
   return (
-    <g className={`token ${t.tone}`} style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }} aria-hidden="true">
+    <g className={`token ${t.tone} ${arrived ? 'arrived' : ''}`} style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }} aria-hidden="true">
       <rect x={-w / 2} y={-14} width={w} height={28} rx={14} />
       <text textAnchor="middle" dy="0.35em">
         {t.label}
@@ -134,7 +145,7 @@ function Token({ t, layout, offset }: { t: DToken; layout: Layout; offset: numbe
   );
 }
 
-export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, breakpoint = 640 }: Props) {
+export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, breakpoint = 640, depth = 'flat' }: Props) {
   const [ref, width] = useStageWidth<HTMLDivElement>();
   const layout = width < breakpoint ? narrow : wide;
   const isNarrow = layout === narrow;
@@ -157,12 +168,14 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
         </defs>
         {edges.map((e) => {
           const { p1, p2 } = endpoints(layout, e.from, e.to);
+          // The path a message took this step stays highlighted after the token fades.
+          const traveled = tokens.some((t) => (t.from === e.from && t.to === e.to) || (t.from === e.to && t.to === e.from));
           const hidden = e.state === 'ghost' || byId[e.from]?.state === 'ghost' || byId[e.to]?.state === 'ghost';
           const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
           return (
             <g key={e.id}>
               <line
-                className={`edge ${hidden ? 'ghost' : e.state ?? ''} ${e.dashed ? 'dashed' : ''}`}
+                className={`edge ${hidden ? 'ghost' : e.state ?? (traveled ? 'active' : '')} ${e.dashed ? 'dashed' : ''}`}
                 x1={p1.x}
                 y1={p1.y}
                 x2={p2.x}
@@ -181,6 +194,11 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
           const hasValue = n.value !== undefined;
           return (
             <g key={n.id} className={`node ${n.state ?? 'idle'}`} aria-hidden={n.state === 'ghost'}>
+              {Array.from({ length: Math.max(0, Math.max(n.stack ?? 0, depth === 'layered' ? 2 : 0) - 1) }, (_, k) => {
+                const backs = Math.max(0, Math.max(n.stack ?? 0, depth === 'layered' ? 2 : 0) - 1);
+                const off = (backs - k) * 6;
+                return <rect key={k} className="n-box n-back" x={b.x - b.w / 2 + off} y={b.y - b.h / 2 - off} width={b.w} height={b.h} rx={n.kind === 'db' ? 18 : 10} />;
+              })}
               <rect className="n-box" x={b.x - b.w / 2} y={b.y - b.h / 2} width={b.w} height={b.h} rx={n.kind === 'db' ? 18 : 10} />
               <text className="n-label" x={b.x} y={b.y - (hasValue ? 10 : n.sub ? 6 : -1)} textAnchor="middle" dy="0.35em">
                 {GLYPH[n.kind] ? `${GLYPH[n.kind]} ` : ''}
@@ -196,8 +214,12 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
                   {n.value}
                 </text>
               )}
+              {n.stack && n.stack > 1 && n.state !== 'ghost' && (
+                <text className="n-sub" x={b.x + b.w / 2 - 6} y={b.y + b.h / 2 - 8} textAnchor="end" style={{ fontSize: fs - 3 }}>×{n.stack}</text>
+              )}
               {n.tag && n.state !== 'ghost' && (
-                <TagLabel x={b.x} y={b.y - b.h / 2 - 20} text={n.tag.text} tone={n.tag.tone ?? 'plain'} />
+                // Above the node, unless that would leave the stage; then below it.
+                <TagLabel x={b.x} y={b.y - b.h / 2 - 20 < 14 ? b.y + b.h / 2 + 20 : b.y - b.h / 2 - 20} text={n.tag.text} tone={n.tag.tone ?? 'plain'} />
               )}
             </g>
           );

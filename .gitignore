@@ -6,3 +6,4 @@ data/*.db-*
 .env
 test-results
 screenshots-local
+public/pyodide

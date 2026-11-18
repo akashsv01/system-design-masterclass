@@ -6,7 +6,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Diagram, type DEdge, type DNode, type DToken, type Layout } from '../components/Diagram';
-import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useReplay, useStep, Clock, type Change } from '../components/Lesson';
+import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useReplay, useStep, Clock } from '../components/Lesson';
+import { FillBlank, LinePick, Snippet } from '../components/Exercise';
+import { CodeBlock } from '../components/Code';
+import { extractDef, lineOf } from '../../py/snippets';
+import bookingSource from '../../../python/sdm/booking.py?raw';
+import blankSource from '../../../python/blanks/booking_condition.py?raw';
+import blankChecks from '../../../python/blanks/booking_condition_check.py?raw';
 import { DraftEditor } from '../components/Draft';
 import { runReservation, seatText, confirmations, type BookingEvent } from '../../sim/booking';
 import { useProgress, useRecord } from '../../progress/ProgressProvider';
@@ -14,6 +20,10 @@ import { raiseStatus } from '../../progress/activity';
 import { topicById } from '../../content/curriculum';
 
 const ID = 'first-booking';
+const RESERVE = extractDef(bookingSource, 'reserve');
+const CHECK_LINE = lineOf(RESERVE, 'if seat.is_reserved:');
+const READ_LINE = lineOf(RESERVE, 'db.get_seat');
+const SAVE_LINE = lineOf(RESERVE, 'db.save');
 
 const WIDE: Layout = {
   width: 820,
@@ -27,12 +37,12 @@ const WIDE: Layout = {
 };
 const NARROW: Layout = {
   width: 360,
-  height: 520,
+  height: 392,
   nodes: {
-    'phone-maya': { x: 92, y: 62, w: 164 },
-    'phone-leo': { x: 270, y: 62, w: 164 },
-    server: { x: 180, y: 262, w: 170 },
-    db: { x: 180, y: 452, w: 200, h: 84 },
+    'phone-maya': { x: 92, y: 44, w: 164 },
+    'phone-leo': { x: 270, y: 44, w: 164 },
+    server: { x: 180, y: 196, w: 170 },
+    db: { x: 180, y: 346, w: 210, h: 80 },
   },
 };
 
@@ -51,7 +61,7 @@ const STEPS = [
   'Ask the database',
   'Change the stored value',
   'The answer comes back',
-  'Check yourself',
+  'Read the code',
   'A second buyer',
   'Predict',
   'Run the race',
@@ -129,6 +139,8 @@ export default function FirstBooking() {
   const [pressed, setPressed] = useRecord<boolean>('sim:first-booking:pressed', false);
   const [raceShown, setRaceShown] = useRecord<number>('sim:first-booking:race', 0);
   const [prediction] = useRecord<{ attempts: { picked: string }[] } | null>('quiz:first-booking:predict', null);
+  const [whichLine] = useRecord<{ attempts: { correct: boolean }[] } | null>('quiz:first-booking:which-line', null);
+  const codeDone = !!whichLine?.attempts?.some((a) => a.correct);
   const hasPrediction = !!prediction?.attempts?.length;
   const { step, go, next, back } = useStep(ID, STEPS.length, { onReplay: replay, canAdvance: true });
   const topic = topicById(ID);
@@ -149,14 +161,14 @@ export default function FirstBooking() {
   }, [step, pressed, raceShown]);
 
   const sc = scene(phase);
-  const showDiagram = step <= 9;
+  const showDiagram = step <= 9 && step !== 5;
 
   // Allow replay to re-run the token of the current step.
   const [tick, setTick] = useState(0);
   useEffect(() => setTick((x) => x + 1), [replayKey]);
 
-  const nextDisabled = (step === 1 && !pressed) || (step === 7 && !hasPrediction) || (step === 8 && raceShown < race.length);
-  const nextHint = step === 1 && !pressed ? 'Press Reserve first' : step === 7 && !hasPrediction ? 'Make a prediction first' : step === 8 && raceShown < race.length ? 'Play the race to the end' : undefined;
+  const nextDisabled = (step === 1 && !pressed) || (step === 5 && !codeDone) || (step === 7 && !hasPrediction) || (step === 8 && raceShown < race.length);
+  const nextHint = step === 1 && !pressed ? 'Press Reserve first' : step === 5 && !codeDone ? 'Find the line first' : step === 7 && !hasPrediction ? 'Make a prediction first' : step === 8 && raceShown < race.length ? 'Play the race to the end' : undefined;
   const lastEvent = phase.events[phase.shown - 1];
 
   return (
@@ -203,7 +215,7 @@ export default function FirstBooking() {
 
       <StepCaption step={step} phase={phase} hasPrediction={hasPrediction} />
 
-      {step === 5 && (
+      {step === 4 && (
         <Question
           recordKey="first-booking:truth"
           prompt="Maya’s phone, the server, or the database: where does the real state of seat F12 live?"
@@ -224,6 +236,8 @@ export default function FirstBooking() {
           }
         />
       )}
+
+      {step === 5 && <CodeStep />}
 
       {step === 7 && (
         <Question
@@ -366,8 +380,14 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
       );
     case 5:
       return (
-        <Caption kicker="Check" title="Check yourself">
-          <p>One question before we add a second buyer.</p>
+        <Caption kicker="Code" title="The same steps, in Python">
+          <p>
+            Here is the server’s <code>reserve</code> function. Each line matches something you just watched: read the seat, check it, change it,
+            save it, reply. The highlighted line is the decision. Reserve as Maya, then as Leo — one after the other.
+          </p>
+          <p className="muted" style={{ fontSize: 15 }}>
+            New Python: <code>def</code> defines a function; <code>seat.is_reserved</code> reads a field of the <code>seat</code> object.
+          </p>
         </Caption>
       );
     case 6:
@@ -402,6 +422,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
                 Both reads happened <em>before</em> either write, so both saw “available”. Each write then succeeded, and the second overwrote the first.{' '}
                 {winners.join(' and ')} were both told they have the seat. On Friday, two people will arrive for F12.
               </p>
+              <Snippet code={RESERVE} highlight={[READ_LINE, CHECK_LINE]} caption={`Both requests ran line ${READ_LINE} before either reached line ${SAVE_LINE}, so both passed the check on line ${CHECK_LINE}.`} />
               {hasPrediction && <p className="muted">Compare this with your prediction. Getting this wrong is normal — it surprises most developers the first time.</p>}
             </>
           )}
@@ -546,6 +567,81 @@ function LldView() {
           them one step in <Link to="/learn/concurrent-reservations">Concurrent reservations</Link>.
         </p>
       </div>
+      <FillBlank
+        lessonId={ID}
+        spec={{
+          id: 'condition',
+          prompt: 'Without looking back: which condition makes a second buyer get “Sold out”?',
+          code: blankSource,
+          checks: blankChecks,
+          support: { 'sdm/booking.py': bookingSource },
+          answer: 'seat.is_reserved',
+          hint: 'The seat object has a field that becomes `True` when someone books it.',
+          explain: 'If the seat is already reserved, the function returns before changing anything. It works whenever requests take turns — the race needs a different fix.',
+        }}
+      />
+    </>
+  );
+}
+
+const seqRun = runReservation([{ name: 'Maya', pressAt: 0 }, { name: 'Leo', pressAt: 300 }], 'check-then-write');
+
+function CodeStep() {
+  const [clicks, setClicks] = useRecord<number>('sim:first-booking:code-clicks', 0);
+  const [leoGuess] = useRecord<{ attempts: { picked: string }[] } | null>('quiz:first-booking:leo-sees', null);
+  const guessed = !!leoGuess?.attempts?.length;
+  const replies = seqRun.filter((e) => e.kind === 'reply');
+  const seat = clicks === 0 ? 'available' : 'booked · Maya';
+  return (
+    <>
+      <section className="stage" aria-label="Reserve function">
+        <div className="stage-top">
+          <span className="muted" style={{ fontSize: 14 }}>python/sdm/booking.py</span>
+          <span className="clock">F12: {seat}</span>
+        </div>
+        <Snippet code={RESERVE} highlight={[CHECK_LINE]} />
+        <div className="stage-actions" style={{ justifyContent: 'flex-start' }}>
+          <button className="btn btn-primary" onClick={() => setClicks(1)} disabled={clicks >= 1}>Reserve as Maya</button>
+          <button className="btn btn-primary" onClick={() => setClicks(2)} disabled={clicks !== 1}>Reserve as Leo</button>
+          {clicks > 0 && <button className="btn btn-quiet" onClick={() => setClicks(0)}>Reset</button>}
+        </div>
+        <ul className="changes" aria-live="polite">
+          {clicks >= 1 && <li className="add"><span className="sym">+</span><span>Maya → <strong>{replies[0].outcome === 'confirmed' ? 'Confirmed' : 'Sold out'}</strong>. F12 saved as booked · Maya.</span></li>}
+          {clicks >= 2 && <li className="chg"><span className="sym">~</span><span>Leo → <strong>{guessed ? (replies[1].outcome === 'confirmed' ? 'Confirmed' : 'Sold out') : '?'}</strong></span></li>}
+        </ul>
+      </section>
+      {clicks >= 2 && (
+        <Question
+          isPrediction
+          recordKey="first-booking:leo-sees"
+          prompt="What does Leo see?"
+          choices={[{ id: 'confirmed', text: '“Confirmed”' }, { id: 'sold', text: '“Sold out”' }]}
+          correct="sold"
+          explain={(p) => <p>{p === 'sold' ? 'Right: ' : ''}Leo is told “Sold out”. Maya’s booking was saved before Leo’s request started.</p>}
+        />
+      )}
+      {clicks >= 2 && guessed && (
+        <LinePick
+          lessonId={ID}
+          kickerText="Which line explains it?"
+          spec={{
+            id: 'which-line',
+            prompt: 'Which line sends Leo away with “Sold out”?',
+            code: RESERVE,
+            answer: [CHECK_LINE],
+            explain: 'Leo’s read returned a seat with `is_reserved = True`, so the condition is true and the function returns early.',
+            wrong: {
+              [READ_LINE]: 'This line fetches the seat. It doesn’t decide anything by itself — but it matters a lot in the race coming next.',
+              [CHECK_LINE + 1]: 'Close — this line returns the answer, but the line above decides whether we get here.',
+              [SAVE_LINE]: 'Leo never reaches this line. Something earlier stops him.',
+            },
+          }}
+        />
+      )}
+      <details className="more">
+        <summary>Read the whole file</summary>
+        <div className="more-body"><CodeBlock code={bookingSource} lang="python" caption="python/sdm/booking.py — tested with pytest" /></div>
+      </details>
     </>
   );
 }

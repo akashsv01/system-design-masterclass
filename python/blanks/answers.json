@@ -1,0 +1,4 @@
+{
+  "booking_condition": "seat.is_reserved",
+  "lru_evict_condition": "len(cache.items) == cache.capacity"
+}

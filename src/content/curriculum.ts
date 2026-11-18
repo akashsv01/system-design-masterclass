@@ -35,7 +35,7 @@ export function piecesFor(id: string): ContentPieces {
     return {
       explanation: g.steps.length >= 3,
       worked: g.worked.blocks.length > 0,
-      exercise: !!g.exercise?.rubric.length,
+      exercise: !!g.exercise?.checklist.length,
       assessment: g.checks.length > 0,
       format: 'generic',
     };
