@@ -17,6 +17,8 @@ export const CUSTOM_LESSONS: Record<string, { explanation: boolean; worked: bool
   'lru-cache': { explanation: true, worked: true, exercise: true, assessment: true },
   // Reference page: 23 entries with problem, idea, Python sketch and example; 3 checks + short answer.
   'gof-reference': { explanation: true, worked: true, exercise: true, assessment: true },
+  // Capstone: brief + workspace, surprise requirement, reference design, rubric and skill comparison.
+  capstone: { explanation: true, worked: true, exercise: true, assessment: true },
 };
 
 export interface ContentPieces {

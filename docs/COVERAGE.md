@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**124 topics.** planned: 1 · partial: 0 · implemented: 53 · verified: 70 · reviewed: 0
+**124 topics.** planned: 0 · partial: 0 · implemented: 54 · verified: 70 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -186,4 +186,4 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Capstone](/capstone/capstone) | planned | none | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 2 |
+| [Capstone](/capstone/capstone) | implemented | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 2 |
