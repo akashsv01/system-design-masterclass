@@ -144,10 +144,10 @@ export const sharding: GenericLesson = {
     { kicker: 'Watch', title: 'Partition by event', body: ['Choose `event_id` as the key. All seats of one event land on the same shard, so “free seats for event 9031” asks a single shard. That’s the hot access pattern served well.'], view: { states: { s2: 'focus' }, tokens: [{ from: 'router', to: 's2', label: 'event 9031', tone: 'request' }] }, changes: [{ kind: 'add', text: 'Partition key: event_id' }] },
     { kicker: 'Predict', title: 'A superstar goes on sale', body: ['One event suddenly gets 40% of all traffic in the world.'], view: { tokens: [{ from: 'router', to: 's0', label: 'superstar', tone: 'fail' }] },
       predict: { id: 'hot', prompt: 'With event_id as the partition key, where does that 40% go?', choices: [
-        { id: 'one', text: 'All to one shard: a hot spot.', why: 'Right. Every seat of that event lives on one shard, which now carries 40% + its normal 15% while the others idle.' },
+        { id: 'one', text: 'All to one shard: a hot spot.', why: 'Right. Every seat of that event lives on one shard, which now carries 40% + its normal 15% while the other three carry 15% each.' },
         { id: 'spread', text: 'Spread across all four shards.', why: 'Hashing spreads *different* keys. One very popular key still maps to one shard.' },
       ], correct: 'one' } },
-    { kicker: 'Failure', title: 'One shard melts, three idle', body: ['A **hot spot** is a partition receiving far more than its share. Adding shards doesn’t help: the hot key still lands on one.'], view: { values: { s0: '55%', s1: '15%', s2: '15%', s3: '15%' }, states: { s0: 'fail' }, tags: { s0: { text: 'hot spot', tone: 'fail' } } } },
+    { kicker: 'Failure', title: 'One shard overloaded, three with room to spare', body: ['Shard 0 now carries 55% of all traffic; the other three carry 15% each. A **hot spot** is a partition receiving far more than its share. Adding shards doesn’t help: the hot key still lands on one.'], view: { values: { s0: '55%', s1: '15%', s2: '15%', s3: '15%' }, states: { s0: 'fail' }, tags: { s0: { text: 'hot spot', tone: 'fail' } } } },
     { kicker: 'Try it', title: 'Change how popular the event is', body: ['Drag the superstar’s share. Then read the alternative: partition by `seat_id`, or split a known-hot event across extra sub-keys, and see what each costs.'] },
   ],
   worked: { title: 'choosing a partition key', blocks: [
@@ -166,7 +166,7 @@ export const consistentHashing: GenericLesson = {
   id: 'consistent-hashing',
   area: 'Data systems',
   opening: 'Your cache cluster has 4 servers, keys assigned by `hash(key) % 4`. Traffic grows, so you add a fifth. Suddenly almost every lookup misses and the database is flooded. Adding capacity caused an outage. Why?',
-  visual: { kind: 'chart', xLabel: '', yLabel: 'keys that move (%)', chartKind: 'bar', yMax: 100, categories: ['modulo 4→5', 'ring 4→5'] },
+  visual: { kind: 'chart', xLabel: '', yLabel: 'keys that move (%)', chartKind: 'bar', yMax: 100, note: 'Expected share of keys that change server when one server is added.', categories: ['modulo 4→5', 'ring 4→5'] },
   experiment: {
     step: 3, label: 'Servers before adding one', min: 2, max: 20, stepSize: 1, initial: 4, unit: 'servers',
     compute: (k) => {

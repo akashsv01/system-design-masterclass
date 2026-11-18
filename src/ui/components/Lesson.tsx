@@ -55,11 +55,19 @@ export function useStep(lessonId: string, count: number, opts: { onReplay?: () =
     }
     const stage = document.querySelector<HTMLElement>('.lesson .stage') ?? document.querySelector<HTMLElement>('.lesson .caption');
     if (!stage) return;
-    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+    // Reserve the header's full height even if it is currently tucked away: it reappears on upward scrolls.
+    const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
+    const controlsH = document.querySelector<HTMLElement>('.lesson .controls')?.offsetHeight ?? 0;
     const top = stage.getBoundingClientRect().top;
-    if (top < header || top > window.innerHeight * 0.45) {
+    const caption = document.querySelector<HTMLElement>('.lesson .caption');
+    const capBottom = caption ? caption.getBoundingClientRect().bottom : top;
+    const visibleBottom = window.innerHeight - controlsH - 8;
+    let delta = 0;
+    if (top < header + 4) delta = top - header - 8; // stage hidden under the header
+    else if (capBottom > visibleBottom) delta = Math.min(top - header - 8, capBottom - visibleBottom); // caption hidden under the controls
+    if (Math.abs(delta) > 4) {
       const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      window.scrollTo({ top: window.scrollY + top - header - 8, behavior: reduce ? 'auto' : 'smooth' });
+      window.scrollTo({ top: window.scrollY + delta, behavior: reduce ? 'auto' : 'smooth' });
     }
   }, [step]);
 
@@ -241,7 +249,7 @@ export function Question({
       // The answer usually triggers motion on the stage; make sure the learner can see it.
       setTimeout(() => {
         const stage = document.querySelector<HTMLElement>('.lesson .stage');
-        const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+        const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
         if (stage && stage.getBoundingClientRect().top < header) {
           const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
           window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - header - 8, behavior: reduce ? 'auto' : 'smooth' });

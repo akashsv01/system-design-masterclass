@@ -25,9 +25,10 @@ const credentials = z.object({
 
 type Env = { Variables: { user: User | null } };
 
-export function createApp(db: DB, opts: { secureCookies: boolean }) {
+export function createApp(db: DB, opts: { secureCookies: boolean; authAttemptsPer15Min?: number }) {
   const app = new Hono<Env>();
-  const limiter = new AttemptLimiter(10, 15 * 60_000);
+  // Login/registration attempts per IP (and per email for logins) in a 15-minute window.
+  const limiter = new AttemptLimiter(opts.authAttemptsPer15Min ?? 10, 15 * 60_000);
 
   const cookieOpts = {
     httpOnly: true,

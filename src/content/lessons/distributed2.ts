@@ -56,7 +56,7 @@ export const timeouts: GenericLesson = {
   id: 'timeouts',
   area: 'HLD and distributed systems',
   opening: 'The payment provider usually answers in 300 ms. Today, some calls never return. Your checkout threads wait forever, one by one, until no threads are left. Now checkout is down for everyone, including people paying with a provider that’s working fine.',
-  visual: { kind: 'chart', xLabel: 'percent of payment calls finished →', yLabel: 'response time (ms)' },
+  visual: { kind: 'chart', xLabel: 'percent of payment calls finished →', yLabel: 'response time (ms)', note: 'Illustrative sample of 20 calls. The hung call (30 s+) is drawn at the top of the scale.' },
   experiment: {
     step: 3, label: 'Timeout', min: 200, max: 5000, stepSize: 100, initial: 2000, unit: 'ms',
     compute: (t) => {
@@ -94,7 +94,7 @@ export const retries: GenericLesson = {
   id: 'retries',
   area: 'HLD and distributed systems',
   opening: 'Your payment timed out. Should the app try again? Retrying fixes a one-off network blip. But if the payment provider is overloaded, every client retrying at once makes the overload worse. The details of *how* you retry decide which happens.',
-  visual: { kind: 'chart', xLabel: 'seconds since the provider slowed down', yLabel: 'requests per second hitting the provider' },
+  visual: { kind: 'chart', xLabel: 'seconds since the provider slowed down', yLabel: 'requests/s reaching the provider', note: 'Illustrative model: 1,000 user requests/s; the provider starts failing 80% of calls at 2 s.' },
   experiment: {
     step: 3, label: 'Retries per failed call', min: 0, max: 5, stepSize: 1, initial: 3, unit: 'retries',
     compute: (r) => {

@@ -27,8 +27,8 @@ export interface DiagramSpec {
 /** The lesson's visual format, chosen per topic (docs/LESSON_GUIDE.md §4). */
 export type Visual =
   | { kind: 'diagram'; spec: DiagramSpec }
-  | { kind: 'timeline'; lanes: { id: string; label: string }[]; events: TimelineEvent[]; unit?: string }
-  | { kind: 'chart'; xLabel: string; yLabel: string; chartKind?: 'line' | 'bar'; yMax?: number; yLog?: boolean; categories?: string[] }
+  | { kind: 'timeline'; lanes: { id: string; label: string }[]; events: TimelineEvent[]; unit?: string; note?: string }
+  | { kind: 'chart'; xLabel: string; yLabel: string; chartKind?: 'line' | 'bar'; yMax?: number; yLog?: boolean; categories?: string[]; note?: string }
   | { kind: 'compare' }
   | { kind: 'stack'; layers: Layer[] }
   | { kind: 'none' };

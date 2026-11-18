@@ -30,6 +30,17 @@ Amendments 1–4) and the reference study (`DESIGN.md`) into concrete rules. The
 - Text, diagram, clock and values are all computed from one simulation state (`src/sim/*`). Never hand-write a
   value in a caption that the diagram also shows.
 
+### Layout guarantees (enforced by shared components)
+- The control row (`Controls`) is sticky at the bottom of the viewport at every width, so Back / Replay / Next
+  stay reachable while the learner reads.
+- On a step change, `useStep` scrolls only when needed: when the stage is hidden under the header, or when the
+  caption would sit under the controls. It always reserves the header's full height.
+- On phones the header slides away while scrolling down through a lesson and returns on scroll up. Navigation
+  stays out of the lesson.
+- Arriving message tokens stop short of the target node (never covering its label), fade, and leave their edge lit.
+- On phones the Next button shows "Next" on one line and the upcoming step's title (up to two lines) below it.
+  It never truncates mid-word.
+
 ## 3. Depth only where it clarifies
 
 | Use | When | Component |
@@ -56,6 +67,14 @@ visual changes to suit the idea:
 
 Record the chosen format and the reason in the lesson's storyboard (`docs/STORYBOARDS.md`) before building it.
 
+### Small screens get their own layout
+- Diagrams: provide a `narrow` layout. Don't shrink the wide one. Keep labels ≥ 12 px and keep sub-labels in the
+  ink-2 colour, not faint grey.
+- Charts: on phones, series names move into a legend under the chart. Category labels wrap to two lines, mark
+  labels stay inside the plot, and axes use round tick values.
+- Timelines: below 560 px they become a vertical, time-ordered list.
+- 3D layer stacks: always offer "Flat view", and default to flat under reduced motion.
+
 ## 5. Writing
 
 - Sound like a thoughtful engineer explaining to a smart newcomer. Ask specific questions. Use concrete values
@@ -66,6 +85,10 @@ Record the chosen format and the reason in the lesson's storyboard (`docs/STORYB
 - Banned: "In today's digital world", "Let's dive into", "powerful", "essential for scalable systems", praise
   filler, recap paragraphs that repeat the step, and text announcing what the UI already shows.
 - Give the learner something to notice or predict at least every two or three steps.
+- **Words must match the picture.** If the heading says “idle”, the diagram must not show traffic. Read the
+  title, the visual and the caption together and fix whichever disagrees.
+- Every chart states its units on the axes. Unusual scales (log) and illustrative numbers are explained in the
+  chart's `note`, which is shown under it.
 
 ## 6. Exercises (Amendments 3–4)
 
@@ -85,5 +108,10 @@ Run `node scripts/review-lessons.cjs <base> <outDir> <lesson…>` and look at th
 4. On a phone, are the diagram, its caption and the primary control reachable together, without scrolling back and
    forth? Diagram labels must be at least 12 px. There must be no horizontal page scroll, and the sticky header must
    never cover the stage or the Next button.
+
+The script measures each step **on arrival** (before interacting) and flags: controls not fully visible, header
+overlapping the stage, a truncated Next label, horizontal scroll, and diagram text under 12 px. Screenshots are
+viewport-sized, not full-page. Full-page captures draw the sticky header in the middle of the page, which is an
+artifact, not what learners see.
 
 If the answer requires scanning several panels, simplify the view. Don't add more explanation.

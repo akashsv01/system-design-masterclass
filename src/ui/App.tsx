@@ -91,9 +91,24 @@ function Header() {
   const [open, setOpen] = useState(false);
   const [account, setAccount] = useState(false);
   const loc = useLocation();
+  const [tucked, setTucked] = useState(false);
   useEffect(() => setOpen(false), [loc.pathname]);
+  // Keep navigation out of the lesson on phones: hide while scrolling down, show on scroll up.
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const inLesson = !!document.querySelector('.lesson');
+      if (!inLesson || window.innerWidth > 760) setTucked(false);
+      else if (y > last + 6 && y > 80) setTucked(true);
+      else if (y < last - 6) setTucked(false);
+      last = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   return (
-    <header className="site-header">
+    <header className={`site-header ${tucked && !open && !account ? 'tucked' : ''}`}>
       <Brand />
       <nav className={`nav ${open ? 'open' : ''}`} aria-label="Main">
         <NavLink to="/topics">Topics</NavLink>

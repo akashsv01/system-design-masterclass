@@ -12,7 +12,10 @@ const production = process.env.NODE_ENV === 'production';
 
 const db = openDb(DB_PATH);
 pruneMutations(db);
-const app = createApp(db, { secureCookies: production && process.env.INSECURE_COOKIES !== '1' });
+const app = createApp(db, {
+  secureCookies: production && process.env.INSECURE_COOKIES !== '1',
+  authAttemptsPer15Min: process.env.AUTH_ATTEMPTS_PER_15MIN ? Number(process.env.AUTH_ATTEMPTS_PER_15MIN) : undefined,
+});
 
 const dist = resolve('dist');
 if (existsSync(dist)) {

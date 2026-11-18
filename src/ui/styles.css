@@ -61,7 +61,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.01em; }
 
 /* ---------- Header ---------- */
 .site-header {
-  position: sticky; top: 0; z-index: 20; height: var(--header-h);
+  position: sticky; top: 0; z-index: 20; height: var(--header-h); transition: transform 0.25s ease;
   display: flex; align-items: center; gap: 16px; padding: 0 20px;
   background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
@@ -81,6 +81,12 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.01em; }
   .nav.open a { padding: 10px 12px; font-size: 17px; }
   .menu-btn { display: inline-grid; }
   .brand-text { font-size: 15px; }
+  /* On lesson pages the header slides away while scrolling down and returns on scroll up. */
+  .site-header.tucked { transform: translateY(-100%); }
+}
+@media (max-width: 440px) {
+  .brand-text { display: none; }
+  .sync-chip { padding: 4px 8px; }
 }
 
 /* Sync status chip */
@@ -152,8 +158,10 @@ main { min-height: calc(100vh - var(--header-h)); }
 .callout strong:first-child { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
 
 .controls {
-  display: flex; align-items: center; gap: 10px; margin-top: 20px; padding-top: 16px;
+  display: flex; align-items: center; gap: 10px; margin-top: 20px; padding: 12px 0;
   border-top: 1px solid var(--line); max-width: var(--read);
+  /* Always reachable: the row sticks to the bottom of the viewport while the step is read. */
+  position: sticky; bottom: 0; z-index: 15; background: color-mix(in srgb, var(--paper) 96%, transparent); backdrop-filter: blur(6px);
 }
 .count-short { display: none; }
 .controls .count { font-size: 14px; color: var(--muted); font-family: var(--mono); margin: 0 auto 0 4px; white-space: nowrap; }
@@ -161,7 +169,13 @@ main { min-height: calc(100vh - var(--header-h)); }
 .next-text { display: inline-flex; gap: 6px; align-items: baseline; min-width: 0; }
 .next-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 600px) {
-  .lesson { padding: 16px 16px 72px; }
+  .lesson { padding: 16px 16px 24px; }
+  /* The control row stays reachable while the learner reads the visual and caption. */
+  .controls {
+    position: sticky; bottom: 0; z-index: 15; margin: 16px -16px 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--paper) 96%, transparent); backdrop-filter: blur(6px);
+    border-top: 1px solid var(--line); max-width: none;
+  }
   .stage { padding: 12px; border-radius: 12px; margin: 0 -4px; }
   .lesson-head .opening { font-size: 17px; margin-bottom: 16px; }
   .caption { margin-top: 14px; }
@@ -171,7 +185,7 @@ main { min-height: calc(100vh - var(--header-h)); }
   .controls .btn-next { flex: 1; min-width: 0; justify-content: space-between; padding: 4px 14px; line-height: 1.25; }
   .controls .next-text { flex-direction: column; gap: 0; }
   .controls .next-k { font-size: 12px; font-weight: 600; opacity: 0.85; }
-  .controls .next-name { font-size: 15px; max-width: 100%; }
+  .controls .next-name { font-size: 15px; max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; }
   .controls .count { margin: 0 2px; font-size: 13px; }
   .controls .count-short { display: inline; }
   .controls .count-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -219,12 +233,12 @@ label.field > span { display: block; margin-bottom: 4px; }
 .diagram text { fill: var(--ink); font-family: var(--font); }
 .diagram .n-box { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
 .diagram .n-label { font-weight: 650; }
-.diagram .n-sub { fill: var(--muted); }
+.diagram .n-sub { fill: var(--ink-2); }
 .diagram .n-value { font-family: var(--mono); }
 .diagram .node { transition: opacity 0.35s; }
 .diagram .n-back { fill: var(--paper-2); opacity: 0.9; }
 .diagram .node.ghost { opacity: 0; }
-.diagram .node.dim { opacity: 0.38; }
+.diagram .node.dim { opacity: 0.55; }
 .diagram .node.active .n-box { stroke: var(--active); stroke-width: 2.5; fill: var(--active-soft); }
 .diagram .node.ok .n-box { stroke: var(--ok); stroke-width: 2.5; fill: var(--ok-soft); }
 .diagram .node.fail .n-box { stroke: var(--fail); stroke-width: 2.5; fill: var(--fail-soft); stroke-dasharray: 6 4; }
@@ -233,7 +247,7 @@ label.field > span { display: block; margin-bottom: 4px; }
 .diagram .edge.ghost { opacity: 0; }
 .diagram .edge.active { stroke: var(--active); }
 .diagram .edge.dashed { stroke-dasharray: 6 5; }
-.diagram .edge-label { font-size: 13px; fill: var(--muted); }
+.diagram .edge-label { font-size: 14px; fill: var(--ink-2); }
 .diagram .token { transition: transform 0.85s cubic-bezier(0.45, 0, 0.25, 1), opacity 0.45s; }
 .diagram .token.arrived { opacity: 0; }
 .diagram .token rect { stroke-width: 1.5; }
@@ -346,3 +360,7 @@ button.snip-line:hover { background: var(--accent-soft); }
 @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
 .formula { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; background: var(--surface); margin: 0 0 16px; }
 .formula ol, .formula ul { margin: 0 0 6px; padding-left: 22px; }
+
+.visual-note { margin: 6px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+.chart-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--ink-2); }
+.chart-legend .swatch { display: inline-block; width: 16px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }

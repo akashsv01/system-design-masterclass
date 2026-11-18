@@ -41,6 +41,7 @@ async function act(p) {
 async function layoutIssues(p) {
   return p.evaluate(() => {
     const issues = [];
+    if (!document.querySelector('.site-header')) return ['PAGE CRASHED (app unmounted)'];
     if (document.documentElement.scrollWidth > innerWidth + 1) issues.push(`horizontal scroll: ${document.documentElement.scrollWidth} > ${innerWidth}`);
     // Smallest rendered SVG text in diagrams.
     let min = 99;
@@ -49,12 +50,20 @@ async function layoutIssues(p) {
       if (r.height > 0 && getComputedStyle(t.closest('g') || t).opacity !== '0') min = Math.min(min, r.height);
     });
     if (min < 12 && min !== 99) issues.push(`smallest diagram text box ${min.toFixed(1)}px`);
-    const next = [...document.querySelectorAll('.controls button')].find((b) => /Next|first/.test(b.textContent || ''));
-    if (next) {
-      const r = next.getBoundingClientRect();
-      const hdr = document.querySelector('.site-header').getBoundingClientRect();
-      if (r.top < hdr.bottom && r.bottom > hdr.top) issues.push('Next button under header');
+    const hdr = document.querySelector('.site-header').getBoundingClientRect();
+    const hdrBottom = Math.max(0, hdr.bottom);
+    const ctl = document.querySelector('.controls');
+    if (ctl) {
+      const r = ctl.getBoundingClientRect();
+      if (r.bottom > innerHeight + 1 || r.top < hdrBottom - 1) issues.push(`controls not fully visible (${Math.round(r.top)}–${Math.round(r.bottom)} of ${innerHeight})`);
     }
+    const stage = document.querySelector('.lesson .stage');
+    if (stage) {
+      const r = stage.getBoundingClientRect();
+      if (r.top < hdrBottom - 1 && r.bottom > hdrBottom) issues.push('header overlaps the stage');
+    }
+    const name = document.querySelector('.controls .next-name');
+    if (name && (name.scrollHeight > name.clientHeight + 2 || name.scrollWidth > name.clientWidth + 2)) issues.push('Next label truncated');
     return issues;
   });
 }
@@ -75,10 +84,13 @@ async function layoutIssues(p) {
       p.on('pageerror', (e) => errors.push(String(e)));
       await p.goto(`${base}/learn/${id}`, { waitUntil: 'networkidle' });
       for (let s = 1; s <= 20; s++) {
-        await act(p);
-        await p.waitForTimeout(1000);
+        await p.waitForTimeout(1100);
+        // Measure what the learner sees on arriving at the step, before interacting.
         const issues = await layoutIssues(p);
-        await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}.png`, fullPage: label === 'mobile' });
+        await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}.png` });
+        await act(p);
+        await p.waitForTimeout(500);
+        await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}b.png` });
         const count = await p.locator('.controls .count-long').textContent().catch(() => '');
         report.push(`${label} ${id} ${count} ${issues.join('; ')}`);
         if (issues.length) failedIds.add(id);

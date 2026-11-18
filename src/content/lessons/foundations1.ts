@@ -144,7 +144,7 @@ export const processesThreads: GenericLesson = {
   ],
   worked: { title: 'how many threads for 1,000 requests a second?', blocks: [
     { type: 'formula', title: 'Threads needed (Little’s law)', assumptions: ['1,000 requests/s arrive', 'Each request takes 50 ms end to end (2 ms CPU + 48 ms waiting)'], steps: ['In-flight requests = arrival rate × time each = 1,000 × 0.050 s', '= 50 requests in progress at any moment', 'So about 50 threads are busy at once', 'CPU load = 1,000 × 2 ms = 2,000 ms of CPU per second = 2 of the 4 cores'], result: '~50 threads; the CPU is half used', changed: 'If the database slows to 198 ms per query: 1,000 × 0.2 s = 200 threads, while CPU use stays at 2 cores. Slow dependencies cost threads, not CPU.' },
-    { type: 'p', text: 'This is why a slow database can take a server down even when its CPU is idle: every waiting request holds a thread, and the pool runs out.' },
+    { type: 'p', text: 'This is why a slow database can take a server down even when its CPU is mostly unused: every waiting request holds a thread, and the pool runs out.' },
   ] },
   checks: [
     { kind: 'numeric', id: 'threads', prompt: '400 requests/s arrive and each takes 100 ms end to end. About how many requests are in progress at once?', answer: 40, tolerance: 0.05, unit: 'requests', solution: ['in progress = rate × time', '= 400/s × 0.1 s', '= 40'] },
@@ -153,7 +153,7 @@ export const processesThreads: GenericLesson = {
       { id: 'par', text: 'Yes, both run at the same instant.', why: 'One core can execute one instruction stream at a time. That’s concurrency, not parallelism.' },
     ], correct: 'conc' },
   ],
-  exercise: { id: 'slowdb', prompt: 'The database gets slower but the server’s CPU usage drops. Why might the server still start refusing requests?', checklist: ['Each waiting request holds a thread (or connection).', 'The thread pool or connection pool runs out even though the CPU is idle.'], model: 'Each request now waits longer while holding a thread, so many more threads are busy waiting; when the pool is exhausted, new requests are refused even though the CPU has nothing to do.' },
+  exercise: { id: 'slowdb', prompt: 'The database gets slower but the server’s CPU usage drops. Why might the server still start refusing requests?', checklist: ['Each waiting request holds a thread (or connection).', 'The thread pool or connection pool runs out even though the CPU is mostly unused.'], model: 'Each request now waits longer while holding a thread, so many more threads are busy waiting; when the pool is exhausted, new requests are refused even though the CPU has nothing to do.' },
   deeper: [{ type: 'p', text: 'Python has a Global Interpreter Lock (GIL) in its standard build: threads still help with waiting on I/O, but CPU-heavy Python code doesn’t run in parallel on threads. Event loops (`asyncio`) handle many waiting requests with few threads by switching at every `await`. Separate processes give true parallelism at the cost of not sharing memory.' }],
   next: { id: 'memory-disk', reason: 'Threads spend their lives waiting. Next: how long the things they wait on actually take.' },
 };
@@ -162,7 +162,7 @@ export const memoryDisk: GenericLesson = {
   id: 'memory-disk',
   area: 'Foundations',
   opening: 'Reading a seat’s status from memory takes about a tenth of a microsecond. Reading it from a spinning disk can take ten milliseconds. That’s 100,000 times longer. Most of system design is arranging work around gaps like that.',
-  visual: { kind: 'chart', xLabel: '', yLabel: 'time per access (µs, log scale)', chartKind: 'bar', yLog: true, categories: ['memory', 'SSD read', 'same-DC round trip', 'disk seek', 'cross-ocean round trip'] },
+  visual: { kind: 'chart', xLabel: '', yLabel: 'time per access (µs, log scale)', chartKind: 'bar', yLog: true, note: 'Log scale: each gridline is 10× the one below. Typical orders of magnitude, not benchmarks; your hardware will differ.', categories: ['memory', 'SSD read', 'same-DC round trip', 'disk seek', 'cross-ocean round trip'] },
   steps: [
     { kicker: 'Idea', title: 'Memory: fast and forgetful', body: ['**Memory (RAM)** holds what running programs use right now. Reading it takes around 0.1 µs (a microsecond is a millionth of a second). Turn the power off and it’s gone.'], chart: { series: [{ name: 'values', points: [[0, 0.1]] }] } },
     { kicker: 'Watch', title: 'SSDs: durable, about 1,000× slower', body: ['An **SSD** keeps data when the power goes off. A random read takes roughly 100 µs: a thousand memory reads.'], chart: { series: [{ name: 'values', points: [[0, 0.1], [1, 100]] }] }, changes: [{ kind: 'add', text: 'SSD read ≈ 100 µs' }] },

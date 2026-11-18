@@ -140,10 +140,10 @@ function StepStage({ lesson, step, replayKey }: { lesson: GL; step: number; repl
     );
   } else if (v.kind === 'timeline') {
     const tv = result?.timeline ?? s.timeline ?? { upTo: 0 };
-    visual = <Timeline lanes={v.lanes} events={v.events} upTo={tv.upTo} focus={tv.focus} unit={v.unit} description={s.alt ?? s.title} />;
+    visual = <Timeline lanes={v.lanes} events={v.events} upTo={tv.upTo} focus={tv.focus} unit={v.unit} note={v.note} description={s.alt ?? s.title} />;
   } else if (v.kind === 'chart') {
     const cv = result?.chart ?? s.chart;
-    visual = cv ? <Chart series={cv.series} marks={cv.marks} thresholds={cv.thresholds} xLabel={v.xLabel} yLabel={v.yLabel} kind={v.chartKind} yMax={v.yMax} yLog={v.yLog} categories={v.categories} description={s.alt ?? s.title} /> : null;
+    visual = cv ? <Chart series={cv.series} marks={cv.marks} thresholds={cv.thresholds} xLabel={v.xLabel} yLabel={v.yLabel} kind={v.chartKind} yMax={v.yMax} yLog={v.yLog} categories={v.categories} note={v.note} description={s.alt ?? s.title} /> : null;
   } else if (v.kind === 'compare') {
     const c = result?.compare ?? s.compare;
     visual = c ? (
@@ -262,7 +262,8 @@ function CheckView({ lessonId, check }: { lessonId: string; check: Check }) {
 function NumericCheck({ lessonId, check }: { lessonId: string; check: Extract<Check, { kind: 'numeric' }> }) {
   const { store } = useProgress();
   const [st, setSt] = useRecord<{ value: string; checked?: boolean; correct?: boolean; shown?: boolean }>(`quiz:${lessonId}:${check.id}`, { value: '' });
-  const num = Number(st.value.replace(/[, _]/g, ''));
+  const value = typeof st.value === 'string' ? st.value : '';
+  const num = Number(value.replace(/[, _]/g, ''));
   const submit = () => {
     const correct = Number.isFinite(num) && Math.abs(num - check.answer) <= Math.abs(check.answer) * check.tolerance;
     setSt({ ...st, checked: true, correct });
@@ -274,9 +275,9 @@ function NumericCheck({ lessonId, check }: { lessonId: string; check: Extract<Ch
       <p className="step-kicker" style={{ margin: '0 0 4px', fontSize: 13, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--muted)', fontWeight: 600 }}>Estimate</p>
       <h3><Rich text={check.prompt} /></h3>
       <div className="range-row">
-        <input type="text" inputMode="decimal" value={st.value} onChange={(e) => setSt({ ...st, value: e.target.value, checked: false })} onKeyDown={(e) => e.key === 'Enter' && submit()} style={{ maxWidth: 200 }} aria-label={`Answer in ${check.unit}`} />
+        <input type="text" inputMode="decimal" value={value} onChange={(e) => setSt({ ...st, value: e.target.value, checked: false })} onKeyDown={(e) => e.key === 'Enter' && submit()} style={{ maxWidth: 200 }} aria-label={`Answer in ${check.unit}`} />
         <span>{check.unit}</span>
-        <button className="btn btn-small btn-primary" onClick={submit} disabled={!st.value.trim()}>Check</button>
+        <button className="btn btn-small btn-primary" onClick={submit} disabled={!value.trim()}>Check</button>
       </div>
       {st.checked && (
         <div className="feedback">
@@ -307,7 +308,7 @@ function OrderCheck({ lessonId, check }: { lessonId: string; check: Extract<Chec
     return idx;
   }, [check]);
   const [st, setSt] = useRecord<{ order: number[]; checked?: boolean; correct?: boolean }>(`quiz:${lessonId}:${check.id}`, { order: initial });
-  const order = st.order.length === check.items.length ? st.order : initial;
+  const order = Array.isArray(st.order) && st.order.length === check.items.length ? st.order : initial;
   const move = (i: number, d: number) => {
     const o = [...order];
     const j = i + d;

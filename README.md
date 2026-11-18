@@ -47,7 +47,7 @@ npm run build
 End-to-end journeys and visual review need a running production server:
 
 ```bash
-npm run build && PORT=8787 DATABASE_PATH=data/e2e.db NODE_ENV=production INSECURE_COOKIES=1 npx tsx server/index.ts
+npm run build && PORT=8787 DATABASE_PATH=data/e2e.db NODE_ENV=production INSECURE_COOKIES=1 AUTH_ATTEMPTS_PER_15MIN=1000 npx tsx server/index.ts
 ```
 
 ```bash
@@ -69,6 +69,7 @@ npm ci && npm run build
 NODE_ENV=production PORT=8787 DATABASE_PATH=/var/lib/sdm/masterclass.db npx tsx server/index.ts
 ```
 
+- Sign-in and registration are rate-limited to 10 attempts per 15 minutes per IP by default (`AUTH_ATTEMPTS_PER_15MIN`). Raise it only for local test runs, which register many accounts.
 - Serve over HTTPS. Cookies are `Secure` in production unless `INSECURE_COOKIES=1`, which is for local testing only.
 - `DATABASE_PATH` must be on persistent storage. Back it up, for example with `sqlite3 masterclass.db ".backup ..."`
   on a schedule.

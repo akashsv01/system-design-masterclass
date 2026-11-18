@@ -36,3 +36,42 @@ what happens next?
 - first-booking step 6 (code step) stacks a snippet, a choice question and a line pick. They appear one at a time,
   but the step is the busiest in the slice.
 - Whether "race condition" (step 10) arrives too early for a complete beginner, or exactly when it is needed.
+
+## Review 2: shared layout at real sizes (2026-11-18)
+
+**Method:** live Playwright sessions at 1280×900 and iPhone 13 (390×844). I measured element positions on arrival at each
+step (before interacting) and inspected viewport-sized screenshots, not full-page ones.
+
+**Header in the middle of mobile captures:** this was a **screenshot artifact**. In a live browser the sticky header
+always sat at 0–56 px. Full-page capture stitches the page and draws the sticky element at the scroll offset.
+
+**Real problems found and fixed in shared components:**
+1. The controls were often below the fold: at 1280×900 on most steps, and on phones after prediction questions. The
+   control row is now sticky at the bottom of the viewport at every width.
+2. On phones the header overflowed and pushed the menu button off screen. The brand text now hides below 440 px.
+3. After some step changes the header reappeared over the stage, because the scroll logic measured a hidden header.
+   Scrolling now reserves the header's full height. On lessons, the header also tucks away while scrolling down
+   and returns on scroll up.
+4. The caption body could sit under the sticky controls on desktop. The step-change scroll now brings the caption
+   into view when needed.
+5. Message tokens covered the label of the node they arrived at. They now stop at 82% of the edge, fade, and leave
+   the edge lit.
+6. Faint labels: sub-labels and edge labels moved from muted grey to ink-2, edge labels went from 13 to 14 px, and
+   dimmed nodes went from 0.38 to 0.55 opacity.
+7. Next labels were cut off on phones. They now show "Next" on one line and the step title (up to two lines) below.
+8. Crowded charts on phones: series names move into a legend, category labels wrap, mark labels stay inside the
+   plot, and axes use round ticks sized to the data (the latency axis went from 0–2k to 0–1.5k).
+9. Charts now carry notes for units, the log scale, and illustrative values.
+10. Words vs picture: "One shard melts, three idle" contradicted a diagram showing 15% load on each other shard.
+    Retitled "One shard overloaded, three with room to spare", and the body now states the numbers.
+11. A crash at the practice step of cache-invalidation came from two activities sharing an id and therefore one
+    saved record. The ids were fixed, the components hardened, and the content audit now fails on duplicate
+    activity ids.
+
+**Automated layout checks added** (`scripts/review-lessons.cjs`): controls fully visible, header not overlapping the
+stage, Next label not truncated, app not crashed, no horizontal scroll, diagram text ≥ 12 px. All 51 implemented
+lessons pass at both sizes.
+
+**Test infrastructure:** e2e flakiness came from a race on the lazy-loaded lesson chunk and from the auth rate limiter
+(working as designed) after repeated runs. The test now waits for the heading, and the limit is configurable
+(`AUTH_ATTEMPTS_PER_15MIN`, default 10). e2e passed 22/22 in three consecutive runs.

@@ -16,7 +16,7 @@ export const realtimeDelivery: GenericLesson = {
   id: 'realtime-delivery',
   area: 'Foundations',
   opening: 'It’s the 89th minute and a goal goes in. 200,000 fans have the match page open. How quickly do their screens show 2–1, and how hard does the server work to make that happen?',
-  visual: { kind: 'timeline', unit: 's', lanes: [{ id: 'srv', label: 'Server' }, { id: 'app', label: 'Fan’s app' }], events: [
+  visual: { kind: 'timeline', unit: 's', note: 'One fan polling every 5 seconds; the goal happens at 7 s.', lanes: [{ id: 'srv', label: 'Server' }, { id: 'app', label: 'Fan’s app' }], events: [
     { t: 0, lane: 'app', label: 'poll: any news?', to: { lane: 'srv', t: 0.3 } },
     { t: 5, lane: 'app', label: 'poll: any news?', to: { lane: 'srv', t: 5.3 } },
     { t: 7, lane: 'srv', label: 'GOAL 2–1', tone: 'active' },
@@ -57,7 +57,7 @@ export const latency: GenericLesson = {
   id: 'latency',
   area: 'Foundations',
   opening: 'The dashboard says checkout averages 80 ms. Support says customers keep complaining it hangs. Both are telling the truth. The average hides the slowest requests, and those are the ones people remember.',
-  visual: { kind: 'chart', xLabel: 'percent of requests at or below →', yLabel: 'response time (ms)' },
+  visual: { kind: 'chart', xLabel: 'percent of requests at or below →', yLabel: 'response time (ms)', note: 'Illustrative sample of 40 checkout requests, sorted fastest to slowest.' },
   experiment: {
     step: 4, label: 'Backend calls per page', min: 1, max: 100, stepSize: 1, initial: 1, unit: 'calls',
     compute: (k) => {
@@ -206,7 +206,7 @@ export const capacityEstimation: GenericLesson = {
   id: 'capacity-estimation',
   area: 'Foundations',
   opening: 'Sales says “a few million bookings a month”. How many servers is that? How much storage? Two minutes of arithmetic, with the assumptions written down, beats guessing and beats a week of benchmarking at this stage.',
-  visual: { kind: 'chart', xLabel: 'hour of day', yLabel: 'requests per second' },
+  visual: { kind: 'chart', xLabel: 'hour of day', yLabel: 'requests per second', note: 'Illustrative daily traffic shape with an on-sale spike at 20:00.' },
   experiment: {
     step: 3, label: 'Peak factor', min: 2, max: 100, stepSize: 1, initial: 20, unit: '× average',
     compute: (f) => {

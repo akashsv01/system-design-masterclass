@@ -87,7 +87,7 @@ export const indexes: GenericLesson = {
   id: 'indexes',
   area: 'Data systems',
   opening: '“Find the buyer with email maya@example.com” takes 2 seconds on 10 million buyers. Add one line of SQL and the same query takes 2 milliseconds. What did that line build?',
-  visual: { kind: 'chart', xLabel: 'rows in table (millions)', yLabel: 'rows examined' },
+  visual: { kind: 'chart', xLabel: 'rows in table (millions)', yLabel: 'rows examined (or index steps)', note: 'The index line looks flat because it needs about 20–27 steps while a scan examines millions of rows.' },
   experiment: {
     step: 3, label: 'Rows in table', min: 1, max: 100, stepSize: 1, initial: 10, unit: 'million',
     compute: (m) => {

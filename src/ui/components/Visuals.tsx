@@ -25,7 +25,9 @@ export function Timeline({
   focus,
   unit = 'ms',
   description,
+  note,
 }: {
+  note?: string;
   lanes: { id: string; label: string }[];
   events: TimelineEvent[];
   /** Number of events visible (earlier ones stay in place). */
@@ -49,6 +51,7 @@ export function Timeline({
           ))}
           {!shown.length && <li className="muted">Nothing has happened yet.</li>}
         </ol>
+        {note && <p className="visual-note">{note}</p>}
       </div>
     );
   }
@@ -87,6 +90,7 @@ export function Timeline({
           );
         })}
       </svg>
+      {note && <p className="visual-note">{note}</p>}
     </div>
   );
 }
@@ -111,9 +115,12 @@ export function Chart({
   yMax,
   yLog,
   categories,
+  note,
 }: {
   /** Category labels for bar charts (x values are indexes). */
   categories?: string[];
+  /** Shown under the chart: units, unusual scales, or "illustrative values". */
+  note?: string;
   series: Series[];
   xLabel: string;
   yLabel: string;
@@ -152,11 +159,11 @@ export function Chart({
     const f = rough / mag;
     return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
   })();
-  const maxY = yLog ? rawMax : niceStep * 4;
+  const maxY = yLog ? rawMax : Math.ceil(rawMax / niceStep) * niceStep;
   const sx = (v: number) => L + ((W - L - 16) * (v - minX)) / (maxX - minX || 1);
   const sy = (v: number) => H - B - ((H - B - 16) * v) / maxY;
   const color = (t?: string) => (t === 'fail' ? 'var(--fail)' : t === 'ok' ? 'var(--ok)' : t === 'active' ? 'var(--active)' : 'var(--accent)');
-  const ticks = yLog ? Array.from({ length: Math.ceil(maxY) }, (_, i) => i + 0.3).filter((t) => t <= maxY) : [0, 1, 2, 3, 4].map((i) => i * niceStep);
+  const ticks = yLog ? Array.from({ length: Math.ceil(maxY) }, (_, i) => i + 0.3).filter((t) => t <= maxY) : Array.from({ length: Math.round(maxY / niceStep) + 1 }, (_, i) => i * niceStep);
   const fmtLin = (v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : v >= 10 ? String(Math.round(v)) : String(Math.round(v * 10) / 10));
   const fmt = (v: number) => {
     if (!yLog) return fmtLin(v);
@@ -203,7 +210,7 @@ export function Chart({
           ) : (
             <g key={s.name}>
               <polyline fill="none" stroke={color(s.tone)} strokeWidth={2.5} strokeDasharray={s.dashed ? '6 5' : undefined} points={s.points.map(([px, py]) => `${sx(px)},${sy(py)}`).join(' ')} />
-              {series.length > 1 && s.points.length > 0 && (
+              {series.length > 1 && !narrow && s.points.length > 0 && (
                 <text x={sx(s.points[s.points.length - 1][0]) - 4} y={sy(s.points[s.points.length - 1][1]) - 8} textAnchor="end" style={{ fontSize: 13, fill: color(s.tone), fontWeight: 600 }}>{s.name}</text>
               )}
             </g>
@@ -215,10 +222,18 @@ export function Chart({
         {marks.map((m) => (
           <g key={m.label}>
             <circle cx={sx(m.x)} cy={sy(m.y)} r={6} fill="var(--surface)" stroke="var(--ink)" strokeWidth={2} />
-            <text x={sx(m.x) + (sx(m.x) > W * 0.7 ? -10 : 10)} y={sy(m.y) - 10} textAnchor={sx(m.x) > W * 0.7 ? 'end' : 'start'} style={{ fontSize: 13, fontWeight: 700 }}>{m.label}</text>
+            <text x={sx(m.x) + (sx(m.x) > W * 0.6 ? -10 : 10)} y={Math.max(14, sy(m.y) - 10)} textAnchor={sx(m.x) > W * 0.6 ? 'end' : 'start'} style={{ fontSize: narrow ? 12.5 : 13, fontWeight: 700 }} paintOrder="stroke" stroke="var(--surface)" strokeWidth={4}>{m.label}</text>
           </g>
         ))}
       </svg>
+      {narrow && series.length > 1 && (
+        <ul className="chart-legend">
+          {series.map((s) => (
+            <li key={s.name}><span className="swatch" style={{ background: color(s.tone), opacity: s.dashed ? 0.6 : 1 }} />{s.name}</li>
+          ))}
+        </ul>
+      )}
+      {note && <p className="visual-note">{note}</p>}
     </div>
   );
 }

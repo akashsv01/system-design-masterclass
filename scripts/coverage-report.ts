@@ -80,6 +80,10 @@ for (const [id, l] of Object.entries(GENERIC_LESSONS)) {
   const texts = [l.opening, ...l.steps.flatMap((s) => [...s.body, s.callout?.text ?? '']), l.exercise.model, ...(l.next ? [l.next.reason] : [])];
   for (const t of texts) checkLinks(id, t);
   for (const s of l.steps) if (s.predict) checkCheck(id, { kind: 'choice', ...s.predict });
+  // Activity ids become saved-record keys; two activities sharing an id would share (and corrupt) one record.
+  const activityIds = [...l.steps.filter((s) => s.predict).map((s) => s.predict!.id), ...l.checks.map((c) => c.id), l.exercise.id];
+  const dupIds = activityIds.filter((x, i) => activityIds.indexOf(x) !== i);
+  if (dupIds.length) errors.push(`${id}: duplicate activity id(s) ${[...new Set(dupIds)].join(', ')}`);
   for (const c of l.checks) checkCheck(id, c);
   if (l.next && !ids.has(l.next.id)) errors.push(`${id}: next lesson "${l.next.id}" not in manifest`);
   if (l.steps.length > 9) warnings.push(`${id}: ${l.steps.length} steps — consider splitting`);

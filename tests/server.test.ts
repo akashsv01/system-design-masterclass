@@ -50,6 +50,16 @@ describe('accounts', () => {
     expect(good.status).toBe(200);
   });
 
+  it('rate-limits registration attempts by default', async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 11; i++) {
+      const res = await app.request('/api/register', { method: 'POST', headers: H, body: JSON.stringify({ email: `u${i}@example.com`, password: 'correct horse' }) });
+      statuses.push(res.status);
+    }
+    expect(statuses.slice(0, 10).every((s) => s === 200)).toBe(true);
+    expect(statuses[10]).toBe(429);
+  });
+
   it('signing out invalidates the session server-side', async () => {
     const cookie = await register('a@example.com');
     await app.request('/api/logout', { method: 'POST', headers: { ...H, cookie } });

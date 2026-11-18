@@ -118,7 +118,8 @@ function Token({ t, layout, offset }: { t: DToken; layout: Layout; offset: numbe
   const ny = ((p2.x - p1.x) / len) * offset;
   const start = { x: p1.x + nx, y: p1.y + ny };
   const end = { x: p2.x + nx, y: p2.y + ny };
-  const rest = t.at ?? 1;
+  // Arriving messages stop just short of the node so they never cover its label, then fade.
+  const rest = t.at ?? 0.82;
   const target = { x: start.x + (end.x - start.x) * rest, y: start.y + (end.y - start.y) * rest };
   const [pos, setPos] = useState(start);
   const [arrived, setArrived] = useState(false);
@@ -127,7 +128,7 @@ function Token({ t, layout, offset }: { t: DToken; layout: Layout; offset: numbe
     setArrived(false);
     const id = requestAnimationFrame(() => requestAnimationFrame(() => setPos(target)));
     // A message that reaches its destination fades away so the node's new state is readable.
-    const fade = rest >= 1 ? setTimeout(() => setArrived(true), 1100) : undefined;
+    const fade = t.at === undefined ? setTimeout(() => setArrived(true), 1300) : undefined;
     return () => {
       cancelAnimationFrame(id);
       if (fade) clearTimeout(fade);

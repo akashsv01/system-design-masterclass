@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 79 · partial: 0 · implemented: 13 · verified: 31 · reviewed: 0
+**123 topics.** planned: 72 · partial: 0 · implemented: 0 · verified: 51 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -63,26 +63,26 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Requirements](/learn/requirements) | implemented | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 2 |
-| [API design](/learn/api-design) | implemented | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 2 |
-| [Proxies and gateways](/learn/proxies-gateways) | implemented | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 2 |
-| [Load balancing](/learn/load-balancing) | implemented | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2 |
-| [CDNs](/learn/cdn) | implemented | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 2 |
-| [Caching](/learn/caching) | implemented | generic | memory-disk, replica-lag | Choose cache placement (client, CDN, service, database) and a write strategy, and predict hit-rate effects. | 2 |
-| [Invalidation and stampedes](/learn/cache-invalidation) | implemented | generic | caching | Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede. | 1 |
-| [Timeouts and partial failure](/learn/timeouts) | implemented | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 4 |
-| [Retries, backoff, jitter](/learn/retries) | implemented | generic | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2 |
-| [Idempotency](/learn/idempotency) | implemented | generic | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2 |
-| [Clocks and ordering](/learn/clocks-ordering) | implemented | generic | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 3 |
-| [Consistency models](/learn/consistency-models) | implemented | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 2 |
-| [CAP and quorums](/learn/cap-quorums) | implemented | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 3 |
-| [Consensus and Raft](/learn/consensus) | planned | none | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 4 |
-| [Queues and pub/sub](/learn/queues) | planned | none | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 2 |
-| [Logs and delivery guarantees](/learn/logs-delivery) | planned | none | queues, idempotency | Explain partitioned logs, consumer groups, offsets and at-most/at-least/effectively-once delivery. | 1 |
-| [Backpressure](/learn/backpressure) | planned | none | queues, throughput-bandwidth | Compute backlog growth and drain time, and apply backpressure or load shedding. | 3 |
-| [Batch and stream](/learn/batch-stream) | planned | none | logs-delivery | Compare batch and stream processing; use event time, windows and watermarks for late data. | 3 |
-| [Sagas and outbox](/learn/distributed-transactions) | planned | none | transactions, queues, idempotency | Compare two-phase commit with sagas, design compensations, and use the outbox pattern to publish reliably. | 2 |
-| [CQRS and event sourcing](/learn/cqrs-event-sourcing) | planned | none | distributed-transactions, logs-delivery | Separate write and read models (CQRS) and derive state from an event log (event sourcing), with costs. | 2 |
+| [Requirements](/learn/requirements) | verified | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 2 |
+| [API design](/learn/api-design) | verified | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 2 |
+| [Proxies and gateways](/learn/proxies-gateways) | verified | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 2 |
+| [Load balancing](/learn/load-balancing) | verified | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2 |
+| [CDNs](/learn/cdn) | verified | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 2 |
+| [Caching](/learn/caching) | verified | generic | memory-disk, replica-lag | Choose cache placement (client, CDN, service, database) and a write strategy, and predict hit-rate effects. | 2 |
+| [Invalidation and stampedes](/learn/cache-invalidation) | verified | generic | caching | Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede. | 1 |
+| [Timeouts and partial failure](/learn/timeouts) | verified | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 4 |
+| [Retries, backoff, jitter](/learn/retries) | verified | generic | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2 |
+| [Idempotency](/learn/idempotency) | verified | generic | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2 |
+| [Clocks and ordering](/learn/clocks-ordering) | verified | generic | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 3 |
+| [Consistency models](/learn/consistency-models) | verified | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 2 |
+| [CAP and quorums](/learn/cap-quorums) | verified | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 3 |
+| [Consensus and Raft](/learn/consensus) | verified | generic | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 4 |
+| [Queues and pub/sub](/learn/queues) | verified | generic | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 2 |
+| [Logs and delivery guarantees](/learn/logs-delivery) | verified | generic | queues, idempotency | Explain partitioned logs, consumer groups, offsets and at-most/at-least/effectively-once delivery. | 1 |
+| [Backpressure](/learn/backpressure) | verified | generic | queues, throughput-bandwidth | Compute backlog growth and drain time, and apply backpressure or load shedding. | 3 |
+| [Batch and stream](/learn/batch-stream) | verified | generic | logs-delivery | Compare batch and stream processing; use event time, windows and watermarks for late data. | 3 |
+| [Sagas and outbox](/learn/distributed-transactions) | verified | generic | transactions, queues, idempotency | Compare two-phase commit with sagas, design compensations, and use the outbox pattern to publish reliably. | 2 |
+| [CQRS and event sourcing](/learn/cqrs-event-sourcing) | verified | generic | distributed-transactions, logs-delivery | Separate write and read models (CQRS) and derive state from an event log (event sourcing), with costs. | 2 |
 
 ## Architecture and operations
 

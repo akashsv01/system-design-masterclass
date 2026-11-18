@@ -37,7 +37,9 @@ try {
   const errors = [];
   a.on('pageerror', (e) => errors.push(String(e)));
   await a.goto(`${base}/learn/first-booking`);
-  ok('public deep link opens a lesson without signing in', await a.getByRole('heading', { level: 1, name: /Two buyers see one seat left/ }).isVisible());
+  // The lesson chunk loads lazily, so wait for the heading rather than checking instantly.
+  const opened = await a.getByRole('heading', { level: 1, name: /Two buyers see one seat left/ }).waitFor({ timeout: 10000 }).then(() => true, () => false);
+  ok('public deep link opens a lesson without signing in', opened);
 
   // Walk to the prediction step (step 8) doing required actions.
   await a.locator('.controls .btn-next').click();
