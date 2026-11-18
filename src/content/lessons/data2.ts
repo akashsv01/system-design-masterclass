@@ -147,7 +147,7 @@ export const sharding: GenericLesson = {
         { id: 'one', text: 'All to one shard: a hot spot.', why: 'Right. Every seat of that event lives on one shard, which now carries 40% + its normal 15% while the other three carry 15% each.' },
         { id: 'spread', text: 'Spread across all four shards.', why: 'Hashing spreads *different* keys. One very popular key still maps to one shard.' },
       ], correct: 'one' } },
-    { kicker: 'Failure', title: 'One shard overloaded, three with room to spare', body: ['Shard 0 now carries 55% of all traffic; the other three carry 15% each. A **hot spot** is a partition receiving far more than its share. Adding shards doesn’t help: the hot key still lands on one.'], view: { values: { s0: '55%', s1: '15%', s2: '15%', s3: '15%' }, states: { s0: 'fail' }, tags: { s0: { text: 'hot spot', tone: 'fail' } } } },
+    { kicker: 'Failure', title: 'One shard overloaded, three have room', body: ['Shard 0 now carries 55% of all traffic; the other three carry 15% each. A **hot spot** is a partition receiving far more than its share. Adding shards doesn’t help: the hot key still lands on one.'], view: { values: { s0: '55%', s1: '15%', s2: '15%', s3: '15%' }, states: { s0: 'fail' }, tags: { s0: { text: 'hot spot', tone: 'fail' } } } },
     { kicker: 'Try it', title: 'Change how popular the event is', body: ['Drag the superstar’s share. Then read the alternative: partition by `seat_id`, or split a known-hot event across extra sub-keys, and see what each costs.'] },
   ],
   worked: { title: 'choosing a partition key', blocks: [

@@ -13,6 +13,7 @@ import { GENERIC_LESSONS } from '../src/content/lessons';
 import { CASES } from '../src/content/cases';
 import { LABS } from '../src/content/labs';
 import { SCOPE } from './scope-terms';
+import { GOF } from '../src/content/gof';
 import type { Check } from '../src/content/lessonTypes';
 
 const errors: string[] = [];
@@ -88,6 +89,8 @@ for (const [id, l] of Object.entries(GENERIC_LESSONS)) {
   if (l.next && !ids.has(l.next.id)) errors.push(`${id}: next lesson "${l.next.id}" not in manifest`);
   if (l.steps.length > 9) warnings.push(`${id}: ${l.steps.length} steps — consider splitting`);
   for (const s of l.steps) {
+    // Step titles double as the Next button label; on phones it has two short lines.
+    if (s.title.length > 40) errors.push(`${id}: step title too long for the Next button (${s.title.length} > 40): "${s.title}"`);
     if (s.body.length > 3) warnings.push(`${id} / "${s.title}": ${s.body.length} paragraphs (guide: ≤ 3)`);
     const words = s.body.join(' ').split(/\s+/).length;
     if (words > 130) warnings.push(`${id} / "${s.title}": ${words} words in one step (guide: keep it short)`);
@@ -106,6 +109,10 @@ for (const [id, c] of Object.entries(CASES)) {
   for (const ch of c.checks) checkCheck(id, ch);
   for (const st of c.stages) for (const b of st.reference) if (b.type === 'p') checkLinks(id, b.text);
 }
+
+// The pattern reference must cover all 23 Gang of Four patterns.
+if (new Set(GOF.map((p) => p.id)).size !== 23) errors.push(`gof-reference: expected 23 distinct patterns, found ${new Set(GOF.map((p) => p.id)).size}`);
+for (const p of GOF) if (p.lesson && !ids.has(p.lesson)) errors.push(`gof-reference: ${p.name} links to unknown lesson ${p.lesson}`);
 
 // Topics claiming completeness must have assessment
 for (const t of CURRICULUM) {

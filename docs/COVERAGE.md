@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 60 · partial: 0 · implemented: 0 · verified: 63 · reviewed: 0
+**123 topics.** planned: 31 · partial: 0 · implemented: 24 · verified: 68 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -14,7 +14,7 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
 | [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 2 |
-| [HLD and LLD](/learn/hld-vs-lld) | verified | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
+| [HLD and LLD](/learn/hld-vs-lld) | implemented | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
 
 ## Bridges
 
@@ -106,40 +106,40 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
 | [LRU cache](/learn/lru-cache) | verified | custom | bridge-maps, bridge-linked-lists | Predict LRU evictions, then explain from the worked Python code how a dict plus a doubly linked list make every operation O(1). | 2 |
-| [Responsibilities and encapsulation](/learn/responsibilities) | planned | none | bridge-interfaces, hld-vs-lld | Assign responsibilities to classes, hide data behind behaviour, and define interfaces around roles. | 2 |
-| [Polymorphism and composition](/learn/polymorphism-composition) | planned | none | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 3 |
-| [Cohesion and coupling](/learn/cohesion-coupling) | planned | none | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 2 |
-| [SOLID](/learn/solid) | planned | none | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 2 |
-| [Contracts and invariants](/learn/contracts-invariants) | planned | none | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2 |
-| [Entities, value objects, repositories](/learn/domain-objects) | planned | none | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2 |
-| [Dependency injection](/learn/dependency-injection) | planned | none | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 2 |
-| [UML diagrams](/learn/uml) | planned | none | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 1 |
-| [State machines](/learn/state-machines) | planned | none | uml, contracts-invariants | Model a resource lifecycle as an explicit state machine with guarded transitions. | 1 |
-| [Tests and test doubles](/learn/testing) | planned | none | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 3 |
-| [Refactoring](/learn/refactoring-lesson) | planned | none | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 1 |
-| [Races and deadlocks](/learn/concurrency-lld) | planned | none | bridge-threads, processes-threads | Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering. | 3 |
-| [Pattern reference](/patterns/gof-reference) | planned | none | polymorphism-composition | Recognise each Gang of Four pattern by the problem it solves and its cost. | 2 |
-| [Strategy (refactoring)](/learn/pattern-strategy) | planned | none | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 2 |
-| [Observer (refactoring)](/learn/pattern-observer) | planned | none | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 2 |
-| [State (refactoring)](/learn/pattern-state) | planned | none | state-machines, gof-reference | Move state-specific behaviour into State objects. | 1 |
-| [Decorator (refactoring)](/learn/pattern-decorator) | planned | none | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 1 |
-| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | planned | none | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 3 |
-| [Adapter (refactoring)](/learn/pattern-adapter) | planned | none | gof-reference | Wrap an incompatible interface with an Adapter so the domain code stays unchanged. | 1 |
-| [Command (refactoring)](/learn/pattern-command) | planned | none | gof-reference | Represent operations as Command objects to queue, log and undo them. | 1 |
+| [Responsibilities and encapsulation](/learn/responsibilities) | verified | generic | bridge-interfaces, hld-vs-lld | Assign responsibilities to classes, hide data behind behaviour, and define interfaces around roles. | 2 |
+| [Polymorphism and composition](/learn/polymorphism-composition) | verified | generic | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 3 |
+| [Cohesion and coupling](/learn/cohesion-coupling) | verified | generic | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 2 |
+| [SOLID](/learn/solid) | implemented | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 2 |
+| [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2 |
+| [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2 |
+| [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 2 |
+| [UML diagrams](/learn/uml) | implemented | generic | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 1 |
+| [State machines](/learn/state-machines) | implemented | generic | uml, contracts-invariants | Model a resource lifecycle as an explicit state machine with guarded transitions. | 1 |
+| [Tests and test doubles](/learn/testing) | implemented | generic | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 3 |
+| [Refactoring](/learn/refactoring-lesson) | implemented | generic | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 1 |
+| [Races and deadlocks](/learn/concurrency-lld) | implemented | generic | bridge-threads, processes-threads | Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering. | 3 |
+| [Pattern reference](/patterns/gof-reference) | implemented | custom | polymorphism-composition | Recognise each Gang of Four pattern by the problem it solves and its cost. | 2 |
+| [Strategy (refactoring)](/learn/pattern-strategy) | implemented | generic | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 2 |
+| [Observer (refactoring)](/learn/pattern-observer) | implemented | generic | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 2 |
+| [State (refactoring)](/learn/pattern-state) | implemented | generic | state-machines, gof-reference | Move state-specific behaviour into State objects. | 1 |
+| [Decorator (refactoring)](/learn/pattern-decorator) | implemented | generic | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 1 |
+| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | implemented | generic | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 3 |
+| [Adapter (refactoring)](/learn/pattern-adapter) | implemented | generic | gof-reference | Wrap an incompatible interface with an Adapter so the domain code stays unchanged. | 1 |
+| [Command (refactoring)](/learn/pattern-command) | implemented | generic | gof-reference | Represent operations as Command objects to queue, log and undo them. | 1 |
 
 ## Labs
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Request tracing](/labs/lab-request-tracing) | planned | none | inside-a-request, latency | Read a request trace and identify the span that dominates latency, then predict the effect of a fix. | 1 |
-| [Overload and load balancing](/labs/lab-load-balancing) | planned | none | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2 |
-| [Cache behaviour](/labs/lab-cache) | planned | none | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1 |
-| [Stale reads](/labs/lab-stale-reads) | planned | none | replica-lag | Measure the fraction of stale reads as lag and routing change. | 1 |
-| [Partitioning and hot spots](/labs/lab-hot-spots) | planned | none | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 1 |
-| [Queue backlog](/labs/lab-queue-backlog) | planned | none | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1 |
-| [Payment retries](/labs/lab-payment-retries) | planned | none | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2 |
-| [LRU operations](/labs/lab-lru) | planned | none | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0 |
-| [Concurrent reservations](/labs/concurrent-reservations) | planned | none | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 2 |
+| [Request tracing](/labs/lab-request-tracing) | implemented | lab | inside-a-request, latency | Read a request trace and identify the span that dominates latency, then predict the effect of a fix. | 1 |
+| [Overload and load balancing](/labs/lab-load-balancing) | implemented | lab | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2 |
+| [Cache behaviour](/labs/lab-cache) | implemented | lab | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1 |
+| [Stale reads](/labs/lab-stale-reads) | implemented | lab | replica-lag | Measure the fraction of stale reads as lag and routing change. | 1 |
+| [Partitioning and hot spots](/labs/lab-hot-spots) | implemented | lab | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 1 |
+| [Queue backlog](/labs/lab-queue-backlog) | implemented | lab | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1 |
+| [Payment retries](/labs/lab-payment-retries) | implemented | lab | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2 |
+| [LRU operations](/labs/lab-lru) | implemented | lab | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0 |
+| [Concurrent reservations](/labs/concurrent-reservations) | implemented | lab | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 2 |
 
 ## HLD case studies
 

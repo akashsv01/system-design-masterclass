@@ -49,7 +49,7 @@ export const hldVsLld: GenericLesson = {
     },
     {
       kicker: 'Idea',
-      title: 'High-level design: which parts, who owns what',
+      title: 'High-level design: parts and ownership',
       body: [
         '**High-level design (HLD)** decides the parts of a system, what data each part owns, and how they talk. For holds, the HLD question is: where does “F12 is held by Maya until 20:10” live, and who is allowed to change it?',
         'Answer: the booking service owns it and stores it in the seat store. Apps only ask. Payments never touch seats directly.',
@@ -68,7 +68,7 @@ export const hldVsLld: GenericLesson = {
     },
     {
       kicker: 'Idea',
-      title: 'Low-level design: which objects, which rules',
+      title: 'Low-level design: objects and rules',
       body: [
         '**Low-level design (LLD)** decides the objects inside one part, their states, and the rules that keep them correct. For holds: a seat is *available*, *held* or *booked*. A hold can only start on an available seat, and it ends by itself when its time runs out.',
       ],

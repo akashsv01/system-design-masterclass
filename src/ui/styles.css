@@ -185,7 +185,7 @@ main { min-height: calc(100vh - var(--header-h)); }
   .controls .btn-next { flex: 1; min-width: 0; justify-content: space-between; padding: 4px 14px; line-height: 1.25; }
   .controls .next-text { flex-direction: column; gap: 0; }
   .controls .next-k { font-size: 12px; font-weight: 600; opacity: 0.85; }
-  .controls .next-name { font-size: 15px; max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; }
+  .controls .next-name { font-size: 14px; line-height: 1.25; max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; }
   .controls .count { margin: 0 2px; font-size: 13px; }
   .controls .count-short { display: inline; }
   .controls .count-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

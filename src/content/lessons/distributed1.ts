@@ -213,7 +213,7 @@ export const cacheInvalidation: GenericLesson = {
   ] },
   steps: [
     { kicker: 'Idea', title: 'TTL: let it expire', body: ['The simplest rule is a **time to live (TTL)**: each cache entry expires after, say, 600 seconds. It needs no coordination, but data can be stale for up to the full TTL.'], timeline: { upTo: 1 } },
-    { kicker: 'Watch', title: 'The price changes, the cache doesn’t know', body: ['At 60 s the database says €60. The cache keeps serving €80 until its entry expires at 600 s, so buyers see the wrong price for nine minutes.'], timeline: { upTo: 5, focus: 2 }, changes: [{ kind: 'del', text: 'Stale price shown for 540 s' }] },
+    { kicker: 'Watch', title: 'The price changed; the cache didn’t', body: ['At 60 s the database says €60. The cache keeps serving €80 until its entry expires at 600 s, so buyers see the wrong price for nine minutes.'], timeline: { upTo: 5, focus: 2 }, changes: [{ kind: 'del', text: 'Stale price shown for 540 s' }] },
     { kicker: 'Fix', title: 'Invalidate on write', body: ['When the price changes, the code that writes the database also **deletes** the cache entry (or bumps a version in the key, such as `price:v8`). The next read misses and loads €60. Staleness drops to milliseconds, but every write path must remember to do it.'], timeline: { upTo: 5, focus: 1 } },
     { kicker: 'Predict', title: 'A popular key expires', body: ['The seat map for the biggest show is read 20,000 times a second. Its cache entry expires.'], timeline: { upTo: 5, focus: 3 },
       predict: { id: 'herd', prompt: 'In the 8 ms it takes to reload it, what happens?', choices: [

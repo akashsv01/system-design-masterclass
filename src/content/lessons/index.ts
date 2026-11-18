@@ -10,7 +10,10 @@ import { DISTRIBUTED2 } from './distributed2';
 import { DISTRIBUTED3 } from './distributed3';
 import { ARCHITECTURE1 } from './architecture1';
 import { ARCHITECTURE2 } from './architecture2';
+import { LLD1 } from './lld1';
+import { LLD2 } from './lld2';
+import { PATTERN_LESSONS } from './patterns';
 
-const all: GenericLesson[] = [...START_LESSONS, ...BRIDGE_LESSONS, ...FOUNDATIONS1, ...FOUNDATIONS2, ...DATA1, ...DATA2, ...DISTRIBUTED1, ...DISTRIBUTED2, ...DISTRIBUTED3, ...ARCHITECTURE1, ...ARCHITECTURE2];
+const all: GenericLesson[] = [...START_LESSONS, ...BRIDGE_LESSONS, ...FOUNDATIONS1, ...FOUNDATIONS2, ...DATA1, ...DATA2, ...DISTRIBUTED1, ...DISTRIBUTED2, ...DISTRIBUTED3, ...ARCHITECTURE1, ...ARCHITECTURE2, ...LLD1, ...LLD2, ...PATTERN_LESSONS];
 
 export const GENERIC_LESSONS: Record<string, GenericLesson> = Object.fromEntries(all.map((l) => [l.id, l]));

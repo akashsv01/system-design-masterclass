@@ -9,8 +9,8 @@ export function extractDef(source: string, name: string): string {
 /** Like extractDef, but also returns the 1-based line in `source` where the def starts. */
 export function extractDefAt(source: string, name: string): { code: string; start: number } {
   const lines = source.split('\n');
-  const start = lines.findIndex((l) => new RegExp(`^\\s*def ${name}\\(`).test(l));
-  if (start < 0) throw new Error(`def ${name} not found`);
+  const start = lines.findIndex((l) => new RegExp(`^\\s*(?:def|class) ${name}\\b`).test(l));
+  if (start < 0) throw new Error(`def or class ${name} not found`);
   const indent = lines[start].match(/^\s*/)![0].length;
   let end = start + 1;
   while (end < lines.length) {

@@ -82,7 +82,8 @@ async function layoutIssues(p) {
       const errors = [];
       p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
       p.on('pageerror', (e) => errors.push(String(e)));
-      await p.goto(`${base}/learn/${id}`, { waitUntil: 'networkidle' });
+      // Ids may be bare lesson ids (/learn/<id>) or routes such as labs/lab-cache or patterns/gof-reference.
+      await p.goto(id.includes('/') ? `${base}/${id}` : `${base}/learn/${id}`, { waitUntil: 'networkidle' });
       for (let s = 1; s <= 20; s++) {
         await p.waitForTimeout(1100);
         // Measure what the learner sees on arriving at the step, before interacting.
@@ -113,7 +114,10 @@ async function layoutIssues(p) {
     const path = 'src/content/verification.json';
     const v = JSON.parse(fs.readFileSync(path, 'utf8'));
     const set = new Set(v.verified);
-    for (const id of lessons) (failedIds.has(id) ? set.delete(id) : set.add(id));
+    for (const id of lessons) {
+      const tid = id.split('/').pop();
+      failedIds.has(id) ? set.delete(tid) : set.add(tid);
+    }
     v.verified = [...set].sort();
     fs.writeFileSync(path, JSON.stringify(v, null, 2) + '\n');
     console.log(`verification.json: ${v.verified.length} verified; failed this run: ${[...failedIds].join(', ') || 'none'}`);

@@ -47,7 +47,7 @@ export const insideARequest: GenericLesson = {
       changes: [{ kind: 'add', text: 'TCP connection open (+30 ms, total 50)' }],
     },
     {
-      kicker: 'Watch', title: 'Make it private: TLS, one more round trip',
+      kicker: 'Watch', title: 'Make it private: TLS, one more trip',
       body: ['**TLS** encrypts everything above it and checks the server really is `tickets.example`. With TLS 1.3 that costs one more round trip: 30 ms. This is the S in HTTPS.'],
       stack: { separation: 0.6, focus: 'tls', tones: { ip: 'ok', tcp: 'ok', tls: 'active' } },
       changes: [{ kind: 'add', text: 'Encrypted channel (+30 ms, total 80)' }],
@@ -205,7 +205,7 @@ export const tcpUdp: GenericLesson = {
         { id: 'udp', text: 'UDP', why: 'Right. A late frame is useless, and a 20 ms glitch beats an 80 ms freeze. Calls run on UDP-based protocols.' },
         { id: 'tcp', text: 'TCP', why: 'TCP’s resend would arrive after the moment to play it has passed, and it would stall the frames behind it.' },
       ], correct: 'udp' } },
-    { kicker: 'Trade-off', title: 'Pick by what a late or missing piece costs', body: ['Use TCP when every byte matters: web pages, APIs, file transfers, database connections. Use UDP when freshness matters more than completeness: live audio and video, game state, DNS lookups (small, easy to just ask again).'],
+    { kicker: 'Trade-off', title: 'Pick by what a lost piece costs', body: ['Use TCP when every byte matters: web pages, APIs, file transfers, database connections. Use UDP when freshness matters more than completeness: live audio and video, game state, DNS lookups (small, easy to just ask again).'],
       compare: { left: { title: 'TCP for', points: ['HTTP/1.1 and HTTP/2', 'Database connections', 'File downloads'], tone: 'ok' }, right: { title: 'UDP for', points: ['Voice and video calls', 'Multiplayer game updates', 'DNS, QUIC (HTTP/3)'], tone: 'ok' } } },
   ],
   worked: { title: 'what each guarantees', blocks: [
