@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 120 · partial: 0 · implemented: 0 · verified: 3 · reviewed: 0
+**123 topics.** planned: 113 · partial: 0 · implemented: 7 · verified: 3 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -14,18 +14,18 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
 | [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 2 |
-| [HLD and LLD](/learn/hld-vs-lld) | planned | none | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
+| [HLD and LLD](/learn/hld-vs-lld) | implemented | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
 
 ## Bridges
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [JSON](/learn/bridge-json) | planned | none | — | Read and write JSON objects, arrays and nested values, and spot why a field type change breaks a client. | 1 |
-| [Maps](/learn/bridge-maps) | planned | none | — | Explain how a hash map gives near-constant-time lookup and what a key must guarantee. | 1 |
-| [Linked lists](/learn/bridge-linked-lists) | planned | none | bridge-maps | Manipulate a doubly linked list (unlink, push front, remove tail) and state the cost of each operation. | 0 |
-| [SQL basics](/learn/bridge-sql) | planned | none | bridge-json | Read SELECT, INSERT, UPDATE with WHERE, and a JOIN, predict their results on a small table, and complete one clause. | 2 |
-| [Interfaces](/learn/bridge-interfaces) | planned | none | — | Recognise a shared interface in Python (duck typing, then typing.Protocol) and predict which implementation runs when both are called through the same code. | 1 |
-| [Threads](/learn/bridge-threads) | planned | none | — | Predict the result of two Python threads incrementing a shared counter and explain why the final count can be wrong. | 2 |
+| [JSON](/learn/bridge-json) | implemented | generic | — | Read and write JSON objects, arrays and nested values, and spot why a field type change breaks a client. | 1 |
+| [Maps](/learn/bridge-maps) | implemented | generic | — | Explain how a hash map gives near-constant-time lookup and what a key must guarantee. | 1 |
+| [Linked lists](/learn/bridge-linked-lists) | implemented | generic | bridge-maps | Manipulate a doubly linked list (unlink, push front, remove tail) and state the cost of each operation. | 0 |
+| [SQL basics](/learn/bridge-sql) | implemented | generic | bridge-json | Read SELECT, INSERT, UPDATE with WHERE, and a JOIN, predict their results on a small table, and complete one clause. | 2 |
+| [Interfaces](/learn/bridge-interfaces) | implemented | generic | — | Recognise a shared interface in Python (duck typing, then typing.Protocol) and predict which implementation runs when both are called through the same code. | 1 |
+| [Threads](/learn/bridge-threads) | implemented | generic | — | Predict the result of two Python threads incrementing a shared counter and explain why the final count can be wrong. | 2 |
 
 ## Foundations and networking
 

@@ -181,7 +181,7 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
                 x2={p2.x}
                 y2={p2.y}
               />
-              {e.label && !hidden && (
+              {e.label && !hidden && Math.hypot(p2.x - p1.x, p2.y - p1.y) > e.label.length * 7.5 + 18 && (
                 <text className="edge-label" x={mid.x} y={mid.y - 8} textAnchor="middle">
                   {e.label}
                 </text>
