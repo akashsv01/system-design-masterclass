@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 72 · partial: 0 · implemented: 0 · verified: 51 · reviewed: 0
+**123 topics.** planned: 60 · partial: 0 · implemented: 0 · verified: 63 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -88,18 +88,18 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Monolith vs microservices](/learn/monolith-microservices) | planned | none | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 2 |
-| [Schema evolution](/learn/schema-evolution) | planned | none | api-design | Plan backward- and forward-compatible changes with expand/contract migrations. | 1 |
-| [Multitenancy](/learn/multitenancy) | planned | none | sharding | Compare shared, pooled and isolated tenancy models and limit noisy neighbours. | 2 |
-| [Multi-region](/learn/multi-region) | planned | none | failover, cap-quorums | Compare active-passive and active-active multi-region designs by latency, consistency and cost. | 2 |
-| [Authentication and authorization](/learn/authn-authz) | planned | none | http-rest-rpc | Distinguish authentication from authorization; compare sessions and tokens; outline OAuth 2.0 and OIDC flows. | 3 |
-| [Encryption and privacy](/learn/encryption-privacy) | planned | none | authn-authz | Apply encryption in transit and at rest, hash passwords properly, and minimise personal data. | 1 |
-| [Rate limiting](/learn/rate-limiting) | planned | none | throughput-bandwidth | Trace token bucket and sliding window limiters step by step, compare their behaviour on bursts, and choose where to enforce them. | 2 |
-| [Observability](/learn/observability) | planned | none | latency | Use logs, metrics and traces together to localise a slow request. | 1 |
-| [SLIs, SLOs, error budgets](/learn/slos) | planned | none | availability, observability | Define SLIs and SLOs and spend an error budget on a release decision. | 3 |
-| [Deployments and rollback](/learn/deployments) | planned | none | slos | Compare rolling, blue-green and canary deployments and plan a rollback. | 2 |
-| [Backups and disaster recovery](/learn/backups-dr) | planned | none | failover | Plan backups, restore testing and disaster recovery to meet RPO and RTO targets. | 1 |
-| [Cost reasoning](/learn/cost) | planned | none | capacity-estimation | Estimate the monthly cost of two designs from unit prices and identify the dominant cost driver. | 1 |
+| [Monolith vs microservices](/learn/monolith-microservices) | verified | generic | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 2 |
+| [Schema evolution](/learn/schema-evolution) | verified | generic | api-design | Plan backward- and forward-compatible changes with expand/contract migrations. | 1 |
+| [Multitenancy](/learn/multitenancy) | verified | generic | sharding | Compare shared, pooled and isolated tenancy models and limit noisy neighbours. | 2 |
+| [Multi-region](/learn/multi-region) | verified | generic | failover, cap-quorums | Compare active-passive and active-active multi-region designs by latency, consistency and cost. | 2 |
+| [Authentication and authorization](/learn/authn-authz) | verified | generic | http-rest-rpc | Distinguish authentication from authorization; compare sessions and tokens; outline OAuth 2.0 and OIDC flows. | 3 |
+| [Encryption and privacy](/learn/encryption-privacy) | verified | generic | authn-authz | Apply encryption in transit and at rest, hash passwords properly, and minimise personal data. | 1 |
+| [Rate limiting](/learn/rate-limiting) | verified | generic | throughput-bandwidth | Trace token bucket and sliding window limiters step by step, compare their behaviour on bursts, and choose where to enforce them. | 2 |
+| [Observability](/learn/observability) | verified | generic | latency | Use logs, metrics and traces together to localise a slow request. | 1 |
+| [SLIs, SLOs, error budgets](/learn/slos) | verified | generic | availability, observability | Define SLIs and SLOs and spend an error budget on a release decision. | 3 |
+| [Deployments and rollback](/learn/deployments) | verified | generic | slos | Compare rolling, blue-green and canary deployments and plan a rollback. | 2 |
+| [Backups and disaster recovery](/learn/backups-dr) | verified | generic | failover | Plan backups, restore testing and disaster recovery to meet RPO and RTO targets. | 1 |
+| [Cost reasoning](/learn/cost) | verified | generic | capacity-estimation | Estimate the monthly cost of two designs from unit prices and identify the dominant cost driver. | 1 |
 
 ## LLD and machine coding
 

@@ -8,7 +8,9 @@ import { DATA2 } from './data2';
 import { DISTRIBUTED1 } from './distributed1';
 import { DISTRIBUTED2 } from './distributed2';
 import { DISTRIBUTED3 } from './distributed3';
+import { ARCHITECTURE1 } from './architecture1';
+import { ARCHITECTURE2 } from './architecture2';
 
-const all: GenericLesson[] = [...START_LESSONS, ...BRIDGE_LESSONS, ...FOUNDATIONS1, ...FOUNDATIONS2, ...DATA1, ...DATA2, ...DISTRIBUTED1, ...DISTRIBUTED2, ...DISTRIBUTED3];
+const all: GenericLesson[] = [...START_LESSONS, ...BRIDGE_LESSONS, ...FOUNDATIONS1, ...FOUNDATIONS2, ...DATA1, ...DATA2, ...DISTRIBUTED1, ...DISTRIBUTED2, ...DISTRIBUTED3, ...ARCHITECTURE1, ...ARCHITECTURE2];
 
 export const GENERIC_LESSONS: Record<string, GenericLesson> = Object.fromEntries(all.map((l) => [l.id, l]));
