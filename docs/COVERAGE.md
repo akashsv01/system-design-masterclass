@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 102 · partial: 0 · implemented: 18 · verified: 3 · reviewed: 0
+**123 topics.** planned: 92 · partial: 0 · implemented: 10 · verified: 21 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -14,50 +14,50 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
 | [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 2 |
-| [HLD and LLD](/learn/hld-vs-lld) | implemented | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
+| [HLD and LLD](/learn/hld-vs-lld) | verified | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
 
 ## Bridges
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [JSON](/learn/bridge-json) | implemented | generic | — | Read and write JSON objects, arrays and nested values, and spot why a field type change breaks a client. | 1 |
-| [Maps](/learn/bridge-maps) | implemented | generic | — | Explain how a hash map gives near-constant-time lookup and what a key must guarantee. | 1 |
-| [Linked lists](/learn/bridge-linked-lists) | implemented | generic | bridge-maps | Manipulate a doubly linked list (unlink, push front, remove tail) and state the cost of each operation. | 0 |
-| [SQL basics](/learn/bridge-sql) | implemented | generic | bridge-json | Read SELECT, INSERT, UPDATE with WHERE, and a JOIN, predict their results on a small table, and complete one clause. | 2 |
-| [Interfaces](/learn/bridge-interfaces) | implemented | generic | — | Recognise a shared interface in Python (duck typing, then typing.Protocol) and predict which implementation runs when both are called through the same code. | 1 |
-| [Threads](/learn/bridge-threads) | implemented | generic | — | Predict the result of two Python threads incrementing a shared counter and explain why the final count can be wrong. | 2 |
+| [JSON](/learn/bridge-json) | verified | generic | — | Read and write JSON objects, arrays and nested values, and spot why a field type change breaks a client. | 1 |
+| [Maps](/learn/bridge-maps) | verified | generic | — | Explain how a hash map gives near-constant-time lookup and what a key must guarantee. | 1 |
+| [Linked lists](/learn/bridge-linked-lists) | verified | generic | bridge-maps | Manipulate a doubly linked list (unlink, push front, remove tail) and state the cost of each operation. | 0 |
+| [SQL basics](/learn/bridge-sql) | verified | generic | bridge-json | Read SELECT, INSERT, UPDATE with WHERE, and a JOIN, predict their results on a small table, and complete one clause. | 2 |
+| [Interfaces](/learn/bridge-interfaces) | verified | generic | — | Recognise a shared interface in Python (duck typing, then typing.Protocol) and predict which implementation runs when both are called through the same code. | 1 |
+| [Threads](/learn/bridge-threads) | verified | generic | — | Predict the result of two Python threads incrementing a shared counter and explain why the final count can be wrong. | 2 |
 
 ## Foundations and networking
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Inside a request](/learn/inside-a-request) | implemented | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 5 |
-| [Processes and threads](/learn/processes-threads) | implemented | generic | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2 |
-| [Memory and disk](/learn/memory-disk) | implemented | generic | processes-threads | Order memory, SSD, disk and network by access latency to within an order of magnitude and use it to explain caching and durability. | 2 |
-| [TCP vs UDP](/learn/tcp-udp) | implemented | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 3 |
-| [HTTP, REST and RPC](/learn/http-rest-rpc) | implemented | generic | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3 |
-| [Polling, SSE, WebSockets](/learn/realtime-delivery) | implemented | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 2 |
-| [Latency and percentiles](/learn/latency) | implemented | generic | inside-a-request | Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out. | 2 |
-| [Throughput and bandwidth](/learn/throughput-bandwidth) | implemented | generic | latency | Relate throughput, latency and concurrency (Little’s law), and distinguish throughput from bandwidth. | 2 |
-| [Availability](/learn/availability) | implemented | generic | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 2 |
-| [Capacity estimation](/learn/capacity-estimation) | implemented | generic | throughput-bandwidth | Estimate requests per second, peak load, storage and bandwidth from stated assumptions, with units and arithmetic. | 2 |
-| [Stateless services and scaling](/learn/stateless-scaling) | implemented | generic | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 2 |
+| [Inside a request](/learn/inside-a-request) | verified | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 5 |
+| [Processes and threads](/learn/processes-threads) | verified | generic | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2 |
+| [Memory and disk](/learn/memory-disk) | verified | generic | processes-threads | Order memory, SSD, disk and network by access latency to within an order of magnitude and use it to explain caching and durability. | 2 |
+| [TCP vs UDP](/learn/tcp-udp) | verified | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 3 |
+| [HTTP, REST and RPC](/learn/http-rest-rpc) | verified | generic | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3 |
+| [Polling, SSE, WebSockets](/learn/realtime-delivery) | verified | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 2 |
+| [Latency and percentiles](/learn/latency) | verified | generic | inside-a-request | Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out. | 2 |
+| [Throughput and bandwidth](/learn/throughput-bandwidth) | verified | generic | latency | Relate throughput, latency and concurrency (Little’s law), and distinguish throughput from bandwidth. | 2 |
+| [Availability](/learn/availability) | verified | generic | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 2 |
+| [Capacity estimation](/learn/capacity-estimation) | verified | generic | throughput-bandwidth | Estimate requests per second, peak load, storage and bandwidth from stated assumptions, with units and arithmetic. | 2 |
+| [Stateless services and scaling](/learn/stateless-scaling) | verified | generic | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 2 |
 
 ## Data systems
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Access patterns and schemas](/learn/access-patterns) | planned | none | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 1 |
-| [Normalization](/learn/normalization) | planned | none | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 1 |
-| [Indexes and query plans](/learn/indexes) | planned | none | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 3 |
-| [Data models](/learn/data-models) | planned | none | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 3 |
-| [Storage engines](/learn/storage-engines) | planned | none | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 4 |
-| [Transactions and isolation](/learn/transactions) | planned | none | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 3 |
-| [Locking and MVCC](/learn/locking-mvcc) | planned | none | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 3 |
+| [Access patterns and schemas](/learn/access-patterns) | implemented | generic | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 1 |
+| [Normalization](/learn/normalization) | implemented | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 1 |
+| [Indexes and query plans](/learn/indexes) | implemented | generic | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 3 |
+| [Data models](/learn/data-models) | implemented | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 3 |
+| [Storage engines](/learn/storage-engines) | implemented | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 4 |
+| [Transactions and isolation](/learn/transactions) | implemented | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 3 |
+| [Locking and MVCC](/learn/locking-mvcc) | implemented | generic | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 3 |
 | [Replication lag](/learn/replica-lag) | verified | custom | first-booking | Explain asynchronous replication lag, predict a stale read, and compare read-your-writes strategies by cost. | 1 |
-| [Failover](/learn/failover) | planned | none | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 2 |
-| [Sharding](/learn/sharding) | planned | none | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 1 |
-| [Consistent hashing](/learn/consistent-hashing) | planned | none | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 3 |
+| [Failover](/learn/failover) | implemented | generic | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 2 |
+| [Sharding](/learn/sharding) | implemented | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 1 |
+| [Consistent hashing](/learn/consistent-hashing) | implemented | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 3 |
 
 ## HLD and distributed systems
 

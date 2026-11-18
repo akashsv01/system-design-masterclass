@@ -53,7 +53,7 @@ export function Timeline({
     );
   }
   const maxT = Math.max(1, ...events.map((e) => Math.max(e.t, e.to?.t ?? 0)));
-  const left = 130;
+  const left = Math.max(110, Math.max(...lanes.map((l) => l.label.length)) * 8.6 + 34);
   const W = 800;
   const laneH = 64;
   const H = lanes.length * laneH + 36;
@@ -138,12 +138,12 @@ export function Chart({
   const W = narrow ? 360 : 800;
   const H = narrow ? 260 : 320;
   const L = narrow ? 48 : 64;
-  const B = 44;
+  const B = categories ? 52 : 44;
   const all = series.flatMap((s) => s.points);
   const xs = all.map((p) => p[0]);
   const minX = Math.min(...xs, 0);
   const maxX = Math.max(...xs, 1);
-  const rawMax = yMax ?? Math.max(1, ...all.map((p) => p[1]), ...thresholds.map((t) => t.y)) * 1.08;
+  const rawMax = yMax ?? (yLog ? Math.max(1, ...all.map((p) => p[1])) + 0.6 : Math.max(1, ...all.map((p) => p[1]), ...thresholds.map((t) => t.y)) * 1.08);
   // Round the axis up to a "nice" number (1, 2, 2.5 or 5 × 10^k) so ticks read cleanly.
   const niceStep = (() => {
     if (yLog) return rawMax / 4;
@@ -183,12 +183,20 @@ export function Chart({
         {series.map((s) =>
           kind === 'bar' ? (
             s.points.map(([px, py], i) => {
-              const bw = Math.max(8, (W - L - 16) / (s.points.length * 1.6));
+              // Bars sit in fixed category slots so a chart with few bars stays proportionate.
+              const nCat = categories?.length ?? Math.max(...s.points.map((p) => p[0])) + 1;
+              const slot = (W - L - 16) / nCat;
+              const bw = Math.min(slot * 0.55, 96);
+              const cx = L + slot * (px + 0.5);
               return (
                 <g key={`${s.name}-${i}`}>
-                  <rect x={sx(px) - bw / 2} y={sy(py)} width={bw} height={H - B - sy(py)} fill={color(s.tone)} opacity={0.85} rx={3} />
-                  <text x={sx(px)} y={H - B + 16} textAnchor="middle" className="edge-label" style={{ fontSize: narrow ? 11 : 13 }}>{categories?.[px] ?? px}</text>
-                  <text x={sx(px)} y={sy(py) - 6} textAnchor="middle" style={{ fontSize: narrow ? 11 : 13, fontWeight: 600 }}>{s.name === 'values' ? fmt(py) : ''}</text>
+                  <rect x={cx - bw / 2} y={sy(py)} width={bw} height={Math.max(0, H - B - sy(py))} fill={color(s.tone)} opacity={0.85} rx={3} />
+                  <text x={cx} y={H - B + 16} textAnchor="middle" className="edge-label" style={{ fontSize: narrow ? 11 : 13 }}>
+                    {wrapLabel(String(categories?.[px] ?? px), narrow ? 9 : 18).map((line, li) => (
+                      <tspan key={li} x={cx} dy={li === 0 ? 0 : '1.15em'}>{line}</tspan>
+                    ))}
+                  </text>
+                  <text x={cx} y={sy(py) - 6} textAnchor="middle" style={{ fontSize: narrow ? 11 : 13, fontWeight: 600 }}>{s.name === 'values' ? fmt(py) : ''}</text>
                 </g>
               );
             })
@@ -213,6 +221,18 @@ export function Chart({
       </svg>
     </div>
   );
+}
+
+/** Split a label into at most two lines of roughly `max` characters. */
+function wrapLabel(text: string, max: number): string[] {
+  if (text.length <= max) return [text];
+  const words = text.split(' ');
+  let first = '';
+  for (const w of words) {
+    if ((first + ' ' + w).trim().length > max && first) break;
+    first = (first + ' ' + w).trim();
+  }
+  return [first, text.slice(first.length).trim()].filter(Boolean);
 }
 
 /* ---------------- Compare ---------------- */
