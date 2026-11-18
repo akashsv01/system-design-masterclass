@@ -143,7 +143,7 @@ function StepStage({ lesson, step, replayKey }: { lesson: GL; step: number; repl
     visual = <Timeline lanes={v.lanes} events={v.events} upTo={tv.upTo} focus={tv.focus} unit={v.unit} description={s.alt ?? s.title} />;
   } else if (v.kind === 'chart') {
     const cv = result?.chart ?? s.chart;
-    visual = cv ? <Chart series={cv.series} marks={cv.marks} thresholds={cv.thresholds} xLabel={v.xLabel} yLabel={v.yLabel} kind={v.chartKind} yMax={v.yMax} description={s.alt ?? s.title} /> : null;
+    visual = cv ? <Chart series={cv.series} marks={cv.marks} thresholds={cv.thresholds} xLabel={v.xLabel} yLabel={v.yLabel} kind={v.chartKind} yMax={v.yMax} yLog={v.yLog} categories={v.categories} description={s.alt ?? s.title} /> : null;
   } else if (v.kind === 'compare') {
     const c = result?.compare ?? s.compare;
     visual = c ? (

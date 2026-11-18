@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 113 · partial: 0 · implemented: 7 · verified: 3 · reviewed: 0
+**123 topics.** planned: 102 · partial: 0 · implemented: 18 · verified: 3 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -31,17 +31,17 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Inside a request](/learn/inside-a-request) | planned | none | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 5 |
-| [Processes and threads](/learn/processes-threads) | planned | none | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2 |
-| [Memory and disk](/learn/memory-disk) | planned | none | processes-threads | Order memory, SSD, disk and network by access latency to within an order of magnitude and use it to explain caching and durability. | 2 |
-| [TCP vs UDP](/learn/tcp-udp) | planned | none | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 3 |
-| [HTTP, REST and RPC](/learn/http-rest-rpc) | planned | none | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3 |
-| [Polling, SSE, WebSockets](/learn/realtime-delivery) | planned | none | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 2 |
-| [Latency and percentiles](/learn/latency) | planned | none | inside-a-request | Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out. | 2 |
-| [Throughput and bandwidth](/learn/throughput-bandwidth) | planned | none | latency | Relate throughput, latency and concurrency (Little’s law), and distinguish throughput from bandwidth. | 2 |
-| [Availability](/learn/availability) | planned | none | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 2 |
-| [Capacity estimation](/learn/capacity-estimation) | planned | none | throughput-bandwidth | Estimate requests per second, peak load, storage and bandwidth from stated assumptions, with units and arithmetic. | 2 |
-| [Stateless services and scaling](/learn/stateless-scaling) | planned | none | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 2 |
+| [Inside a request](/learn/inside-a-request) | implemented | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 5 |
+| [Processes and threads](/learn/processes-threads) | implemented | generic | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2 |
+| [Memory and disk](/learn/memory-disk) | implemented | generic | processes-threads | Order memory, SSD, disk and network by access latency to within an order of magnitude and use it to explain caching and durability. | 2 |
+| [TCP vs UDP](/learn/tcp-udp) | implemented | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 3 |
+| [HTTP, REST and RPC](/learn/http-rest-rpc) | implemented | generic | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3 |
+| [Polling, SSE, WebSockets](/learn/realtime-delivery) | implemented | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 2 |
+| [Latency and percentiles](/learn/latency) | implemented | generic | inside-a-request | Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out. | 2 |
+| [Throughput and bandwidth](/learn/throughput-bandwidth) | implemented | generic | latency | Relate throughput, latency and concurrency (Little’s law), and distinguish throughput from bandwidth. | 2 |
+| [Availability](/learn/availability) | implemented | generic | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 2 |
+| [Capacity estimation](/learn/capacity-estimation) | implemented | generic | throughput-bandwidth | Estimate requests per second, peak load, storage and bandwidth from stated assumptions, with units and arithmetic. | 2 |
+| [Stateless services and scaling](/learn/stateless-scaling) | implemented | generic | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 2 |
 
 ## Data systems
 

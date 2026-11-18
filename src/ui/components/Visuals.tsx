@@ -109,7 +109,11 @@ export function Chart({
   kind = 'line',
   description,
   yMax,
+  yLog,
+  categories,
 }: {
+  /** Category labels for bar charts (x values are indexes). */
+  categories?: string[];
   series: Series[];
   xLabel: string;
   yLabel: string;
@@ -118,9 +122,19 @@ export function Chart({
   kind?: 'line' | 'bar';
   description: string;
   yMax?: number;
+  /** Logarithmic y axis for values spanning orders of magnitude. */
+  yLog?: boolean;
 }) {
   const [ref, width] = useStageWidth<HTMLDivElement>();
   const narrow = width < 560;
+  let lo = 0;
+  if (yLog) {
+    const tf = (v: number) => Math.log10(Math.max(v, 1e-9));
+    const raw = series.flatMap((s) => s.points.map((p) => p[1]));
+    lo = Math.floor(Math.min(...raw.map(tf)));
+    series = series.map((s) => ({ ...s, points: s.points.map(([x, y]) => [x, tf(y) - lo + 0.3] as [number, number]) }));
+    marks = marks.map((m) => ({ ...m, y: tf(m.y) - lo + 0.3 }));
+  }
   const W = narrow ? 360 : 800;
   const H = narrow ? 260 : 320;
   const L = narrow ? 48 : 64;
@@ -129,12 +143,26 @@ export function Chart({
   const xs = all.map((p) => p[0]);
   const minX = Math.min(...xs, 0);
   const maxX = Math.max(...xs, 1);
-  const maxY = yMax ?? Math.max(1, ...all.map((p) => p[1]), ...thresholds.map((t) => t.y)) * 1.1;
+  const rawMax = yMax ?? Math.max(1, ...all.map((p) => p[1]), ...thresholds.map((t) => t.y)) * 1.08;
+  // Round the axis up to a "nice" number (1, 2, 2.5 or 5 × 10^k) so ticks read cleanly.
+  const niceStep = (() => {
+    if (yLog) return rawMax / 4;
+    const rough = rawMax / 4;
+    const mag = 10 ** Math.floor(Math.log10(rough));
+    const f = rough / mag;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
+  })();
+  const maxY = yLog ? rawMax : niceStep * 4;
   const sx = (v: number) => L + ((W - L - 16) * (v - minX)) / (maxX - minX || 1);
   const sy = (v: number) => H - B - ((H - B - 16) * v) / maxY;
   const color = (t?: string) => (t === 'fail' ? 'var(--fail)' : t === 'ok' ? 'var(--ok)' : t === 'active' ? 'var(--active)' : 'var(--accent)');
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * maxY);
-  const fmt = (v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : v >= 10 ? String(Math.round(v)) : String(Math.round(v * 10) / 10));
+  const ticks = yLog ? Array.from({ length: Math.ceil(maxY) }, (_, i) => i + 0.3).filter((t) => t <= maxY) : [0, 1, 2, 3, 4].map((i) => i * niceStep);
+  const fmtLin = (v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : v >= 10 ? String(Math.round(v)) : String(Math.round(v * 10) / 10));
+  const fmt = (v: number) => {
+    if (!yLog) return fmtLin(v);
+    const real = 10 ** (v - 0.3 + lo);
+    return real >= 1e6 ? `${Math.round(real / 1e5) / 10}M` : real >= 1000 ? `${Math.round(real / 100) / 10}k` : real >= 1 ? String(Math.round(real)) : real.toPrecision(1);
+  };
   return (
     <div ref={ref}>
       <svg className="diagram" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={description} style={{ fontSize: 14 }}>
@@ -159,7 +187,8 @@ export function Chart({
               return (
                 <g key={`${s.name}-${i}`}>
                   <rect x={sx(px) - bw / 2} y={sy(py)} width={bw} height={H - B - sy(py)} fill={color(s.tone)} opacity={0.85} rx={3} />
-                  <text x={sx(px)} y={H - B + 16} textAnchor="middle" className="edge-label">{px}</text>
+                  <text x={sx(px)} y={H - B + 16} textAnchor="middle" className="edge-label" style={{ fontSize: narrow ? 11 : 13 }}>{categories?.[px] ?? px}</text>
+                  <text x={sx(px)} y={sy(py) - 6} textAnchor="middle" style={{ fontSize: narrow ? 11 : 13, fontWeight: 600 }}>{s.name === 'values' ? fmt(py) : ''}</text>
                 </g>
               );
             })

@@ -1,8 +1,26 @@
 {
   "note": "Written by scripts/e2e.mjs. Lists topic ids that rendered every step in a browser with no console errors and passed objective-check key validation.",
   "verified": [
+    "availability",
+    "bridge-interfaces",
+    "bridge-json",
+    "bridge-linked-lists",
+    "bridge-maps",
+    "bridge-sql",
+    "bridge-threads",
+    "capacity-estimation",
     "first-booking",
+    "hld-vs-lld",
+    "http-rest-rpc",
+    "inside-a-request",
+    "latency",
     "lru-cache",
-    "replica-lag"
+    "memory-disk",
+    "processes-threads",
+    "realtime-delivery",
+    "replica-lag",
+    "stateless-scaling",
+    "tcp-udp",
+    "throughput-bandwidth"
   ]
 }

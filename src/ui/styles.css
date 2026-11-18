@@ -309,7 +309,7 @@ button.snip-line:hover { background: var(--accent-soft); }
 @media (max-width: 760px) { .impl-grid { grid-template-columns: 1fr; } }
 
 /* ---------- Layer stack (selective 3D) ---------- */
-.layer-scene { height: 340px; display: grid; place-items: center; perspective: 1100px; overflow: hidden; }
+.layer-scene { height: 360px; display: grid; place-items: center; perspective: 1100px; overflow: hidden; padding-top: 70px; }
 .layer-stack { position: relative; width: 280px; height: 170px; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.45, 0, 0.25, 1); }
 .layer-plate {
   position: absolute; inset: 0; border-radius: 14px; border: 2px solid var(--line-strong);
@@ -326,7 +326,7 @@ button.snip-line:hover { background: var(--accent-soft); }
 .layer-plate.focus, .layer-flat-item.focus { border-width: 3px; border-color: var(--accent); }
 .layer-flat { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .layer-flat-item { border: 2px solid var(--line-strong); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--surface); }
-@media (max-width: 600px) { .layer-scene { height: 280px; } .layer-stack { width: 220px; height: 140px; } }
+@media (max-width: 600px) { .layer-scene { height: 300px; padding-top: 60px; } .layer-stack { width: 220px; height: 140px; } }
 
 /* ---------- Timeline list (phones), compare ---------- */
 .tl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
