@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 31 · partial: 0 · implemented: 24 · verified: 68 · reviewed: 0
+**124 topics.** planned: 15 · partial: 0 · implemented: 41 · verified: 68 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -145,23 +145,23 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Design a URL shortener](/cases/case-url-shortener) | planned | none | api-design, sharding, caching | Work from an ambiguous prompt to a defended design: a URL shortener. | 1 |
-| [Design a distributed rate limiter](/cases/case-rate-limiter) | planned | none | rate-limiting, consistency-models | Work from an ambiguous prompt to a defended design: a distributed rate limiter. | 1 |
-| [Design a notification system](/cases/case-notifications) | planned | none | queues, retries, idempotency | Work from an ambiguous prompt to a defended design: a notification system. | 1 |
-| [Design a chat system](/cases/case-chat) | planned | none | realtime-delivery, clocks-ordering, logs-delivery | Work from an ambiguous prompt to a defended design: a chat system. | 1 |
-| [Design a social feed](/cases/case-feed) | planned | none | caching, queues, sharding | Work from an ambiguous prompt to a defended design: a social feed. | 1 |
-| [Design search autocomplete](/cases/case-autocomplete) | planned | none | caching, data-models | Work from an ambiguous prompt to a defended design: search autocomplete. | 1 |
-| [Design file storage and sync](/cases/case-file-sync) | planned | none | data-models, consistency-models | Work from an ambiguous prompt to a defended design: file storage and sync. | 2 |
-| [Design video streaming](/cases/case-video) | planned | none | cdn, batch-stream | Work from an ambiguous prompt to a defended design: video streaming. | 1 |
-| [Design ticket booking (HLD)](/cases/case-ticket-booking) | planned | none | first-booking, transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: ticket booking. | 1 |
-| [Design a payment system](/cases/case-payments) | planned | none | idempotency, distributed-transactions | Work from an ambiguous prompt to a defended design: a payment system. | 1 |
-| [Design inventory and checkout](/cases/case-checkout) | planned | none | transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: inventory and checkout. | 1 |
-| [Design ride matching](/cases/case-ride-matching) | planned | none | sharding, realtime-delivery | Work from an ambiguous prompt to a defended design: ride matching. | 1 |
-| [Design metrics ingestion](/cases/case-metrics) | planned | none | batch-stream, data-models | Work from an ambiguous prompt to a defended design: metrics ingestion. | 1 |
-| [Design a distributed job scheduler](/cases/case-scheduler) | planned | none | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 1 |
-| [Design a web crawler](/cases/case-crawler) | planned | none | queues, rate-limiting | Work from an ambiguous prompt to a defended design: a web crawler. | 1 |
-| [Design a collaborative editor](/cases/case-collab-editor) | planned | none | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 1 |
-| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | planned | none | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 1 |
+| [Design a URL shortener](/cases/case-url-shortener) | implemented | case | api-design, sharding, caching | Work from an ambiguous prompt to a defended design: a URL shortener. | 1 |
+| [Design a distributed rate limiter](/cases/case-rate-limiter) | implemented | case | rate-limiting, consistency-models | Work from an ambiguous prompt to a defended design: a distributed rate limiter. | 1 |
+| [Design a notification system](/cases/case-notifications) | implemented | case | queues, retries, idempotency | Work from an ambiguous prompt to a defended design: a notification system. | 1 |
+| [Design a chat system](/cases/case-chat) | implemented | case | realtime-delivery, clocks-ordering, logs-delivery | Work from an ambiguous prompt to a defended design: a chat system. | 1 |
+| [Design a social feed](/cases/case-feed) | implemented | case | caching, queues, sharding | Work from an ambiguous prompt to a defended design: a social feed. | 1 |
+| [Design search autocomplete](/cases/case-autocomplete) | implemented | case | caching, data-models | Work from an ambiguous prompt to a defended design: search autocomplete. | 1 |
+| [Design file storage and sync](/cases/case-file-sync) | implemented | case | data-models, consistency-models | Work from an ambiguous prompt to a defended design: file storage and sync. | 2 |
+| [Design video streaming](/cases/case-video) | implemented | case | cdn, batch-stream | Work from an ambiguous prompt to a defended design: video streaming. | 1 |
+| [Design ticket booking (HLD)](/cases/case-ticket-booking) | implemented | case | first-booking, transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: ticket booking. | 1 |
+| [Design a payment system](/cases/case-payments) | implemented | case | idempotency, distributed-transactions | Work from an ambiguous prompt to a defended design: a payment system. | 1 |
+| [Design inventory and checkout](/cases/case-checkout) | implemented | case | transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: inventory and checkout. | 1 |
+| [Design ride matching](/cases/case-ride-matching) | implemented | case | sharding, realtime-delivery | Work from an ambiguous prompt to a defended design: ride matching. | 1 |
+| [Design metrics ingestion](/cases/case-metrics) | implemented | case | batch-stream, data-models | Work from an ambiguous prompt to a defended design: metrics ingestion. | 1 |
+| [Design a distributed job scheduler](/cases/case-scheduler) | implemented | case | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 1 |
+| [Design a web crawler](/cases/case-crawler) | implemented | case | queues, rate-limiting | Work from an ambiguous prompt to a defended design: a web crawler. | 1 |
+| [Design a collaborative editor](/cases/case-collab-editor) | implemented | case | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 1 |
+| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | implemented | case | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 1 |
 
 ## LLD case studies
 
@@ -180,6 +180,7 @@ Audit: 0 error(s), 0 warning(s).
 | [Seat booking (LLD)](/cases/lld-booking) | planned | none | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 2 |
 | [Shopping cart](/cases/lld-shopping-cart) | planned | none | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 2 |
 | [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | planned | none | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 2 |
+| [Live score event processor](/cases/lld-live-scores) | planned | none | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 2 |
 
 ## Capstone
 

@@ -1,4 +1,4 @@
-import type { Block, Check } from './lessonTypes';
+import type { Block, Check, DiagramSpec, StepView } from './lessonTypes';
 
 export type CaseStageKind = 'clarify' | 'simple' | 'critical-path' | 'failure' | 'change' | 'compare' | 'model' | 'invariants' | 'tests';
 
@@ -10,6 +10,8 @@ export interface CaseStage {
   hints: string[];
   /** Reference answer revealed on request. */
   reference: Block[];
+  /** What the reference diagram highlights at this stage. */
+  view?: StepView;
 }
 
 export interface CaseStudy {
@@ -18,6 +20,8 @@ export interface CaseStudy {
   prompt: string;
   pairedWith?: string;
   assumptions: string[];
+  /** Reference architecture (HLD) or class/state diagram (LLD), revealed stage by stage. */
+  diagram: DiagramSpec;
   stages: CaseStage[];
   /** Defensible alternatives compared under explicit assumptions. */
   alternatives?: { name: string; when: string; cost: string }[];

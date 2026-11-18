@@ -365,6 +365,7 @@ export const TOPICS: Topic[] = [
     ['lld-booking', 'Seat booking (LLD)', ['first-booking', 'state-machines', 'concurrency-lld']],
     ['lld-shopping-cart', 'Shopping cart', ['domain-objects', 'pattern-strategy']],
     ['lld-board-game', 'Board game (tic-tac-toe → Connect Four)', ['polymorphism-composition', 'testing']],
+    ['lld-live-scores', 'Live score event processor', ['clocks-ordering', 'idempotency', 'state-machines']],
   ] as [string, string, string[]][]).map(([id, title, pre]) =>
     T(id, `Design a ${title.charAt(0).toLowerCase() + title.slice(1)}`, 'cases-lld', 'case-lld', pre,
       `Decide responsibilities, states and invariants for ${title}; read the worked Python design and complete small checks against it.`, [title], ['gof', 'pytest'], title)),

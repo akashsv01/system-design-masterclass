@@ -42,7 +42,7 @@ export const SCOPE: Record<string, string[]> = {
   ],
   'lld cases': [
     'parking lot', 'elevator', 'vending machine', 'library', 'expense sharing', 'logger', 'notification service', 'LRU cache',
-    'rate limiter (LLD)', 'task scheduler', 'seat booking', 'shopping cart', 'board game',
+    'rate limiter (LLD)', 'task scheduler', 'seat booking', 'shopping cart', 'board game', 'live score event processor',
   ],
   labs: [
     'request tracing', 'overload and load balancing', 'cache behaviour', 'stale reads', 'partitioning and hot spots',
