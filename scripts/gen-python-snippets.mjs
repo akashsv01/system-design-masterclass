@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 const root = 'python';
 const out = {};
-for (const dir of ['sdm', 'blanks']) {
+for (const dir of ['sdm', 'sdm/cases', 'blanks']) {
   for (const f of readdirSync(join(root, dir)).sort()) {
     const p = join(root, dir, f);
     if (statSync(p).isFile() && f.endsWith('.py') && f !== '__init__.py') out[`${dir}/${f}`] = readFileSync(p, 'utf8');

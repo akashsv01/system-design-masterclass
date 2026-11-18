@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**124 topics.** planned: 15 · partial: 0 · implemented: 41 · verified: 68 · reviewed: 0
+**124 topics.** planned: 1 · partial: 0 · implemented: 53 · verified: 70 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -14,7 +14,7 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
 | [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 2 |
-| [HLD and LLD](/learn/hld-vs-lld) | implemented | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
+| [HLD and LLD](/learn/hld-vs-lld) | verified | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 2 |
 
 ## Bridges
 
@@ -109,7 +109,7 @@ Audit: 0 error(s), 0 warning(s).
 | [Responsibilities and encapsulation](/learn/responsibilities) | verified | generic | bridge-interfaces, hld-vs-lld | Assign responsibilities to classes, hide data behind behaviour, and define interfaces around roles. | 2 |
 | [Polymorphism and composition](/learn/polymorphism-composition) | verified | generic | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 3 |
 | [Cohesion and coupling](/learn/cohesion-coupling) | verified | generic | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 2 |
-| [SOLID](/learn/solid) | implemented | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 2 |
+| [SOLID](/learn/solid) | verified | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 2 |
 | [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2 |
 | [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2 |
 | [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 2 |
@@ -167,20 +167,20 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Parking lot](/cases/lld-parking-lot) | planned | none | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 2 |
-| [Elevator controller](/cases/lld-elevator) | planned | none | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 2 |
-| [Vending machine](/cases/lld-vending-machine) | planned | none | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 2 |
-| [Library management](/cases/lld-library) | planned | none | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 2 |
-| [Expense sharing](/cases/lld-expense-sharing) | planned | none | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 2 |
-| [Logger](/cases/lld-logger) | planned | none | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 2 |
-| [Notification service (LLD)](/cases/lld-notifications) | planned | none | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [LRU cache (machine coding)](/cases/lld-lru) | planned | none | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 2 |
-| [Rate limiter (LLD)](/cases/lld-rate-limiter) | planned | none | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Task scheduler (LLD)](/cases/lld-scheduler) | planned | none | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Seat booking (LLD)](/cases/lld-booking) | planned | none | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Shopping cart](/cases/lld-shopping-cart) | planned | none | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 2 |
-| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | planned | none | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 2 |
-| [Live score event processor](/cases/lld-live-scores) | planned | none | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 2 |
+| [Parking lot](/cases/lld-parking-lot) | implemented | case | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 2 |
+| [Elevator controller](/cases/lld-elevator) | implemented | case | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 2 |
+| [Vending machine](/cases/lld-vending-machine) | implemented | case | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 2 |
+| [Library management](/cases/lld-library) | implemented | case | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 2 |
+| [Expense sharing](/cases/lld-expense-sharing) | implemented | case | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 2 |
+| [Logger](/cases/lld-logger) | implemented | case | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 2 |
+| [Notification service (LLD)](/cases/lld-notifications) | implemented | case | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [LRU cache (machine coding)](/cases/lld-lru) | implemented | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 2 |
+| [Rate limiter (LLD)](/cases/lld-rate-limiter) | implemented | case | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Task scheduler (LLD)](/cases/lld-scheduler) | implemented | case | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Seat booking (LLD)](/cases/lld-booking) | implemented | case | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Shopping cart](/cases/lld-shopping-cart) | implemented | case | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 2 |
+| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | implemented | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 2 |
+| [Live score event processor](/cases/lld-live-scores) | implemented | case | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 2 |
 
 ## Capstone
 
