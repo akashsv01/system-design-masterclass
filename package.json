@@ -17,9 +17,11 @@
     "coverage:report": "tsx scripts/coverage-report.ts",
     "audit:content": "tsx scripts/coverage-report.ts --check",
     "e2e": "node scripts/e2e.mjs",
-    "predev": "node scripts/copy-pyodide.mjs",
-    "prebuild": "node scripts/copy-pyodide.mjs",
-    "test:py": "cd python && python3 -m pytest -q"
+    "predev": "node scripts/copy-pyodide.mjs && node scripts/gen-python-snippets.mjs",
+    "prebuild": "node scripts/copy-pyodide.mjs && node scripts/gen-python-snippets.mjs",
+    "test:py": "cd python && python3 -m pytest -q",
+    "pretest": "node scripts/gen-python-snippets.mjs",
+    "pretypecheck": "node scripts/gen-python-snippets.mjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

@@ -71,9 +71,12 @@ def _run(test_paths):
     results = []
     for path in test_paths:
         modname = path[:-3].replace("/", ".")
-        for m in list(sys.modules):
-            if m == modname or m.startswith("sdm") or m.startswith("tests"):
+        # Forget every module loaded from the learner's files so each run sees the latest code.
+        for m, mod_obj in list(sys.modules.items()):
+            f = getattr(mod_obj, "__file__", None) or ""
+            if f.startswith("/work/") and m not in ("pytest", "_sdm_harness"):
                 del sys.modules[m]
+        importlib.invalidate_caches()
         try:
             mod = importlib.import_module(modname)
         except Exception as e:

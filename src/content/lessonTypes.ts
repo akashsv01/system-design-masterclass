@@ -3,6 +3,8 @@
  * Text fields accept a small inline markup: **bold**, *em*, `code`, [label](/route).
  */
 import type { DNode, DEdge, DToken, Layout } from '../ui/components/Diagram';
+import type { TimelineEvent, Series } from '../ui/components/Visuals';
+import type { Layer } from '../ui/components/LayerStack';
 
 export type Block =
   | { type: 'p'; text: string }
@@ -19,6 +21,43 @@ export interface DiagramSpec {
   edges: DEdge[];
   wide: Layout;
   narrow: Layout;
+  depth?: 'flat' | 'layered';
+}
+
+/** The lesson's visual format, chosen per topic (docs/LESSON_GUIDE.md §4). */
+export type Visual =
+  | { kind: 'diagram'; spec: DiagramSpec }
+  | { kind: 'timeline'; lanes: { id: string; label: string }[]; events: TimelineEvent[]; unit?: string }
+  | { kind: 'chart'; xLabel: string; yLabel: string; chartKind?: 'line' | 'bar'; yMax?: number }
+  | { kind: 'compare' }
+  | { kind: 'stack'; layers: Layer[] }
+  | { kind: 'none' };
+
+/** Per-step view for non-diagram visuals. */
+export interface TimelineView { upTo: number; focus?: number }
+export interface ChartView { series: Series[]; marks?: { x: number; y: number; label: string }[]; thresholds?: { y: number; label: string }[] }
+export interface CompareView {
+  left: { title: string; points: string[]; verdict?: string; tone?: 'ok' | 'fail' | 'plain' };
+  right: { title: string; points: string[]; verdict?: string; tone?: 'ok' | 'fail' | 'plain' };
+  focus?: 'left' | 'right' | 'both';
+}
+export interface StackView { ghost?: string[]; focus?: string; separation?: number; tones?: Record<string, Layer['tone']>; details?: Record<string, string> }
+
+/**
+ * An optional learner control on one step: change an input and see the consequence.
+ * `compute` is a pure function so the result is deterministic and replayable.
+ */
+export interface Experiment {
+  step: number;
+  label: string;
+  min: number;
+  max: number;
+  stepSize: number;
+  initial: number;
+  unit: string;
+  /** Returns the view to show and one or two sentences describing the consequence. */
+  compute: (value: number) => { text: string; diagram?: StepView; chart?: ChartView; timeline?: TimelineView; compare?: CompareView; stack?: StackView };
+  assumptions: string[];
 }
 
 export interface StepView {
@@ -36,6 +75,13 @@ export interface StepView {
 
 export interface LessonStep {
   title: string;
+  /** Views for non-diagram visuals. */
+  timeline?: TimelineView;
+  chart?: ChartView;
+  compare?: CompareView;
+  stack?: StackView;
+  /** A short Python snippet revealed on request at this step ("See it in Python"). */
+  code?: { code: string; highlight?: number[]; caption: string; open?: boolean };
   kicker?: 'Problem' | 'Idea' | 'Watch' | 'Try it' | 'Trade-off' | 'Failure' | 'Fix' | 'Recap' | 'Predict' | 'Example';
   body: string[];
   changes?: { kind: 'add' | 'chg' | 'del'; text: string }[];
@@ -104,7 +150,10 @@ export type Check =
 export interface GenericLesson {
   id: string;
   opening: string;
-  diagram?: DiagramSpec;
+  /** Breadcrumb label for the area, e.g. "Data systems". */
+  area?: string;
+  visual: Visual;
+  experiment?: Experiment;
   steps: LessonStep[];
   /** An inspectable worked example: concrete values, arithmetic, or code. */
   worked: { title: string; blocks: Block[] };
@@ -112,8 +161,6 @@ export interface GenericLesson {
   checks: Check[];
   /** One small exercise: explain a decision in one or two sentences. */
   exercise: ShortExercise;
-  /** Short Python snippets revealed at the step where they help (shown as an optional "See it in code" panel). */
-  code?: { step: number; code: string; highlight?: number[]; caption: string }[];
   deeper?: Block[];
   /** Where a beginner's analogy breaks, misconceptions, or variations. */
   next?: { id: string; reason: string };

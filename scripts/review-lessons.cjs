@@ -60,7 +60,10 @@ async function layoutIssues(p) {
 }
 
 (async () => {
-  const lessons = only.length ? only : ['first-booking', 'replica-lag', 'lru-cache'];
+  const writeVerification = only.includes('--write-verification');
+  const ids = only.filter((x) => !x.startsWith('--'));
+  const lessons = ids.length ? ids : ['first-booking', 'replica-lag', 'lru-cache'];
+  const failedIds = new Set();
   const b = await chromium.launch();
   const report = [];
   for (const [label, ctxOpts] of [['desktop', { viewport: { width: 1280, height: 900 } }], ['mobile', { ...devices['iPhone 13'] }]]) {
@@ -76,18 +79,31 @@ async function layoutIssues(p) {
         await p.waitForTimeout(1000);
         const issues = await layoutIssues(p);
         await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}.png`, fullPage: label === 'mobile' });
-        const count = await p.locator('.controls .count').textContent().catch(() => '');
+        const count = await p.locator('.controls .count-long').textContent().catch(() => '');
         report.push(`${label} ${id} ${count} ${issues.join('; ')}`);
+        if (issues.length) failedIds.add(id);
         const next = p.locator('.controls .btn-next');
         if (!(await next.count())) break;
-        if (!(await next.isEnabled())) { report.push(`  BLOCKED: ${await next.textContent()}`); break; }
+        if (!(await next.isEnabled())) { report.push(`  BLOCKED: ${await next.textContent()}`); failedIds.add(id); break; }
         await next.click();
         await p.waitForTimeout(300);
       }
-      if (errors.length) report.push(`  CONSOLE ERRORS (${id} ${label}): ${[...new Set(errors)].slice(0, 5).join(' | ')}`);
+      if (errors.length) { report.push(`  CONSOLE ERRORS (${id} ${label}): ${[...new Set(errors)].slice(0, 5).join(' | ')}`); failedIds.add(id); }
       await ctx.close();
     }
   }
   await b.close();
   console.log(report.join('\n'));
+  if (writeVerification) {
+    // A lesson is "verified" only if every step rendered at both sizes with no console errors,
+    // no layout issues and no blocked Next. Lessons that fail are removed from the list.
+    const fs = require('fs');
+    const path = 'src/content/verification.json';
+    const v = JSON.parse(fs.readFileSync(path, 'utf8'));
+    const set = new Set(v.verified);
+    for (const id of lessons) (failedIds.has(id) ? set.delete(id) : set.add(id));
+    v.verified = [...set].sort();
+    fs.writeFileSync(path, JSON.stringify(v, null, 2) + '\n');
+    console.log(`verification.json: ${v.verified.length} verified; failed this run: ${[...failedIds].join(', ') || 'none'}`);
+  }
 })().catch((e) => { console.error(e); process.exit(1); });

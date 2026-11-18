@@ -1,0 +1,144 @@
+/**
+ * Curriculum coverage report and content audit.
+ *   npx tsx scripts/coverage-report.ts          → writes docs/COVERAGE.md
+ *   npx tsx scripts/coverage-report.ts --check  → also exits 1 on any error
+ *
+ * Checks: missing prerequisites, prerequisite cycles, duplicate ids/titles/routes, orphan content,
+ * topics marked complete without assessment, broken internal links, invalid answer keys, next-lesson ids,
+ * and master-prompt scope terms not covered by any topic.
+ */
+import { writeFileSync } from 'node:fs';
+import { CURRICULUM, MODULES, piecesFor, CUSTOM_LESSONS } from '../src/content/curriculum';
+import { GENERIC_LESSONS } from '../src/content/lessons';
+import { CASES } from '../src/content/cases';
+import { LABS } from '../src/content/labs';
+import { SCOPE } from './scope-terms';
+import type { Check } from '../src/content/lessonTypes';
+
+const errors: string[] = [];
+const warnings: string[] = [];
+const ids = new Set(CURRICULUM.map((t) => t.id));
+const routes = new Set(CURRICULUM.map((t) => t.route));
+const STATIC_ROUTES = ['/', '/topics', '/practice', '/interview', '/progress', '/coverage', '/patterns', '/capstone'];
+
+// Duplicates
+const seen = new Map<string, string>();
+for (const t of CURRICULUM) {
+  for (const [kind, key] of [['id', t.id], ['title', t.title.toLowerCase()], ['route', t.route]] as const) {
+    const k = `${kind}:${key}`;
+    if (seen.has(k)) errors.push(`Duplicate ${kind} "${key}" (${seen.get(k)} and ${t.id})`);
+    seen.set(k, t.id);
+  }
+  if (!MODULES.some((m) => m.id === t.module)) errors.push(`${t.id}: unknown module ${t.module}`);
+  for (const p of t.prereqs) if (!ids.has(p)) errors.push(`${t.id}: missing prerequisite "${p}"`);
+}
+
+// Cycles
+const state = new Map<string, 0 | 1 | 2>();
+const byId = new Map(CURRICULUM.map((t) => [t.id, t]));
+function visit(id: string, path: string[]) {
+  if (state.get(id) === 2) return;
+  if (state.get(id) === 1) {
+    errors.push(`Prerequisite cycle: ${[...path, id].join(' → ')}`);
+    return;
+  }
+  state.set(id, 1);
+  for (const p of byId.get(id)?.prereqs ?? []) visit(p, [...path, id]);
+  state.set(id, 2);
+}
+for (const t of CURRICULUM) visit(t.id, []);
+
+// Orphans
+for (const id of [...Object.keys(GENERIC_LESSONS), ...Object.keys(CASES), ...Object.keys(LABS), ...Object.keys(CUSTOM_LESSONS)]) {
+  if (!ids.has(id)) errors.push(`Orphan content "${id}" has no manifest entry`);
+}
+
+// Internal links and answer keys
+const linkRe = /\[[^\]]+\]\((\/[^)#]+)(#[^)]*)?\)/g;
+function checkLinks(where: string, text: string) {
+  for (const m of text.matchAll(linkRe)) {
+    const path = m[1];
+    if (!routes.has(path) && !STATIC_ROUTES.includes(path)) errors.push(`${where}: broken link ${path}`);
+  }
+}
+function checkCheck(where: string, c: Check) {
+  if (c.kind === 'choice') {
+    if (c.correct && !c.choices.some((x) => x.id === c.correct)) errors.push(`${where}/${c.id}: answer key "${c.correct}" is not a choice`);
+    if (new Set(c.choices.map((x) => x.id)).size !== c.choices.length) errors.push(`${where}/${c.id}: duplicate choice ids`);
+    for (const x of c.choices) if (!x.why?.trim()) errors.push(`${where}/${c.id}: choice ${x.id} has no explanation`);
+  } else if (c.kind === 'numeric') {
+    if (!(c.tolerance > 0 && c.tolerance < 1)) errors.push(`${where}/${c.id}: tolerance must be in (0,1)`);
+    if (!c.solution.length) errors.push(`${where}/${c.id}: numeric check without worked solution`);
+  } else if (c.kind === 'order') {
+    if (c.items.length < 3) errors.push(`${where}/${c.id}: order check needs at least 3 items`);
+  } else if (c.kind === 'line') {
+    const n = c.code.split('\n').length;
+    for (const a of c.answer) if (a < 1 || a > n) errors.push(`${where}/${c.id}: line ${a} outside snippet (1..${n})`);
+  }
+}
+for (const [id, l] of Object.entries(GENERIC_LESSONS)) {
+  const texts = [l.opening, ...l.steps.flatMap((s) => [...s.body, s.callout?.text ?? '']), l.exercise.model, ...(l.next ? [l.next.reason] : [])];
+  for (const t of texts) checkLinks(id, t);
+  for (const s of l.steps) if (s.predict) checkCheck(id, { kind: 'choice', ...s.predict });
+  for (const c of l.checks) checkCheck(id, c);
+  if (l.next && !ids.has(l.next.id)) errors.push(`${id}: next lesson "${l.next.id}" not in manifest`);
+  if (l.steps.length > 9) warnings.push(`${id}: ${l.steps.length} steps — consider splitting`);
+  for (const s of l.steps) {
+    if (s.body.length > 3) warnings.push(`${id} / "${s.title}": ${s.body.length} paragraphs (guide: ≤ 3)`);
+    const words = s.body.join(' ').split(/\s+/).length;
+    if (words > 130) warnings.push(`${id} / "${s.title}": ${words} words in one step (guide: keep it short)`);
+    if (/today's digital world|let's dive|powerful concept|essential for scalable/i.test(s.body.join(' '))) errors.push(`${id}: banned phrase in "${s.title}"`);
+  }
+  if (l.visual.kind === 'diagram') {
+    const nodeIds = new Set(l.visual.spec.nodes.map((n) => n.id));
+    for (const n of nodeIds) {
+      if (!l.visual.spec.wide.nodes[n]) errors.push(`${id}: node ${n} missing from wide layout`);
+      if (!l.visual.spec.narrow.nodes[n]) errors.push(`${id}: node ${n} missing from narrow layout`);
+    }
+    for (const s of l.steps) for (const t of s.view?.tokens ?? []) if (!nodeIds.has(t.from) || !nodeIds.has(t.to)) errors.push(`${id}: token ${t.from}→${t.to} references unknown node`);
+  }
+}
+for (const [id, c] of Object.entries(CASES)) {
+  for (const ch of c.checks) checkCheck(id, ch);
+  for (const st of c.stages) for (const b of st.reference) if (b.type === 'p') checkLinks(id, b.text);
+}
+
+// Topics claiming completeness must have assessment
+for (const t of CURRICULUM) {
+  const p = piecesFor(t.id);
+  if ((t.status === 'implemented' || t.status === 'verified') && !p.assessment) errors.push(`${t.id}: marked ${t.status} without assessment`);
+}
+
+// Scope coverage
+const haystack = CURRICULUM.map((t) => [t.title, t.short ?? '', ...t.covers].join(' | ').toLowerCase()).join(' || ');
+const uncovered: string[] = [];
+for (const [area, terms] of Object.entries(SCOPE)) for (const term of terms) if (!haystack.includes(term.toLowerCase())) uncovered.push(`${area}: ${term}`);
+for (const u of uncovered) errors.push(`Scope term not covered by any topic — ${u}`);
+
+// Report
+const counts: Record<string, number> = {};
+for (const t of CURRICULUM) counts[t.status] = (counts[t.status] ?? 0) + 1;
+const lines: string[] = [];
+lines.push('# Curriculum coverage report', '');
+lines.push('Generated by `npm run coverage:report` from `src/content/manifest.ts` and the content that exists.');
+lines.push('Status is computed, never hand-set: **planned** (nothing yet) → **partial** (missing pieces) → **implemented** (explanation, worked example, exercise, assessment) → **verified** (rendered in a browser at desktop and mobile with no console errors; listed in `src/content/verification.json`) → **reviewed** (an independent human editor; `src/content/reviews.json`).', '');
+lines.push('Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.', '');
+lines.push(`**${CURRICULUM.length} topics.** ` + ['planned', 'partial', 'implemented', 'verified', 'reviewed'].map((s) => `${s}: ${counts[s] ?? 0}`).join(' · '), '');
+lines.push(`Audit: ${errors.length} error(s), ${warnings.length} warning(s).`, '');
+for (const m of MODULES) {
+  const ts = CURRICULUM.filter((t) => t.module === m.id);
+  lines.push(`## ${m.title}`, '');
+  lines.push('| Topic | Status | Format | Prerequisites | Objective | Sources |');
+  lines.push('|---|---|---|---|---|---|');
+  for (const t of ts) {
+    const p = piecesFor(t.id);
+    lines.push(`| [${t.short ?? t.title}](${t.route}) | ${t.status}${t.status === 'partial' ? ` (${t.statusNote})` : ''} | ${p.format} | ${t.prereqs.join(', ') || '—'} | ${t.objective.replace(/\|/g, '/')} | ${t.sources.length} |`);
+  }
+  lines.push('');
+}
+if (errors.length) lines.push('## Audit errors', '', ...errors.map((e) => `- ${e}`), '');
+if (warnings.length) lines.push('## Audit warnings', '', ...warnings.map((e) => `- ${e}`), '');
+writeFileSync('docs/COVERAGE.md', lines.join('\n'));
+console.log(`docs/COVERAGE.md written. ${CURRICULUM.length} topics; ${JSON.stringify(counts)}; ${errors.length} errors, ${warnings.length} warnings.`);
+if (errors.length) console.log(errors.slice(0, 40).map((e) => `  ERROR ${e}`).join('\n'));
+if (process.argv.includes('--check') && errors.length) process.exit(1);

@@ -15,8 +15,6 @@ export const CUSTOM_LESSONS: Record<string, { explanation: boolean; worked: bool
   'first-booking': { explanation: true, worked: true, exercise: true, assessment: true },
   'replica-lag': { explanation: true, worked: true, exercise: true, assessment: true },
   'lru-cache': { explanation: true, worked: true, exercise: true, assessment: true },
-  'gof-reference': { explanation: true, worked: true, exercise: true, assessment: true },
-  capstone: { explanation: true, worked: true, exercise: true, assessment: true },
 };
 
 export interface ContentPieces {
