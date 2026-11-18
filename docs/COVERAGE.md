@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**123 topics.** planned: 92 · partial: 0 · implemented: 10 · verified: 21 · reviewed: 0
+**123 topics.** planned: 79 · partial: 0 · implemented: 13 · verified: 31 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -47,35 +47,35 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Access patterns and schemas](/learn/access-patterns) | implemented | generic | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 1 |
-| [Normalization](/learn/normalization) | implemented | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 1 |
-| [Indexes and query plans](/learn/indexes) | implemented | generic | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 3 |
-| [Data models](/learn/data-models) | implemented | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 3 |
-| [Storage engines](/learn/storage-engines) | implemented | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 4 |
-| [Transactions and isolation](/learn/transactions) | implemented | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 3 |
-| [Locking and MVCC](/learn/locking-mvcc) | implemented | generic | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 3 |
+| [Access patterns and schemas](/learn/access-patterns) | verified | generic | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 1 |
+| [Normalization](/learn/normalization) | verified | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 1 |
+| [Indexes and query plans](/learn/indexes) | verified | generic | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 3 |
+| [Data models](/learn/data-models) | verified | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 3 |
+| [Storage engines](/learn/storage-engines) | verified | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 4 |
+| [Transactions and isolation](/learn/transactions) | verified | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 3 |
+| [Locking and MVCC](/learn/locking-mvcc) | verified | generic | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 3 |
 | [Replication lag](/learn/replica-lag) | verified | custom | first-booking | Explain asynchronous replication lag, predict a stale read, and compare read-your-writes strategies by cost. | 1 |
-| [Failover](/learn/failover) | implemented | generic | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 2 |
-| [Sharding](/learn/sharding) | implemented | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 1 |
-| [Consistent hashing](/learn/consistent-hashing) | implemented | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 3 |
+| [Failover](/learn/failover) | verified | generic | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 2 |
+| [Sharding](/learn/sharding) | verified | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 1 |
+| [Consistent hashing](/learn/consistent-hashing) | verified | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 3 |
 
 ## HLD and distributed systems
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Requirements](/learn/requirements) | planned | none | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 2 |
-| [API design](/learn/api-design) | planned | none | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 2 |
-| [Proxies and gateways](/learn/proxies-gateways) | planned | none | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 2 |
-| [Load balancing](/learn/load-balancing) | planned | none | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2 |
-| [CDNs](/learn/cdn) | planned | none | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 2 |
-| [Caching](/learn/caching) | planned | none | memory-disk, replica-lag | Choose cache placement (client, CDN, service, database) and a write strategy, and predict hit-rate effects. | 2 |
-| [Invalidation and stampedes](/learn/cache-invalidation) | planned | none | caching | Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede. | 1 |
-| [Timeouts and partial failure](/learn/timeouts) | planned | none | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 4 |
-| [Retries, backoff, jitter](/learn/retries) | planned | none | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2 |
-| [Idempotency](/learn/idempotency) | planned | none | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2 |
-| [Clocks and ordering](/learn/clocks-ordering) | planned | none | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 3 |
-| [Consistency models](/learn/consistency-models) | planned | none | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 2 |
-| [CAP and quorums](/learn/cap-quorums) | planned | none | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 3 |
+| [Requirements](/learn/requirements) | implemented | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 2 |
+| [API design](/learn/api-design) | implemented | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 2 |
+| [Proxies and gateways](/learn/proxies-gateways) | implemented | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 2 |
+| [Load balancing](/learn/load-balancing) | implemented | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2 |
+| [CDNs](/learn/cdn) | implemented | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 2 |
+| [Caching](/learn/caching) | implemented | generic | memory-disk, replica-lag | Choose cache placement (client, CDN, service, database) and a write strategy, and predict hit-rate effects. | 2 |
+| [Invalidation and stampedes](/learn/cache-invalidation) | implemented | generic | caching | Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede. | 1 |
+| [Timeouts and partial failure](/learn/timeouts) | implemented | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 4 |
+| [Retries, backoff, jitter](/learn/retries) | implemented | generic | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2 |
+| [Idempotency](/learn/idempotency) | implemented | generic | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2 |
+| [Clocks and ordering](/learn/clocks-ordering) | implemented | generic | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 3 |
+| [Consistency models](/learn/consistency-models) | implemented | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 2 |
+| [CAP and quorums](/learn/cap-quorums) | implemented | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 3 |
 | [Consensus and Raft](/learn/consensus) | planned | none | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 4 |
 | [Queues and pub/sub](/learn/queues) | planned | none | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 2 |
 | [Logs and delivery guarantees](/learn/logs-delivery) | planned | none | queues, idempotency | Explain partitioned logs, consumer groups, offsets and at-most/at-least/effectively-once delivery. | 1 |
