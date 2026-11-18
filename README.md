@@ -9,6 +9,12 @@ is optional and syncs your saved work across devices.
 - Curriculum coverage: [`docs/COVERAGE.md`](docs/COVERAGE.md) (generated)
 - Where work stands: [`docs/RESUME.md`](docs/RESUME.md)
 
+## What's inside
+
+- 124 topics across foundations, data systems, distributed systems, architecture and operations, LLD, and design patterns. All of them are free, with no sign-in required.
+- 9 interactive labs with deterministic simulations, 31 case studies (17 HLD, 14 LLD, three of them paired), a searchable reference of all 23 GoF patterns, a mock-interview workspace, and a capstone.
+- Saved progress on the device, or synced to an account: steps, drafts, drawings, quiz attempts, interviews, the mistake notebook, spaced revision, and export/import.
+
 ## Stack
 
 - **Web:** React 18 + TypeScript + Vite, React Router. Lessons are TS modules. Simulations are pure functions in
