@@ -2,6 +2,8 @@
 
 > This is the durable product specification, saved verbatim from the original request.
 > Future sessions: read this, then `docs/RESUME.md`, then continue from the first unmet criterion.
+>
+> **Amendments by the product owner override the original text where they conflict.** See the end of this file.
 
 Build “System Design Masterclass” in the GitHub repository `akashsv01/system-design-masterclass`.
 
@@ -132,7 +134,7 @@ Modular monoliths, microservices, service boundaries, synchronous and asynchrono
 LLD and machine coding:
 Responsibilities, interfaces, abstraction, encapsulation, polymorphism, inheritance, composition, cohesion, coupling, SOLID, contracts, invariants, immutability, validation, error handling, entities, value objects, repositories, dependency injection, UML class/sequence/state diagrams, state machines, resource lifecycle, refactoring, tests, test doubles, synchronization, races, and deadlocks. Cover all 23 Gang of Four patterns in a searchable reference. Teach commonly useful patterns through concrete refactoring exercises.
 
-Use language-neutral explanations and pseudocode first, Java for the principal LLD implementations, and tested Python comparisons where useful. Include bridge lessons for prerequisites such as SQL, JSON, threads, maps, linked lists, and interfaces.
+Use language-neutral explanations and pseudocode first, Java for the principal LLD implementations, and tested Python comparisons where useful. **[Superseded by Amendment 1: Python 3 is the only learner language.]** Include bridge lessons for prerequisites such as SQL, JSON, threads, maps, linked lists, and interfaces.
 
 ## 8. COMPLETE CASE STUDIES AND LABS
 
@@ -202,3 +204,24 @@ When the host supports automatic continuation after a usage reset, use it. As so
 Prepare a deployable application. Obtain explicit authorization before purchasing services or publishing publicly.
 
 Begin by inspecting the repository and saving the durable specification. Then build the first playable lesson. The first design review should answer a concrete question: can someone who knows only basic programming follow the animation, explain what changed, and successfully predict what happens next?
+
+
+---
+
+## Amendments
+
+### Amendment 1 (2026-11-18) — Python 3 is the learner language
+
+Python 3 is the primary and only required language for learners. This applies to all LLD lessons, design
+patterns, machine-coding exercises, interview problems, starter code, worked solutions, and tests.
+
+- Assume learners know basic programming; introduce each unfamiliar Python feature (classes, `@dataclass`,
+  type hints, `Protocol`/ABCs, `enum.Enum`, `with`/locks, `threading`, decorators, `collections.OrderedDict`,
+  exceptions, generators) in context where it first appears.
+- Rewrite any Java examples as idiomatic Python. Prefer the simplest idiomatic form first and introduce
+  heavier structure only when the problem needs it. Example: teach Strategy by first passing a pricing
+  *function* into a checkout function; introduce a class-based strategy later only when the pricing rule
+  needs its own state.
+- Verify runnable examples and exercise solutions with **pytest** (see `python/` in the repository).
+- The website itself continues to use TypeScript/React. This decision concerns the language learners read
+  and write. Java-specific sources (e.g. Effective Java) may remain as optional further reading only.
