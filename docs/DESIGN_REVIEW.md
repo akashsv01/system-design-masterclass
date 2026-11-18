@@ -75,3 +75,22 @@ lessons pass at both sizes.
 **Test infrastructure:** e2e flakiness came from a race on the lazy-loaded lesson chunk and from the auth rate limiter
 (working as designed) after repeated runs. The test now waits for the heading, and the limit is configurable
 (`AUTH_ATTEMPTS_PER_15MIN`, default 10). e2e passed 22/22 in three consecutive runs.
+
+## Review 3: full product audit (spec §12 step 5, 2026-11-18)
+
+All of the following are automated checks plus the author's own screenshot inspection. None is an independent human review.
+
+| Check | Result |
+|---|---|
+| Server tests (`npm test`) | 38/38: accounts, CSRF guard, rate limit, sync isolation, idempotent retries, conflict copies, merges, simulations, labs |
+| Learner Python (`npm run test:py`) | 73/73: every snippet and worked design shown on the site, blank-fill answers plus a negative control |
+| Typecheck and build | pass |
+| Content audit (`npm run audit:content`) | 0 errors: prerequisites, cycles, orphans, duplicate ids/titles/routes, broken internal links, answer keys, duplicate activity ids, 23 GoF patterns, scope terms, step-title length |
+| Coverage | 124/124 topics verified (rendered every step at 1280×900 and iPhone 13: no console errors, labels ≥ 12 px, controls visible, no header overlap, Next label not truncated, no horizontal scroll) |
+| End-to-end (`scripts/e2e.mjs`) | 25/25: public deep link, guest refresh, guest→account migration incl. a drawing, second-browser resume, conflicting edits keep both, offline → pending → sync, account isolation, shared-device sign-out, in-browser Python pass/fail, interview persistence, capstone surprise step |
+| Accessibility (`scripts/a11y.mjs`) | No serious or critical axe-core violations on 14 representative pages, light and dark. Keyboard-only: Tab reaches Next with visible focus; Enter and → advance |
+| Determinism | Lab simulations are seeded and pure (equality tests in `tests/labs.test.ts`) |
+
+**Fixed during this audit:** light-theme muted text was below 4.5:1 contrast (darkened the token). The diagram workspace shrank to 7 px labels on phones (it now sizes its canvas to its container).
+
+**Outstanding:** sources unverified against primary texts (blocked domains), no human editorial review, no public deployment (owner authorisation needed).

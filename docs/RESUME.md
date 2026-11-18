@@ -10,9 +10,8 @@
 - **Accounts/sync:** `server/*` (Hono + node:sqlite), `src/progress/*`.
 
 ## Last verified
-- `npm test` 38 vitest · `npm run test:py` 73 pytest · typecheck · build · `npm run audit:content` 0 errors.
-- e2e 22/22 ×3 runs (server needs `AUTH_ATTEMPTS_PER_15MIN=1000` for repeated runs).
-- Visual review: 70 topics verified at 1280×900 and iPhone 13 (arrival-time checks). New labs/cases/patterns/LLD2 review in progress at time of writing.
+- `npm test` 38 · `npm run test:py` 73 · typecheck · build · `npm run audit:content` 0 errors · **124/124 topics verified** (both sizes).
+- e2e 25/25 (server needs `AUTH_ATTEMPTS_PER_15MIN=1000` for repeated runs) · a11y: no serious/critical axe violations, keyboard path OK. Full audit in `docs/DESIGN_REVIEW.md` (Review 3).
 
 ## Known gaps
 - Primary-source sites blocked → all sources `checked: false`.
@@ -20,6 +19,7 @@
 - No public deployment (needs owner authorisation); Dockerfile + README instructions exist.
 
 ## Next acceptance criteria
-1. Finish verification of labs, cases, patterns, LLD2 lessons; fix any layout issues found.
-2. e2e: interview workspace persistence (add box → reload → still there) and capstone flow.
-3. Full audit pass (Step 5 of the spec): links, code examples, determinism, accessibility (keyboard path through a lesson, axe-style checks), account isolation, mobile flows; record results in `docs/DESIGN_REVIEW.md`.
+1. Human editorial review of lessons (record in `src/content/reviews.json`), starting with the first-booking journey.
+2. Verify sources against primary texts once those domains are reachable; set `checked: true` only after reading.
+3. Owner-authorised deployment (Dockerfile ready); configure HTTPS, persistent `DATABASE_PATH`, backups.
+4. Ongoing: deepen weaker lessons found in review; add more fresh problems per lab.

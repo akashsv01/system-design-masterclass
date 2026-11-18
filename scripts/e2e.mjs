@@ -163,6 +163,29 @@ try {
   await d.waitForSelector('text=/All [0-9]+ checks pass/', { timeout: 60000 });
   ok('the right blank passes the Python checks in the browser', true);
 
+  // ---------- Interview workspace persists a diagram across reloads ----------
+  const ctxE = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const iv = await ctxE.newPage();
+  iv.on('pageerror', (e) => errors.push(String(e)));
+  await iv.goto(`${base}/interview`);
+  await iv.getByRole('button', { name: 'Start' }).first().click();
+  await iv.waitForURL(/\/interview\/.+/);
+  await iv.getByPlaceholder(/Add a component/).fill('Booking service');
+  await iv.getByRole('button', { name: 'Add', exact: true }).click();
+  await iv.locator('#iv-notes').fill(`Assume 50k holds/min (${rand})`);
+  await iv.waitForTimeout(300);
+  await iv.reload();
+  const boxKept = await iv.locator('svg.workspace text', { hasText: 'Booking service' }).count();
+  const notesKept = (await iv.locator('#iv-notes').inputValue()).includes(rand);
+  ok('interview diagram and notes survive a reload', boxKept === 1 && notesKept);
+  await iv.goto(`${base}/interview`);
+  ok('interview appears in “Your mock interviews”', await iv.getByText('Your mock interviews').isVisible());
+
+  // ---------- Capstone loads and its surprise step is reachable ----------
+  await iv.goto(`${base}/capstone/capstone`);
+  for (let i = 0; i < 2; i++) await iv.locator('.controls .btn-next').click();
+  ok('capstone shows the surprise requirement at step 3', await iv.getByText('Surprise requirement').isVisible());
+
   ok('no uncaught page errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } finally {
   await browser.close();

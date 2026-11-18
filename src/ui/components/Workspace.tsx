@@ -4,13 +4,13 @@
  * so the workspace is usable with a keyboard or screen reader.
  */
 import { useRef, useState } from 'react';
+import { useStageWidth } from './Diagram';
 
 export interface WsBox { id: string; x: number; y: number; label: string }
 export interface WsArrow { from: string; to: string }
 export interface WsDiagram { boxes: WsBox[]; arrows: WsArrow[] }
 
 export const EMPTY_DIAGRAM: WsDiagram = { boxes: [], arrows: [] };
-const W = 800;
 const H = 460;
 const BW = 140;
 const BH = 50;
@@ -20,6 +20,9 @@ function newId() {
 }
 
 export function Workspace({ value, onChange }: { value: WsDiagram; onChange: (d: WsDiagram) => void }) {
+  // The canvas is as wide as its container (1 unit = 1 px), so labels never shrink on phones.
+  const [wrapRef, width] = useStageWidth<HTMLDivElement>();
+  const W = Math.max(320, Math.min(800, width));
   const [label, setLabel] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [connectFrom, setConnectFrom] = useState<string | null>(null);
@@ -35,7 +38,8 @@ export function Workspace({ value, onChange }: { value: WsDiagram; onChange: (d:
     const text = label.trim();
     if (!text) return;
     const i = d.boxes.length;
-    const box = { id: newId(), x: 100 + (i % 4) * 190, y: 70 + Math.floor(i / 4) * 110, label: text.slice(0, 40) };
+    const cols = Math.max(1, Math.floor(W / 190));
+    const box = { id: newId(), x: 90 + (i % cols) * 190, y: 60 + Math.floor(i / cols) * 90, label: text.slice(0, 40) };
     onChange({ ...d, boxes: [...d.boxes, box] });
     setLabel('');
   };
@@ -50,10 +54,12 @@ export function Workspace({ value, onChange }: { value: WsDiagram; onChange: (d:
       setSelected(id);
     } else setSelected(id === selected ? null : id);
   };
-  const byId = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
+  // Keep boxes placed on a wider screen inside a narrower canvas.
+  const fit = (b: WsBox) => ({ ...b, x: Math.min(b.x, W - BW / 2 - 4), y: Math.min(b.y, H - BH / 2 - 4) });
+  const byId = Object.fromEntries(d.boxes.map((b) => [b.id, fit(b)]));
 
   return (
-    <div>
+    <div ref={wrapRef}>
       <div className="toolbar">
         <label style={{ flex: '1 1 200px' }}>
           <span className="visually-hidden">New component name</span>
@@ -91,7 +97,7 @@ export function Workspace({ value, onChange }: { value: WsDiagram; onChange: (d:
           const s = Math.min(dx ? (BW / 2) / Math.abs(dx) : Infinity, dy ? (BH / 2) / Math.abs(dy) : Infinity);
           return <line key={i} x1={f.x + dx * s} y1={f.y + dy * s} x2={t.x - dx * s} y2={t.y - dy * s} stroke="var(--ink-2)" strokeWidth={2} markerEnd="url(#ws-arrow)" />;
         })}
-        {d.boxes.map((b) => (
+        {d.boxes.map(fit).map((b) => (
           <g key={b.id} style={{ cursor: 'grab' }} onPointerDown={(e) => {
             (e.target as Element).setPointerCapture?.(e.pointerId);
             const p = toSvg(e);

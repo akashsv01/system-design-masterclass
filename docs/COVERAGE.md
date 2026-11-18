@@ -5,7 +5,7 @@ Status is computed, never hand-set: **planned** (nothing yet) → **partial** (m
 
 Sources are chapter-level pointers. None has been re-checked against the source text yet (`checked: false`), because primary-source sites were blocked in the authoring environment.
 
-**124 topics.** planned: 0 · partial: 0 · implemented: 54 · verified: 70 · reviewed: 0
+**124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
 
 Audit: 0 error(s), 0 warning(s).
 
@@ -113,77 +113,77 @@ Audit: 0 error(s), 0 warning(s).
 | [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2 |
 | [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2 |
 | [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 2 |
-| [UML diagrams](/learn/uml) | implemented | generic | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 1 |
-| [State machines](/learn/state-machines) | implemented | generic | uml, contracts-invariants | Model a resource lifecycle as an explicit state machine with guarded transitions. | 1 |
-| [Tests and test doubles](/learn/testing) | implemented | generic | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 3 |
-| [Refactoring](/learn/refactoring-lesson) | implemented | generic | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 1 |
-| [Races and deadlocks](/learn/concurrency-lld) | implemented | generic | bridge-threads, processes-threads | Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering. | 3 |
-| [Pattern reference](/patterns/gof-reference) | implemented | custom | polymorphism-composition | Recognise each Gang of Four pattern by the problem it solves and its cost. | 2 |
-| [Strategy (refactoring)](/learn/pattern-strategy) | implemented | generic | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 2 |
-| [Observer (refactoring)](/learn/pattern-observer) | implemented | generic | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 2 |
-| [State (refactoring)](/learn/pattern-state) | implemented | generic | state-machines, gof-reference | Move state-specific behaviour into State objects. | 1 |
-| [Decorator (refactoring)](/learn/pattern-decorator) | implemented | generic | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 1 |
-| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | implemented | generic | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 3 |
-| [Adapter (refactoring)](/learn/pattern-adapter) | implemented | generic | gof-reference | Wrap an incompatible interface with an Adapter so the domain code stays unchanged. | 1 |
-| [Command (refactoring)](/learn/pattern-command) | implemented | generic | gof-reference | Represent operations as Command objects to queue, log and undo them. | 1 |
+| [UML diagrams](/learn/uml) | verified | generic | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 1 |
+| [State machines](/learn/state-machines) | verified | generic | uml, contracts-invariants | Model a resource lifecycle as an explicit state machine with guarded transitions. | 1 |
+| [Tests and test doubles](/learn/testing) | verified | generic | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 3 |
+| [Refactoring](/learn/refactoring-lesson) | verified | generic | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 1 |
+| [Races and deadlocks](/learn/concurrency-lld) | verified | generic | bridge-threads, processes-threads | Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering. | 3 |
+| [Pattern reference](/patterns/gof-reference) | verified | custom | polymorphism-composition | Recognise each Gang of Four pattern by the problem it solves and its cost. | 2 |
+| [Strategy (refactoring)](/learn/pattern-strategy) | verified | generic | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 2 |
+| [Observer (refactoring)](/learn/pattern-observer) | verified | generic | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 2 |
+| [State (refactoring)](/learn/pattern-state) | verified | generic | state-machines, gof-reference | Move state-specific behaviour into State objects. | 1 |
+| [Decorator (refactoring)](/learn/pattern-decorator) | verified | generic | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 1 |
+| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | verified | generic | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 3 |
+| [Adapter (refactoring)](/learn/pattern-adapter) | verified | generic | gof-reference | Wrap an incompatible interface with an Adapter so the domain code stays unchanged. | 1 |
+| [Command (refactoring)](/learn/pattern-command) | verified | generic | gof-reference | Represent operations as Command objects to queue, log and undo them. | 1 |
 
 ## Labs
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Request tracing](/labs/lab-request-tracing) | implemented | lab | inside-a-request, latency | Read a request trace and identify the span that dominates latency, then predict the effect of a fix. | 1 |
-| [Overload and load balancing](/labs/lab-load-balancing) | implemented | lab | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2 |
-| [Cache behaviour](/labs/lab-cache) | implemented | lab | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1 |
-| [Stale reads](/labs/lab-stale-reads) | implemented | lab | replica-lag | Measure the fraction of stale reads as lag and routing change. | 1 |
-| [Partitioning and hot spots](/labs/lab-hot-spots) | implemented | lab | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 1 |
-| [Queue backlog](/labs/lab-queue-backlog) | implemented | lab | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1 |
-| [Payment retries](/labs/lab-payment-retries) | implemented | lab | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2 |
-| [LRU operations](/labs/lab-lru) | implemented | lab | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0 |
-| [Concurrent reservations](/labs/concurrent-reservations) | implemented | lab | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 2 |
+| [Request tracing](/labs/lab-request-tracing) | verified | lab | inside-a-request, latency | Read a request trace and identify the span that dominates latency, then predict the effect of a fix. | 1 |
+| [Overload and load balancing](/labs/lab-load-balancing) | verified | lab | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2 |
+| [Cache behaviour](/labs/lab-cache) | verified | lab | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1 |
+| [Stale reads](/labs/lab-stale-reads) | verified | lab | replica-lag | Measure the fraction of stale reads as lag and routing change. | 1 |
+| [Partitioning and hot spots](/labs/lab-hot-spots) | verified | lab | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 1 |
+| [Queue backlog](/labs/lab-queue-backlog) | verified | lab | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1 |
+| [Payment retries](/labs/lab-payment-retries) | verified | lab | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2 |
+| [LRU operations](/labs/lab-lru) | verified | lab | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0 |
+| [Concurrent reservations](/labs/concurrent-reservations) | verified | lab | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 2 |
 
 ## HLD case studies
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Design a URL shortener](/cases/case-url-shortener) | implemented | case | api-design, sharding, caching | Work from an ambiguous prompt to a defended design: a URL shortener. | 1 |
-| [Design a distributed rate limiter](/cases/case-rate-limiter) | implemented | case | rate-limiting, consistency-models | Work from an ambiguous prompt to a defended design: a distributed rate limiter. | 1 |
-| [Design a notification system](/cases/case-notifications) | implemented | case | queues, retries, idempotency | Work from an ambiguous prompt to a defended design: a notification system. | 1 |
-| [Design a chat system](/cases/case-chat) | implemented | case | realtime-delivery, clocks-ordering, logs-delivery | Work from an ambiguous prompt to a defended design: a chat system. | 1 |
-| [Design a social feed](/cases/case-feed) | implemented | case | caching, queues, sharding | Work from an ambiguous prompt to a defended design: a social feed. | 1 |
-| [Design search autocomplete](/cases/case-autocomplete) | implemented | case | caching, data-models | Work from an ambiguous prompt to a defended design: search autocomplete. | 1 |
-| [Design file storage and sync](/cases/case-file-sync) | implemented | case | data-models, consistency-models | Work from an ambiguous prompt to a defended design: file storage and sync. | 2 |
-| [Design video streaming](/cases/case-video) | implemented | case | cdn, batch-stream | Work from an ambiguous prompt to a defended design: video streaming. | 1 |
-| [Design ticket booking (HLD)](/cases/case-ticket-booking) | implemented | case | first-booking, transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: ticket booking. | 1 |
-| [Design a payment system](/cases/case-payments) | implemented | case | idempotency, distributed-transactions | Work from an ambiguous prompt to a defended design: a payment system. | 1 |
-| [Design inventory and checkout](/cases/case-checkout) | implemented | case | transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: inventory and checkout. | 1 |
-| [Design ride matching](/cases/case-ride-matching) | implemented | case | sharding, realtime-delivery | Work from an ambiguous prompt to a defended design: ride matching. | 1 |
-| [Design metrics ingestion](/cases/case-metrics) | implemented | case | batch-stream, data-models | Work from an ambiguous prompt to a defended design: metrics ingestion. | 1 |
-| [Design a distributed job scheduler](/cases/case-scheduler) | implemented | case | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 1 |
-| [Design a web crawler](/cases/case-crawler) | implemented | case | queues, rate-limiting | Work from an ambiguous prompt to a defended design: a web crawler. | 1 |
-| [Design a collaborative editor](/cases/case-collab-editor) | implemented | case | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 1 |
-| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | implemented | case | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 1 |
+| [Design a URL shortener](/cases/case-url-shortener) | verified | case | api-design, sharding, caching | Work from an ambiguous prompt to a defended design: a URL shortener. | 1 |
+| [Design a distributed rate limiter](/cases/case-rate-limiter) | verified | case | rate-limiting, consistency-models | Work from an ambiguous prompt to a defended design: a distributed rate limiter. | 1 |
+| [Design a notification system](/cases/case-notifications) | verified | case | queues, retries, idempotency | Work from an ambiguous prompt to a defended design: a notification system. | 1 |
+| [Design a chat system](/cases/case-chat) | verified | case | realtime-delivery, clocks-ordering, logs-delivery | Work from an ambiguous prompt to a defended design: a chat system. | 1 |
+| [Design a social feed](/cases/case-feed) | verified | case | caching, queues, sharding | Work from an ambiguous prompt to a defended design: a social feed. | 1 |
+| [Design search autocomplete](/cases/case-autocomplete) | verified | case | caching, data-models | Work from an ambiguous prompt to a defended design: search autocomplete. | 1 |
+| [Design file storage and sync](/cases/case-file-sync) | verified | case | data-models, consistency-models | Work from an ambiguous prompt to a defended design: file storage and sync. | 2 |
+| [Design video streaming](/cases/case-video) | verified | case | cdn, batch-stream | Work from an ambiguous prompt to a defended design: video streaming. | 1 |
+| [Design ticket booking (HLD)](/cases/case-ticket-booking) | verified | case | first-booking, transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: ticket booking. | 1 |
+| [Design a payment system](/cases/case-payments) | verified | case | idempotency, distributed-transactions | Work from an ambiguous prompt to a defended design: a payment system. | 1 |
+| [Design inventory and checkout](/cases/case-checkout) | verified | case | transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: inventory and checkout. | 1 |
+| [Design ride matching](/cases/case-ride-matching) | verified | case | sharding, realtime-delivery | Work from an ambiguous prompt to a defended design: ride matching. | 1 |
+| [Design metrics ingestion](/cases/case-metrics) | verified | case | batch-stream, data-models | Work from an ambiguous prompt to a defended design: metrics ingestion. | 1 |
+| [Design a distributed job scheduler](/cases/case-scheduler) | verified | case | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 1 |
+| [Design a web crawler](/cases/case-crawler) | verified | case | queues, rate-limiting | Work from an ambiguous prompt to a defended design: a web crawler. | 1 |
+| [Design a collaborative editor](/cases/case-collab-editor) | verified | case | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 1 |
+| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | verified | case | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 1 |
 
 ## LLD case studies
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Parking lot](/cases/lld-parking-lot) | implemented | case | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 2 |
-| [Elevator controller](/cases/lld-elevator) | implemented | case | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 2 |
-| [Vending machine](/cases/lld-vending-machine) | implemented | case | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 2 |
-| [Library management](/cases/lld-library) | implemented | case | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 2 |
-| [Expense sharing](/cases/lld-expense-sharing) | implemented | case | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 2 |
-| [Logger](/cases/lld-logger) | implemented | case | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 2 |
-| [Notification service (LLD)](/cases/lld-notifications) | implemented | case | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [LRU cache (machine coding)](/cases/lld-lru) | implemented | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 2 |
-| [Rate limiter (LLD)](/cases/lld-rate-limiter) | implemented | case | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Task scheduler (LLD)](/cases/lld-scheduler) | implemented | case | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Seat booking (LLD)](/cases/lld-booking) | implemented | case | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 2 |
-| [Shopping cart](/cases/lld-shopping-cart) | implemented | case | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 2 |
-| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | implemented | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 2 |
-| [Live score event processor](/cases/lld-live-scores) | implemented | case | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 2 |
+| [Parking lot](/cases/lld-parking-lot) | verified | case | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 2 |
+| [Elevator controller](/cases/lld-elevator) | verified | case | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 2 |
+| [Vending machine](/cases/lld-vending-machine) | verified | case | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 2 |
+| [Library management](/cases/lld-library) | verified | case | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 2 |
+| [Expense sharing](/cases/lld-expense-sharing) | verified | case | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 2 |
+| [Logger](/cases/lld-logger) | verified | case | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 2 |
+| [Notification service (LLD)](/cases/lld-notifications) | verified | case | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [LRU cache (machine coding)](/cases/lld-lru) | verified | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 2 |
+| [Rate limiter (LLD)](/cases/lld-rate-limiter) | verified | case | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Task scheduler (LLD)](/cases/lld-scheduler) | verified | case | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Seat booking (LLD)](/cases/lld-booking) | verified | case | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 2 |
+| [Shopping cart](/cases/lld-shopping-cart) | verified | case | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 2 |
+| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | verified | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 2 |
+| [Live score event processor](/cases/lld-live-scores) | verified | case | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 2 |
 
 ## Capstone
 
 | Topic | Status | Format | Prerequisites | Objective | Sources |
 |---|---|---|---|---|---|
-| [Capstone](/capstone/capstone) | implemented | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 2 |
+| [Capstone](/capstone/capstone) | verified | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 2 |
