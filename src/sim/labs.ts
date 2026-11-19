@@ -169,7 +169,10 @@ export function backlogSeries(opts: { arrive: number; process: number; burstSeco
 export interface RetryResult {
   attemptsPerSecond: number[];
   duplicateCharges: number;
+  /** Buyers who received a success reply. */
   succeeded: number;
+  /** Buyers charged at least once (including those whose reply was lost and who never heard back). */
+  charged: number;
 }
 
 /**
@@ -184,6 +187,7 @@ export function simulateRetries(opts: { clients: number; retries: number; backof
   const attempts = new Array(seconds).fill(0);
   let duplicates = 0;
   let succeeded = 0;
+  let chargedClients = 0;
   for (let c = 0; c < opts.clients; c++) {
     let t = 0;
     let charged = false;
@@ -206,8 +210,9 @@ export function simulateRetries(opts: { clients: number; retries: number; backof
       const base = opts.backoff === 'none' ? 0.2 : Math.min(8, 0.5 * 2 ** a);
       t += opts.backoff === 'exponential+jitter' ? r() * base + 0.05 : base;
     }
+    if (charged) chargedClients++;
   }
-  return { attemptsPerSecond: attempts, duplicateCharges: duplicates, succeeded };
+  return { attemptsPerSecond: attempts, duplicateCharges: duplicates, succeeded, charged: chargedClients };
 }
 
 /* ---------------- Concurrent reservations ---------------- */

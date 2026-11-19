@@ -2,9 +2,9 @@
  * Shared lab structure (MASTER_PROMPT §8): a prediction, a meaningful control, an observable
  * consequence, and a fresh problem. Same reader controls as lessons; deterministic simulations.
  */
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Caption, Controls, LessonShell, More, Question, Sources, useStep, type PrimaryAction } from '../components/Lesson';
+import { Caption, Controls, LessonShell, Metrics, More, Question, Sources, useStep, type PrimaryAction } from '../components/Lesson';
 import { EvidenceScope, ShortAnswer, useOutcome, type ShortAnswerSpec } from '../components/Exercise';
 import { topicById } from '../../content/curriculum';
 import { useProgress, useRecord } from '../../progress/ProgressProvider';
@@ -173,5 +173,25 @@ export function Choice<T extends string>({ label, value, options, onChange }: { 
         </div>
       </div>
     </fieldset>
+  );
+}
+
+/**
+ * The lab's readout (D14): the few numbers the control changes, right under the controls, with the ones that
+ * changed on the last input marked. Values are formatted strings so the comparison matches what is shown.
+ */
+export function Readout({ items, children }: { items: { name: string; value: string; tone?: 'good' | 'bad' }[]; children?: ReactNode }) {
+  const prev = useRef<Record<string, string> | null>(null);
+  const changed = useRef<Set<string>>(new Set());
+  const now = Object.fromEntries(items.map((i) => [i.name, i.value]));
+  if (prev.current && JSON.stringify(prev.current) !== JSON.stringify(now)) {
+    changed.current = new Set(items.filter((i) => prev.current![i.name] !== i.value).map((i) => i.name));
+  }
+  prev.current = now;
+  return (
+    <div aria-live="polite" style={{ marginTop: 12 }}>
+      <Metrics items={items.map((i) => ({ ...i, changed: changed.current.has(i.name) }))} />
+      {children && <p className="small" style={{ margin: '4px 0 10px', color: 'var(--ink-2)' }}>{children}</p>}
+    </div>
   );
 }

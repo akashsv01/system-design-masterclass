@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react';
-import { LabFrame, Slider, Choice } from './LabFrame';
+import { LabFrame, Slider, Choice, Readout } from './LabFrame';
 import { Chart, Timeline, type Series } from '../components/Visuals';
 import { Snippet } from '../components/Exercise';
 import { useRecord } from '../../progress/ProgressProvider';
@@ -49,12 +49,16 @@ export function LabRequestTracing() {
       ] }}
       experiment={{ title: 'Apply fixes, watch the trace', body: 'Toggle each fix. The trace and total are recomputed from the same model. Spans that run in parallel overlap; spans in sequence add up.', render: () => (
         <>
-          <Timeline lanes={TRACE_LANES} events={tr.events} upTo={tr.events.length} unit="ms" description={`Total ${tr.total} ms`} note="Illustrative trace; each dot marks when a span starts." />
-          <div className="toolbar" style={{ marginTop: 12 }}>
-            <button className={`btn btn-small ${s.cache ? 'btn-primary' : ''}`} aria-pressed={s.cache} onClick={() => set({ ...s, cache: !s.cache })}>Cache the seat map</button>
-            <button className={`btn btn-small ${s.parallel ? 'btn-primary' : ''}`} aria-pressed={s.parallel} onClick={() => set({ ...s, parallel: !s.parallel })}>Parallel pricing + recs</button>
+          <div className="toolbar" style={{ marginBottom: 0 }}>
+            <button className="btn btn-small" aria-pressed={s.cache} onClick={() => set({ ...s, cache: !s.cache })}>Cache the seat map</button>
+            <button className="btn btn-small" aria-pressed={s.parallel} onClick={() => set({ ...s, parallel: !s.parallel })}>Run pricing and recommendations in parallel</button>
           </div>
-          <Note>Total: <strong>{tr.total} ms</strong> {tr.total <= 500 ? '✓ under 500 ms' : `(target 500 ms)`}</Note>
+          <Readout items={[
+            { name: 'Total', value: `${tr.total} ms`, tone: tr.total <= 500 ? 'good' : 'bad' },
+            { name: 'Target', value: '500 ms' },
+            { name: 'Longest span', value: s.cache ? (s.parallel ? 'recs 220 ms' : 'recs 220 ms') : 'seat map 420 ms' },
+          ]}>{tr.total <= 500 ? 'Under target. The longest remaining span now decides the total.' : `${tr.total - 500} ms over target. Sequential spans add up; remove or overlap the biggest.`}</Readout>
+          <Timeline lanes={TRACE_LANES} events={tr.events} upTo={tr.events.length} unit="ms" description={`Total ${tr.total} ms`} note="Illustrative trace; each dot marks when a span starts." />
         </>
       ) }}
       explain={{ title: 'Fix the biggest span first', body: ['A trace shows where the time goes. Sequential spans add up, so the critical path is the longest chain. Caching the seat map removes 400 ms; parallelising removes the shorter of two independent calls (180 ms). Both together: about 300 ms.', 'Optimising something off the critical path (the gateway, or the shorter of two parallel calls) changes nothing users feel.'] }}
@@ -87,8 +91,13 @@ export function LabLoadBalancing() {
           <Slider label="Arrivals" value={s.rate} min={10} max={80} step={5} unit="req/s" onChange={(v) => set({ ...s, rate: v })} />
           <Slider label="Server C time" value={s.slow} min={50} max={300} step={25} unit="ms" onChange={(v) => set({ ...s, slow: v })} />
           <Choice label="Policy" value={s.policy} options={[{ id: 'round-robin', label: 'Round robin' }, { id: 'least-connections', label: 'Least connections' }]} onChange={(v) => set({ ...s, policy: v })} />
-          <Chart kind="bar" categories={['Server A', 'Server B', 'Server C']} series={[{ name: 'values', points: res.perServer.map((x, i) => [i, x.p99] as [number, number]), tone: res.perServer[2].p99 > 1000 ? 'fail' : 'accent' }]} xLabel="" yLabel="p99 latency (ms)" description="p99 latency per server" note={`Served in 10 s: A ${res.perServer[0].served}, B ${res.perServer[1].served}, C ${res.perServer[2].served}.`} />
-          <Note>Overall p50 <strong>{res.p50} ms</strong>, p99 <strong>{res.p99} ms</strong>{res.dropped ? `, ${res.dropped} dropped (queues full)` : ''}. Total capacity ≈ {capacity} req/s.</Note>
+          <Readout items={[
+            { name: 'Overall p50', value: `${Math.round(res.p50).toLocaleString()} ms` },
+            { name: 'Overall p99', value: `${Math.round(res.p99).toLocaleString()} ms`, tone: res.p99 > 1000 ? 'bad' : 'good' },
+            { name: 'Capacity', value: `≈ ${capacity} req/s` },
+            { name: 'Dropped', value: `${res.dropped}`, tone: res.dropped ? 'bad' : undefined },
+          ]}>{s.rate > capacity ? 'Arrivals exceed total capacity: no policy can keep queues short.' : res.perServer[2].p99 > 1000 ? `Server C gets ${s.policy === 'round-robin' ? 'a third of the traffic' : 'more than it can finish'} and its queue grows, which drags the overall p99 up.` : 'Every server keeps up with the work it is given.'}</Readout>
+          <Chart kind="bar" categories={['Server A', 'Server B', 'Server C']} series={[{ name: 'values', points: res.perServer.map((x, i) => [i, Math.round(x.p99)] as [number, number]), tone: res.perServer[2].p99 > 1000 ? 'fail' : 'accent' }]} xLabel="" yLabel="p99 latency (ms)" description="p99 latency per server" note={`Requests served in 10 simulated seconds: A ${res.perServer[0].served}, B ${res.perServer[1].served}, C ${res.perServer[2].served}.`} />
         </>
       ) }}
       explain={{ title: 'Capacity is per server, not just in total', body: ['Round robin gives every server the same share. If one server can’t keep up with its share, its queue grows without limit even though the fleet as a whole has spare capacity.', 'Least connections sends new work to whoever has least in progress, so the slow server naturally receives less. It can’t create capacity: push arrivals past the total and every policy fails.'] }}
@@ -98,7 +107,7 @@ export function LabLoadBalancing() {
         { id: 'lc', text: 'Least connections', why: 'It helps with uneven servers, not with total overload.' },
       ], correct: 'none' }, reveal: () => {
         const r = simulateLb({ arrivalsPerSec: 70, serviceMs: [50, 50, 50], policy: 'least-connections' });
-        return <Note>Simulated at 70 req/s with least connections: p99 <strong>{r.p99} ms</strong>, {r.dropped} dropped in 10 s.</Note>;
+        return <Note>Simulated at 70 req/s with least connections: p99 <strong>{Math.round(r.p99).toLocaleString()} ms</strong>, {r.dropped} dropped in 10 s.</Note>;
       } }}
       assumptions={['Each server handles one request at a time with a fixed service time; queues hold at most 200.', 'Arrivals are evenly spaced with ±50% seeded jitter; 10 simulated seconds per run.']}
     />
@@ -122,9 +131,13 @@ export function LabCache() {
         <>
           <Slider label="Cache size" value={s.size} min={10} max={400} step={10} unit="entries" onChange={(v) => set({ ...s, size: v })} />
           <Slider label="Popularity skew" value={s.skew} min={0.2} max={1.4} step={0.1} unit="" onChange={(v) => set({ ...s, skew: Math.round(v * 10) / 10 })} />
-          <Chart series={[{ name: 'hit rate', points: curve, tone: 'ok' }]} marks={[{ x: s.size, y: hit, label: `${hit}%` }]} xLabel="cache size (entries)" yLabel="hit rate (%)" yMax={100} description={`Hit rate ${hit}%`} note="LRU cache over 2,000 items, Zipf-like popularity." />
           <Choice label="When the hottest key expires (20,000 reads/s, 8 ms reload)" value={s.coalesce ? 'yes' : 'no'} options={[{ id: 'no', label: 'No coalescing' }, { id: 'yes', label: 'Coalesce reloads' }]} onChange={(v) => set({ ...s, coalesce: v === 'yes' })} />
-          <Note>Hit rate <strong>{hit}%</strong>: database sees {100 - hit}% of reads. On expiry, <strong>{stampede(20000, 8, s.coalesce)}</strong> request{stampede(20000, 8, s.coalesce) > 1 ? 's' : ''} hit the database at once.</Note>
+          <Readout items={[
+            { name: 'Hit rate', value: `${hit}%`, tone: hit >= 70 ? 'good' : undefined },
+            { name: 'Reads reaching the DB', value: `${100 - hit}%` },
+            { name: 'DB queries on expiry', value: `${stampede(20000, 8, s.coalesce)}`, tone: stampede(20000, 8, s.coalesce) > 1 ? 'bad' : 'good' },
+          ]}>{`Caching ${((s.size / 2000) * 100).toFixed(1)}% of items serves ${hit}% of reads. `}{s.coalesce ? 'Coalescing turns the expiry spike into one reload.' : 'Every read in the 8 ms reload window misses at once: a stampede.'}</Readout>
+          <Chart series={[{ name: 'hit rate', points: curve, tone: 'ok' }]} marks={[{ x: s.size, y: hit, label: `${hit}%` }]} xLabel="cache size (entries)" yLabel="hit rate (%)" yMax={100} description={`Hit rate ${hit}%`} note="LRU cache over 2,000 items, Zipf-like popularity." />
         </>
       ) }}
       explain={{ title: 'Skew makes small caches powerful, and expiry dangerous', body: ['When a few items get most requests, a small cache holding just those items absorbs most traffic. With nearly uniform popularity, hit rate tracks the fraction of items cached, and caching helps much less.', 'The hottest key is also the most dangerous to lose: when it expires, every request in the reload window misses at once. Coalescing (one reload, others wait) turns that spike into a single query.'] }}
@@ -160,8 +173,12 @@ export function LabStaleReads() {
         <>
           <Slider label="Replication lag" value={s.lag} min={0} max={3000} step={100} unit="ms" onChange={(v) => set({ ...s, lag: v })} />
           <Choice label="Writer’s reads go to" value={s.strategy} options={[{ id: 'follower', label: 'Follower' }, { id: 'leader-after-own-write', label: 'Leader for 5 s' }, { id: 'synchronous', label: 'Sync replication' }]} onChange={(v) => set({ ...s, strategy: v })} />
+          <Readout items={[
+            { name: 'Stale reloads', value: `${frac}%`, tone: frac ? 'bad' : 'good' },
+            { name: 'Extra wait for “Saved”', value: s.strategy === 'synchronous' ? `${s.lag.toLocaleString()} ms` : '0 ms', tone: s.strategy === 'synchronous' && s.lag ? 'bad' : undefined },
+            { name: 'Extra leader reads', value: s.strategy === 'leader-after-own-write' ? 'writer, 5 s' : 'none' },
+          ]}>{s.strategy === 'follower' ? 'Follower reads are cheapest; the writer sees the old value until the copy lands.' : s.strategy === 'synchronous' ? 'No stale reads for anyone, paid for by a slower save on every write.' : 'No stale reads for the writer, paid for by extra reads on the leader.'}</Readout>
           <Chart series={series} marks={[{ x: s.lag, y: frac, label: `${frac}%` }]} xLabel="replication lag (ms)" yLabel="stale reloads (%)" yMax={100} description={`${frac}% stale`} note="Reloads sampled every 100 ms in the 3 s after “Saved”." />
-          <Note><strong>{frac}%</strong> of the writer’s reloads are stale. {s.strategy === 'synchronous' ? `“Saved” takes ${s.lag} ms longer.` : s.strategy === 'leader-after-own-write' ? 'The leader serves the writer’s reads for 5 s after each save.' : ''}</Note>
         </>
       ) }}
       explain={{ title: 'Stale reads scale with lag ÷ reload window', body: ['With follower reads, the share of stale reloads is roughly the lag divided by how soon users reload. Read-your-writes removes them for the writer by sending that user’s reads to the leader briefly. Synchronous replication removes them for everyone by making every save wait for the copy.'] }}
@@ -193,8 +210,12 @@ export function LabHotSpots() {
           <Slider label="Shards" value={s.shards} min={2} max={16} step={1} unit="" onChange={(v) => set({ ...s, shards: v })} />
           <Slider label="Hot event share" value={s.hot} min={0} max={80} step={5} unit="%" onChange={(v) => set({ ...s, hot: v })} />
           <Choice label="Partition key" value={s.key} options={[{ id: 'event', label: 'event_id' }, { id: 'seat', label: 'seat_id' }, { id: 'event+bucket', label: 'event_id + bucket (4)' }]} onChange={(v) => set({ ...s, key: v })} />
+          <Readout items={[
+            { name: 'Hottest shard', value: `${max}%`, tone: max > 30 ? 'bad' : 'good' },
+            { name: 'Even share', value: `${(100 / s.shards).toFixed(1)}%` },
+            { name: 'Shards per event query', value: s.key === 'seat' ? `all ${s.shards}` : s.key === 'event+bucket' ? '4' : '1' },
+          ]}>{s.key === 'event' ? 'The hot event lives on one shard however many shards there are.' : s.key === 'seat' ? 'Load is even, but every query about the event now asks every shard (scatter-gather).' : 'The hot event is split four ways; its reads now combine 4 shards.'}</Readout>
           <Chart kind="bar" categories={loads.map((_, i) => `${i}`)} series={[{ name: 'values', points: loads.map((l, i) => [i, l] as [number, number]), tone: max > 30 ? 'fail' : 'accent' }]} xLabel="shard" yLabel="share of traffic (%)" yMax={100} description={`Hottest shard ${max}%`} />
-          <Note>Hottest shard: <strong>{max}%</strong>. {s.key === 'seat' ? 'Event queries now hit every shard (scatter-gather).' : s.key === 'event+bucket' ? 'Reads for this event combine 4 buckets.' : ''}</Note>
         </>
       ) }}
       explain={{ title: 'Hot keys need their own plan', body: ['Hashing spreads *different* keys evenly. A single very popular key still lands on one shard. Fixes split the key (seat_id, or event_id plus a bucket suffix for known-hot events) at the cost of reads that must ask several shards, or cache the hot key’s reads in front of the shards.'] }}
@@ -227,8 +248,12 @@ export function LabQueueBacklog() {
         <>
           <Slider label="Workers send" value={s.process} min={1000} max={3000} step={100} unit="msg/s" onChange={(v) => set({ ...s, process: v })} />
           <Slider label="Rush length" value={s.burst} min={1} max={30} step={1} unit="min" onChange={(v) => set({ ...s, burst: v })} />
+          <Readout items={[
+            { name: 'Peak backlog', value: Math.max(...r.backlog).toLocaleString(), tone: Math.max(...r.backlog) ? 'bad' : 'good' },
+            { name: 'Oldest wait', value: `${Math.round(r.maxAgeSeconds / 6) / 10} min`, tone: r.maxAgeSeconds <= 300 ? 'good' : 'bad' },
+            { name: 'Cleared', value: drainMin > 0 ? `${Math.round((drainMin - s.burst * 60) / 60)} min after the rush` : s.process >= 2000 ? 'never built up' : 'not within 40 min' },
+          ]}>{s.process >= 2000 ? 'Workers keep up with the rush, so nothing waits.' : `The queue grows by ${(2000 - s.process).toLocaleString()} messages every second of the rush, then drains at ${(s.process - 300).toLocaleString()}/s.`} {r.maxAgeSeconds <= 300 ? 'The 5-minute promise holds.' : 'The 5-minute promise for ticket emails is broken.'}</Readout>
           <Chart series={[{ name: 'backlog', points: pts, tone: s.process >= 2000 ? 'ok' : 'fail' }]} xLabel="minutes" yLabel="messages waiting" description={`Peak ${Math.max(...r.backlog)}`} note="2,000 msg/s during the rush, then 300 msg/s." />
-          <Note>Peak backlog <strong>{Math.max(...r.backlog).toLocaleString()}</strong>; the last email in line waited about <strong>{Math.round(r.maxAgeSeconds / 60)} min</strong>; {drainMin > 0 ? `cleared ${Math.round((drainMin - s.burst * 60) / 60)} min after the rush.` : s.process >= 2000 ? 'no backlog.' : 'still draining after 40 min.'}</Note>
         </>
       ) }}
       explain={{ title: 'Excess × duration, then drain at the spare rate', body: ['Backlog grows by (arrivals − processing) every second of the rush, then shrinks by (processing − new arrivals). The wait of the last message ≈ backlog ÷ processing rate. A queue turns overload into delay rather than errors, which is useful only if the delay is acceptable.'] }}
@@ -263,8 +288,18 @@ export function LabPaymentRetries() {
           <Slider label="Retries" value={s.retries} min={0} max={5} step={1} unit="" onChange={(v) => set({ ...s, retries: v })} />
           <Choice label="Backoff" value={s.backoff} options={[{ id: 'none', label: 'Immediate' }, { id: 'exponential', label: 'Exponential' }, { id: 'exponential+jitter', label: '+ jitter' }]} onChange={(v) => set({ ...s, backoff: v })} />
           <Choice label="Idempotency key" value={s.key ? 'on' : 'off'} options={[{ id: 'off', label: 'Off' }, { id: 'on', label: 'On' }]} onChange={(v) => set({ ...s, key: v === 'on' })} />
-          <Chart kind="bar" categories={r.attemptsPerSecond.slice(0, 12).map((_, i) => `${i}`)} series={[{ name: 'values', points: r.attemptsPerSecond.slice(0, 12).map((a, i) => [i, a] as [number, number]), tone: 'accent' }]} xLabel="second" yLabel="attempts" description="Attempts per second" note="Provider is degraded for the first 3 seconds." />
-          <Note>Duplicate charges: <strong style={{ color: r.duplicateCharges ? 'var(--fail)' : undefined }}>{r.duplicateCharges}</strong>. Buyers who completed: {r.succeeded} of 2,000.</Note>
+          <Readout items={[
+            { name: 'Confirmed', value: `${r.succeeded.toLocaleString()} of 2,000`, tone: r.succeeded === 2000 ? 'good' : 'bad' },
+            { name: 'Charged, never told', value: `${Math.max(0, r.charged - r.succeeded).toLocaleString()}`, tone: r.charged > r.succeeded ? 'bad' : 'good' },
+            { name: 'Duplicate charges', value: `${r.duplicateCharges.toLocaleString()}`, tone: r.duplicateCharges ? 'bad' : 'good' },
+            { name: 'Attempts in second 0', value: `${r.attemptsPerSecond[0].toLocaleString()}` },
+          ]}>
+            {r.succeeded < 2000 && r.charged > r.succeeded
+              ? `${(2000 - r.succeeded).toLocaleString()} buyers ran out of retries inside the outage and saw an error, yet ${(r.charged - r.succeeded).toLocaleString()} of them were charged: their charge went through but the reply was lost. `
+              : ''}
+            {r.duplicateCharges ? 'Without an idempotency key, each retry after a lost reply is a new charge.' : s.key ? 'The key lets the provider recognise retries, so nobody pays twice.' : ''}
+          </Readout>
+          <Chart kind="bar" categories={r.attemptsPerSecond.slice(0, 12).map((_, i) => `${i}`)} series={[{ name: 'values', points: r.attemptsPerSecond.slice(0, 12).map((a, i) => [i, a] as [number, number]), tone: 'accent' }]} xLabel="second" yLabel="attempts sent to the provider" description="Attempts per second" note="The provider is degraded for the first 3 seconds; every call after that succeeds." />
         </>
       ) }}
       explain={{ title: 'Keys stop duplicates; backoff stops storms', body: ['Only an idempotency key prevents double charges: the provider recognises the retry and returns the first result. Backoff and jitter don’t prevent duplicates, but they spread retries out so a struggling provider isn’t hammered all at once. Too few retries, and buyers whose attempts all fell in the outage give up.'] }}
@@ -403,12 +438,15 @@ export function LabConcurrentReservations() {
       experiment={{ title: 'Every interleaving, two strategies', body: 'Each row is one possible order of the two buyers’ database steps. Switch strategies and compare.', render: () => (
         <>
           <Choice label="Strategy" value={strategy} options={[{ id: 'check-then-write', label: 'Read, then write' }, { id: 'conditional-write', label: 'Conditional write' }]} onChange={setStrategy} />
+          <Readout items={[
+            { name: 'Orderings tested', value: `${out.total}` },
+            { name: 'Double-booked', value: `${out.doubleBooked}`, tone: out.doubleBooked ? 'bad' : 'good' },
+          ]}>{out.doubleBooked ? 'Any ordering where both reads land before the second write confirms both buyers.' : 'The check and the write happen as one statement, so no ordering can confirm two buyers.'}</Readout>
           <ol className="history" style={{ listStyle: 'none' }}>
             {out.results.map((r, i) => (
-              <li key={i}><time>#{i + 1}</time><span>{r.order.map((s) => `${s.buyer} ${s.kind}`).join(' → ')} · <strong style={{ color: r.confirmed.length > 1 ? 'var(--fail)' : 'var(--ok)' }}>{r.confirmed.length > 1 ? '✕ both confirmed' : `✓ ${r.confirmed[0]} only`}</strong></span></li>
+              <li key={i}><time>#{i + 1}</time><span>{r.order.map((s) => `${s.buyer} ${s.kind}`).join(' → ')} · <strong style={{ color: r.confirmed.length > 1 ? 'var(--fail)' : 'var(--ok)' }}>{r.confirmed.length > 1 ? 'both confirmed' : `${r.confirmed[0]} only`}</strong></span></li>
             ))}
           </ol>
-          <Note>Double-booked in <strong>{out.doubleBooked} of {out.total}</strong> orderings.</Note>
           {strategy === 'conditional-write' && <Snippet code={CONDITIONAL} highlight={[3]} caption="The check and the write are one statement; the database applies it atomically." />}
         </>
       ) }}
