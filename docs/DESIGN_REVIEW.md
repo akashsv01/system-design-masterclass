@@ -94,3 +94,36 @@ All of the following are automated checks plus the author's own screenshot inspe
 **Fixed during this audit:** light-theme muted text was below 4.5:1 contrast (darkened the token). The diagram workspace shrank to 7 px labels on phones (it now sizes its canvas to its container).
 
 **Outstanding:** sources unverified against primary texts (blocked domains), no human editorial review, no public deployment (owner authorisation needed).
+
+## Review 4: revamp audit of the running product (2026-11-19)
+
+**Method:** production build on `claude/gallant-johnson-2xsvdb` @ `5a80971`, served locally. Playwright at 1280×900
+and iPhone 13 (390×844), viewport-sized captures unless noted. Before-screenshots: `docs/screens/before/`.
+All findings below were reproduced live before any fix. Author review only, not independent human review.
+
+### Brief findings, reproduced
+
+| # | Brief finding | Reproduced? | What I saw |
+|---|---|---|---|
+| B1 | Booking race: event button and lesson navigation compete | **Yes** | Step 9 has an in-stage primary "Next event ▸" *and* a disabled primary "Play the race to the end" in the control row. Same pattern at step 2 ("Reserve seat F12" vs disabled "Press Reserve first"). |
+| B2 | Rotated layer labels hard to read | **Yes** | Every plate's label and detail rotate with the plate (≈ 35° skew); the selected layer's name is rotated too; the top plate is clipped by the stage at 1280. Rotate buttons are unlabeled glyphs (⟲ ⟳). |
+| B3 | Throughput slider is good cause-and-effect | Yes | The slider updates queue and text together. But the lesson's numbers contradict themselves (see A3). |
+| B4 | Fan-out exercise lacks the independence assumption | **Yes** | The predict prompt and the 20-call numeric check omit "independently"; the assumption appears only on a later step's model note. No correlated counter-case. |
+| B5 | LRU lab "New puzzle" flow | **Yes, broken** | The final step tells you to "press New puzzle below", but that button renders only after you answer a Yes / Not yet question, which is a confidence poll with no correct answer, stored as a quiz. The opening prediction is ungraded and has two choices (the answer and its reverse). |
+| B6 | Notification cases show the worked design while asking for yours | **Yes** | The reference architecture diagram renders above every stage's "Write before you look" box. No independent mode. |
+| B7 | Catalog descriptions are similar | **Yes** | All 17 HLD cases read "Work from an ambiguous prompt to a defended design: X." All 14 LLD cases read "Decide responsibilities, states and invariants for X; read the worked Python design…". The catalog is one 13,000 px list. |
+| B8 | Mobile: crowded charts, cut-off action text, sticky-header overlap | **Partly** | In live viewports: no sticky-header overlap (full-page captures draw the sticky bar mid-page, an artifact). No cut-off action text in the control row. Real problems: the step caption sits below the fold on most phone steps, and the stage reserves space for hidden nodes, so step 1 is one small box in a ~500 px frame. |
+
+### Additional problems found
+
+| # | Problem | Severity |
+|---|---|---|
+| A1 | **Required predictions and actions can be skipped**: → key advances past a disabled Next (latency step 3, booking step 2), and the "Jump to" step buttons reach the race without a prediction. | High (breaks predict-then-observe) |
+| A2 | **Evidence inflation**: a check answered wrong and then retried after the right answer was highlighted still raises the topic to "solved independently"; one correct check out of several is enough; ticking your own short-answer checklist, rating yourself "Strong" on a case rubric, or finishing an interview with all-Strong self-ratings all count as "solved independently". | High (brief §10) |
+| A3 | Throughput lesson: opening asks whether 2,000 req/s breaks a server whose capacity (300 slots ÷ 0.15 s) is exactly 2,000/s; "Past the limit, the queue only grows" shows a growing queue at 2,000/s while saying the server is "exactly full". | Medium (inaccurate) |
+| A4 | Desktop 1280×900: step 1 caption is hidden behind the sticky controls; the lesson title wraps to two lines at 66ch. | Medium |
+| A5 | Node icons are Unicode glyphs (▯ ▣ ⛁ ⚡ ☰ ◆ ◎ ⇉) that read as missing-character boxes; theme and menu icons are ☾ ☰ glyphs. | Medium (finish) |
+| A6 | Booking lesson breadcrumb says "Foundations" though it is in "Start here". | Low |
+| A7 | Practice: "Nothing due right now" and "No gaps recorded yet" with no recommended activity; labs listed with their objectives only. | Medium (brief §4, §10) |
+| A8 | Home shows the same 11-module list to first-time and returning learners; the returning card says "Pick up at step N" without naming the step. | Medium |
+| A9 | Phone header sync chip reads "● · Sign in". | Low |

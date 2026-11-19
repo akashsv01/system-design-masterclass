@@ -64,6 +64,45 @@ scripted click, so these notes cover the lesson reader only.
   *below* the stage and the rail, so on a phone you can't see a step's explanation and its
   diagram at the same time. The page scrolls to ≈1380 px per step.
 
+## 1b. Reference re-study (2026-11-19)
+
+**Access.** Reachable this session (HTTP 200). I stepped through every step of **Latency & Throughput**
+(10 steps) and **HLD & LLD** (8 steps) in headless Chromium at 1280×900 and iPhone 13 (390 px). The site now has
+40 lessons in 9 sections, plus Practice, Design Lab and Cheatsheets tabs. As in the first study, scripted clicks on
+Practice and Design Lab did not change the view, so these notes again cover only the lesson reader.
+
+### What changed since the first study, and what I observed
+
+- **Step text lives in a right-hand column** (≈ 270 px) beside the stage at desktop: tag (PROBLEM / SOLUTION …),
+  heading, 2 short paragraphs (≈ 60–110 words), one callout ("Watch out", "Good to know"), then **What changed**
+  as before→after values: "Users 7,000 → 9,600", "Utilization 70% → 96%", "p99 latency 600 ms → 4.2 s". Back and
+  "Next: <step name>" sit at the bottom of that column with a keyboard hint row (← → step · R replay · Space pause).
+- **A metrics strip** (p50, p99, throughput, utilization) sits on top of the stage. Changed metrics get a red left
+  border. The strip and the "What changed" list carry the same numbers, so the eye can check one against the other.
+- **An inset chart** ("latency vs. how busy") sits in a corner of the stage and marks the current operating point
+  (96%) on the hockey-stick curve. The main scene shows the queue; the inset shows *why* it matters.
+- **Stability:** the scene keeps every object in place between steps; the user crowd grows, the queue of dots
+  lengthens, one badge (96%) changes. In HLD & LLD, step 4 zooms into one service: the rest of the system is
+  removed ("− The rest of the system") and the inside appears as new parts in the same plane.
+- **A labelled step rail** under the stage ("1 Two numbers · 2 Busier · 3 Hockey stick …") lets you see the arc
+  and jump.
+- **Phone (390 px):** one column — header, metrics strip (horizontally scrolling; the 4th metric is cut off),
+  stage, legend (cut off: "slow re…"), rail, then a pinned Back / Next bar. The step's explanation is **below the
+  fold**; to read it you scroll away from the stage. Labels on the isometric scene are ≈ 6–8 px.
+- **Interaction:** still watch-only. Replay and Pause only; no prediction, no learner-controlled input, no answer.
+
+### Decisions this re-study drives (D12–D18)
+
+| # | Decision | Why |
+|---|----------|-----|
+| D12 | **Keep the explanation in view with the visual** at every width. Single column stays the default (brief §4), but the stage is height-capped so stage + caption + controls fit a 900 px laptop screen, and step changes scroll the stage to just under the header. | The reference solves this with a side column at desktop and fails at it on phones. We solve it the same way at all widths. |
+| D13 | **"What changed" shows before → after values** where a value changed (`F12: available → booked · Maya`, `p99 600 ms → 4.2 s`), derived from the same simulation state as the diagram. | The reference's best device for "what should I notice?". |
+| D14 | **Metrics strip** for quantitative lessons and labs: 2–4 named values above the visual, the changed one marked by a left rule *and* a "changed" label for non-colour readers. On phones it wraps to two rows instead of scrolling sideways. | Reference clips the strip on phones. |
+| D15 | **One primary action per moment.** When the step needs an action (Reserve, Next event, Send request), the control row's primary button *is* that action; once its outcome is visible the button becomes "Next: <step>". No second competing primary inside the stage. | The reference has one action (Next). Our steps also have in-stage actions, which previously competed with a disabled Next. |
+| D16 | **Upright labels in layered views.** The 3D stack draws plates in perspective but every label is drawn upright beside its plate with a leader line; the selected layer's name and explanation are always upright. | Rotated plate text was hard to read (ours and the reference's isometric labels). |
+| D17 | **Placeholders, not empty stages.** Parts not yet introduced are drawn as dashed outlines with a "?" so the stage never shows one small box in a large empty frame, and nothing moves when the part is introduced. | Brief §4: recompose stages that hold a single small object. |
+| D18 | **A labelled step list** is available under the controls ("Steps" disclosure) instead of a permanent rail, so the arc is visible on request without adding a third panel. | Keeps the calm single column while giving the reference's sense of where you are. |
+
 ## 2. Decisions for System Design Masterclass
 
 These are my choices. Some follow the reference, some depart from it, and some come from
