@@ -6,8 +6,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Diagram, type DEdge, type DNode, type DToken, type Layout } from '../components/Diagram';
-import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useReplay, useStep, Clock } from '../components/Lesson';
-import { FillBlank, LinePick, Snippet } from '../components/Exercise';
+import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useReplay, useStep, Clock, type PrimaryAction } from '../components/Lesson';
+import { EvidenceScope, FillBlank, LinePick, Snippet } from '../components/Exercise';
 import { CodeBlock } from '../components/Code';
 import { extractDef, lineOf } from '../../py/snippets';
 import bookingSource from '../../../python/sdm/booking.py?raw';
@@ -27,12 +27,12 @@ const SAVE_LINE = lineOf(RESERVE, 'db.save');
 
 const WIDE: Layout = {
   width: 820,
-  height: 340,
+  height: 312,
   nodes: {
-    'phone-maya': { x: 110, y: 90, w: 180 },
-    'phone-leo': { x: 110, y: 255, w: 180 },
-    server: { x: 420, y: 172, w: 170 },
-    db: { x: 700, y: 172, w: 190, h: 84 },
+    'phone-maya': { x: 110, y: 78, w: 180 },
+    'phone-leo': { x: 110, y: 240, w: 180 },
+    server: { x: 420, y: 159, w: 170 },
+    db: { x: 700, y: 159, w: 190, h: 84 },
   },
 };
 const NARROW: Layout = {
@@ -102,18 +102,18 @@ function scene({ events, shown, leo }: Phase, highlight: 'none' | 'db' | 'server
     { id: 'phone-leo', kind: 'client', label: 'Leo’s phone', value: phoneValue('Leo'), state: leo ? phoneState('Leo') : 'ghost' },
     {
       id: 'server', kind: 'server', label: 'Server', sub: 'booking program',
-      state: !usedServer && highlight !== 'server' ? 'ghost' : last && (last.from === 'server' || last.to === 'server') && last.kind !== 'reply' ? 'active' : 'idle',
+      state: !usedServer && highlight !== 'server' ? 'placeholder' : last && (last.from === 'server' || last.to === 'server') && last.kind !== 'reply' ? 'active' : 'idle',
     },
     {
       id: 'db', kind: 'db', label: 'Database', value: `F12: ${seatText(seat)}`,
-      state: !usedDb && highlight !== 'db' ? 'ghost' : dbChanged ? 'focus' : last?.to === 'db' ? 'active' : 'idle',
+      state: !usedDb && highlight !== 'db' ? 'placeholder' : dbChanged ? 'focus' : last?.to === 'db' ? 'active' : 'idle',
       tag: dbChanged ? { text: `was: ${seatText(prevSeat)}`, tone: 'changed' } : last?.kind === 'read' ? { text: `read: ${seatText(seat)}`, tone: 'plain' } : undefined,
     },
   ];
   const edges: DEdge[] = [
-    { id: 'e1', from: 'phone-maya', to: 'server', state: usedServer ? 'idle' : 'ghost' },
-    { id: 'e2', from: 'phone-leo', to: 'server', state: leo && usedServer ? 'idle' : 'ghost' },
-    { id: 'e3', from: 'server', to: 'db', state: usedDb ? 'idle' : 'ghost' },
+    { id: 'e1', from: 'phone-maya', to: 'server' },
+    { id: 'e2', from: 'phone-leo', to: 'server', state: leo ? undefined : 'ghost' },
+    { id: 'e3', from: 'server', to: 'db' },
   ];
   const tokens: DToken[] = last
     ? [
@@ -142,7 +142,14 @@ export default function FirstBooking() {
   const [whichLine] = useRecord<{ attempts: { correct: boolean }[] } | null>('quiz:first-booking:which-line', null);
   const codeDone = !!whichLine?.attempts?.some((a) => a.correct);
   const hasPrediction = !!prediction?.attempts?.length;
-  const { step, go, next, back } = useStep(ID, STEPS.length, { onReplay: replay, canAdvance: true });
+  // A step that needs an action or an answer holds the learner there until it is done (keys and the step list included).
+  const blocked = [
+    !pressed ? 1 : null,
+    !codeDone ? 5 : null,
+    !hasPrediction ? 7 : null,
+    raceShown < race.length ? 8 : null,
+  ].filter((x): x is number => x !== null);
+  const { step, go, next, back, reachable } = useStep(ID, STEPS.length, { onReplay: replay, reachable: blocked.length ? Math.min(...blocked) : undefined });
   const topic = topicById(ID);
 
   useEffect(() => {
@@ -167,21 +174,32 @@ export default function FirstBooking() {
   const [tick, setTick] = useState(0);
   useEffect(() => setTick((x) => x + 1), [replayKey]);
 
-  const nextDisabled = (step === 1 && !pressed) || (step === 5 && !codeDone) || (step === 7 && !hasPrediction) || (step === 8 && raceShown < race.length);
-  const nextHint = step === 1 && !pressed ? 'Press Reserve first' : step === 5 && !codeDone ? 'Find the line first' : step === 7 && !hasPrediction ? 'Make a prediction first' : step === 8 && raceShown < race.length ? 'Play the race to the end' : undefined;
+  const nextDisabled = step >= reachable;
+  const nextHint = step === 5 && !codeDone ? 'Reserve as both buyers, then find the line that sends Leo away' : step === 7 && !hasPrediction ? 'Choose a prediction above to continue' : undefined;
+  const [codeClicks, setCodeClicks] = useRecord<number>('sim:first-booking:code-clicks', 0);
+  // One primary action per moment (D15): the control row performs the step's action until its outcome is visible.
+  const action: PrimaryAction | undefined =
+    step === 1 && !pressed
+      ? { label: 'Reserve seat F12 as Maya', onClick: () => { setPressed(true); setTick((x) => x + 1); } }
+      : step === 5 && codeClicks < 2
+        ? { label: codeClicks === 0 ? 'Run reserve() for Maya' : 'Run reserve() for Leo', onClick: () => setCodeClicks(codeClicks + 1) }
+        : step === 8 && raceShown < race.length
+          ? { label: raceShown === 0 ? 'Start: both press Reserve' : `Next event (${raceShown + 1} of ${race.length})`, onClick: () => setRaceShown(Math.min(race.length, raceShown + 1)), lockMs: 900 }
+          : undefined;
   const lastEvent = phase.events[phase.shown - 1];
 
   return (
+    <EvidenceScope required={['which-line', 'condition']}>
     <LessonShell
       id={ID}
-      crumbs={<><Link to="/topics">Foundations</Link> / Your first system</>}
+      crumbs={<><Link to="/topics#start">Start here</Link><span className="sep">/</span>Your first system</>}
       title="Two buyers see one seat left. Who gets it?"
       opening="Maya and Leo both want the last seat at Friday’s concert. They tap Reserve on different phones, a few milliseconds apart. Follow one reservation from tap to confirmation, then watch what happens when two arrive together."
     >
       {showDiagram && (
         <section className="stage" aria-label="Diagram">
           <div className="stage-top">
-            <span className="muted" style={{ fontSize: 14 }}>Seat F12 · Friday 20:00</span>
+            <span className="stage-label">Seat F12 · Friday 20:00</span>
             {step >= 6 && <Clock time={lastEvent ? fmtMs(lastEvent.t) : '19:59:59'} />}
           </div>
           <Diagram
@@ -193,20 +211,10 @@ export default function FirstBooking() {
             narrow={NARROW}
             description={`Seat F12 is ${seatText(sc.seat)}. ${lastEvent ? lastEvent.label : 'No request sent yet.'}`}
           />
-          {step === 1 && (
+          {step === 8 && raceShown > 0 && (
             <div className="stage-actions">
-              <button className="btn btn-primary btn-lg" onClick={() => { setPressed(true); setTick((x) => x + 1); }} disabled={pressed}>
-                {pressed ? 'Reserve sent' : 'Reserve seat F12'}
-              </button>
-            </div>
-          )}
-          {step === 8 && (
-            <div className="stage-actions">
-              <button className="btn btn-primary" onClick={() => setRaceShown(Math.min(race.length, raceShown + 1))} disabled={raceShown >= race.length}>
-                {raceShown === 0 ? 'Start: both press Reserve' : raceShown >= race.length ? 'Race finished' : 'Next event ▸'}
-              </button>
-              <button className="btn btn-quiet" onClick={() => setRaceShown(0)} disabled={raceShown === 0}>
-                Restart race
+              <button className="btn btn-quiet btn-small" onClick={() => setRaceShown(0)}>
+                Restart the race
               </button>
             </div>
           )}
@@ -237,11 +245,12 @@ export default function FirstBooking() {
         />
       )}
 
-      {step === 5 && <CodeStep />}
+      {step === 5 && <CodeStep clicks={codeClicks} setClicks={setCodeClicks} />}
 
       {step === 7 && (
         <Question
           isPrediction
+          required
           recordKey="first-booking:predict"
           prompt="Maya presses Reserve at 20:00:00.000 and Leo at 20:00:00.005. The server reads the seat, and if it says available, writes the buyer’s name. What happens?"
           choices={[
@@ -274,6 +283,10 @@ export default function FirstBooking() {
         nextLabel={STEPS[step + 1]}
         nextDisabled={nextDisabled}
         nextHint={nextHint}
+        action={action}
+        steps={STEPS}
+        reachable={reachable}
+        onJump={go}
       />
 
       {step >= 8 && (
@@ -293,9 +306,10 @@ export default function FirstBooking() {
 
       {step === STEPS.length - 1 && (
         <NextLesson
-          to="/learn/inside-a-request"
-          title="What’s inside a request?"
-          reason="You sent “Reserve F12” without opening it. Next you’ll take one apart — address, method, headers, body — and see why it took 40 ms to arrive."
+          to="/learn/hld-vs-lld"
+          title="Same feature, two zoom levels: HLD and LLD"
+          consequence={<RaceConsequence />}
+          reason="You just saw the booking system from two heights: which parts talk (HLD) and which states a seat may enter (LLD). Next you’ll practise telling the two kinds of question apart on a new feature, before choosing which kind of practice to start."
         />
       )}
 
@@ -310,14 +324,8 @@ export default function FirstBooking() {
         </p>
       </More>
       {topic && <Sources sources={topic.sources} />}
-      <p className="muted" style={{ fontSize: 14, marginTop: 24 }}>
-        Jump to: {STEPS.map((s, i) => (
-          <button key={s} className="btn btn-quiet btn-small" onClick={() => go(i)} aria-current={i === step ? 'step' : undefined} style={{ fontWeight: i === step ? 700 : 400 }}>
-            {i + 1}
-          </button>
-        ))}
-      </p>
     </LessonShell>
+    </EvidenceScope>
   );
 }
 
@@ -329,7 +337,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
         <Caption kicker="Problem" title="One seat left">
           <p>
             Maya opens the concert page and sees <strong>F12 · 1 left</strong>. Her phone is a <strong>client</strong>: it shows information and
-            sends requests, but it doesn’t decide who gets a seat. Something else has to.
+            sends requests, but it doesn’t decide who gets a seat. Something else has to: the dashed boxes are the parts you’ll meet next.
           </p>
         </Caption>
       );
@@ -346,7 +354,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
               internet to a <strong>server</strong>, a program running on a computer that is always on. The trip takes about 40 ms.
             </p>
           ) : (
-            <p>Press the button as Maya. Watch where the tap goes.</p>
+            <p>You are Maya. The question marks are the parts you haven’t met yet. Reserve the seat and watch where the tap goes.</p>
           )}
         </Caption>
       );
@@ -361,7 +369,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
       );
     case 3:
       return (
-        <Caption kicker="Write" title="Change the stored value" changes={[{ kind: 'chg', text: 'F12: available → booked · Maya' }]}>
+        <Caption kicker="Write" title="Change the stored value" changes={[{ kind: 'chg', text: 'Stored value of F12', from: 'available', to: 'booked · Maya' }]}>
           <p>
             The server writes Maya’s name into F12. Look at the database: the value changed, and the tag shows what it was. That one change{' '}
             <em>is</em> the booking. Everything else is messages about it.
@@ -370,7 +378,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
       );
     case 4:
       return (
-        <Caption kicker="Respond" title="The answer comes back" changes={[{ kind: 'add', text: 'Response: “OK · Maya”' }, { kind: 'chg', text: 'Maya’s phone: Confirmed ✓' }]}>
+        <Caption kicker="Respond" title="The answer comes back" changes={[{ kind: 'add', text: 'Response: “OK · Maya”' }, { kind: 'chg', text: 'Maya’s phone', from: 'waiting…', to: 'Confirmed' }]}>
           <p>
             The server sends a <strong>response</strong>, the answer to the request. Maya’s phone shows <strong>Confirmed</strong> about 100 ms
             after her tap: 40 ms there, 20 ms of database work, 40 ms back.
@@ -383,7 +391,7 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
         <Caption kicker="Code" title="The same steps, in Python">
           <p>
             Here is the server’s <code>reserve</code> function. Each line matches something you just watched: read the seat, check it, change it,
-            save it, reply. The highlighted line is the decision. Reserve as Maya, then as Leo — one after the other.
+            save it, reply. The highlighted line is the decision. Run it for Maya, then for Leo, one after the other.
           </p>
           <p className="muted" style={{ fontSize: 15 }}>
             New Python: <code>def</code> defines a function; <code>seat.is_reserved</code> reads a field of the <code>seat</code> object.
@@ -412,9 +420,9 @@ function StepCaption({ step, phase, hasPrediction }: { step: number; phase: Phas
         <Caption
           kicker="Observe"
           title={done ? 'Two confirmations, one seat' : last ? describeEvent(last) : 'Both press Reserve'}
-          changes={done ? [{ kind: 'del', text: 'Maya and Leo were both told “Confirmed”' }, { kind: 'chg', text: 'Database says F12 belongs to Leo — his write landed last' }] : undefined}
+          changes={done ? [{ kind: 'del', text: 'Maya and Leo were both told “Confirmed”' }, { kind: 'chg', text: 'Stored value of F12', from: 'booked · Maya', to: 'booked · Leo (his write landed last)' }] : undefined}
         >
-          {!last && <p>Step through the race one event at a time. Watch the database value and both phones.</p>}
+          {!last && <p>The race plays one event at a time, in the order the server handled them. Watch the stored value and both phones.</p>}
           {last && !done && <p>{eventExplanation(last)}</p>}
           {done && (
             <>
@@ -586,8 +594,7 @@ function LldView() {
 
 const seqRun = runReservation([{ name: 'Maya', pressAt: 0 }, { name: 'Leo', pressAt: 300 }], 'check-then-write');
 
-function CodeStep() {
-  const [clicks, setClicks] = useRecord<number>('sim:first-booking:code-clicks', 0);
+function CodeStep({ clicks, setClicks }: { clicks: number; setClicks: (n: number) => void }) {
   const [leoGuess] = useRecord<{ attempts: { picked: string }[] } | null>('quiz:first-booking:leo-sees', null);
   const guessed = !!leoGuess?.attempts?.length;
   const replies = seqRun.filter((e) => e.kind === 'reply');
@@ -596,16 +603,16 @@ function CodeStep() {
     <>
       <section className="stage" aria-label="Reserve function">
         <div className="stage-top">
-          <span className="muted" style={{ fontSize: 14 }}>python/sdm/booking.py</span>
+          <span className="stage-label">python/sdm/booking.py</span>
           <span className="clock">F12: {seat}</span>
         </div>
         <Snippet code={RESERVE} highlight={[CHECK_LINE]} />
-        <div className="stage-actions" style={{ justifyContent: 'flex-start' }}>
-          <button className="btn btn-primary" onClick={() => setClicks(1)} disabled={clicks >= 1}>Reserve as Maya</button>
-          <button className="btn btn-primary" onClick={() => setClicks(2)} disabled={clicks !== 1}>Reserve as Leo</button>
-          {clicks > 0 && <button className="btn btn-quiet" onClick={() => setClicks(0)}>Reset</button>}
-        </div>
-        <ul className="changes" aria-live="polite">
+        {clicks > 0 && (
+          <div className="stage-actions" style={{ justifyContent: 'flex-start' }}>
+            <button className="btn btn-quiet btn-small" onClick={() => setClicks(0)}>Reset the seat</button>
+          </div>
+        )}
+        <ul className="changes" aria-live="polite" style={{ display: clicks ? undefined : 'none' }}>
           {clicks >= 1 && <li className="add"><span className="sym">+</span><span>Maya → <strong>{replies[0].outcome === 'confirmed' ? 'Confirmed' : 'Sold out'}</strong>. F12 saved as booked · Maya.</span></li>}
           {clicks >= 2 && <li className="chg"><span className="sym">~</span><span>Leo → <strong>{guessed ? (replies[1].outcome === 'confirmed' ? 'Confirmed' : 'Sold out') : '?'}</strong></span></li>}
         </ul>
@@ -613,6 +620,7 @@ function CodeStep() {
       {clicks >= 2 && (
         <Question
           isPrediction
+          required
           recordKey="first-booking:leo-sees"
           prompt="What does Leo see?"
           choices={[{ id: 'confirmed', text: '“Confirmed”' }, { id: 'sold', text: '“Sold out”' }]}
@@ -644,4 +652,18 @@ function CodeStep() {
       </details>
     </>
   );
+}
+
+/** Closes the lesson with the consequence of the learner's own prediction (brief §10). */
+function RaceConsequence() {
+  const [prediction] = useRecord<{ attempts: { picked: string }[] } | null>('quiz:first-booking:predict', null);
+  const p = prediction?.attempts?.[0]?.picked;
+  if (!p) return null;
+  const said: Record<string, string> = {
+    maya: 'You predicted Maya would win and Leo would see “Sold out”.',
+    both: 'You predicted both buyers would be told “Confirmed”. That is exactly what this server did.',
+    leo: 'You predicted Leo would win because his write landed last. The stored value did end up as Leo, but Maya was told “Confirmed” too.',
+    unsure: 'You said it depends on timing. It does: with these timings both reads came before either write.',
+  };
+  return <>{said[p]} The consequence on Friday: two people hold a confirmation for one seat, and only the database knows which one is real.</>;
 }

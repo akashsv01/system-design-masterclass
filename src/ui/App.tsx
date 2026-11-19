@@ -8,6 +8,7 @@ import { ProgressPage } from './pages/ProgressPage';
 import { topicById } from '../content/curriculum';
 import { GENERIC_LESSONS } from '../content/lessons';
 import { CASES } from '../content/cases';
+import { Icon } from './components/Icon';
 
 const CUSTOM: Record<string, React.LazyExoticComponent<ComponentType>> = {
   'first-booking': lazy(() => import('./lessons/FirstBooking')),
@@ -26,12 +27,12 @@ const CoveragePage = lazy(() => import('./pages/Coverage'));
 function Brand() {
   return (
     <Link to="/" className="brand" aria-label="System Design Masterclass home">
-      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="7" fill="var(--accent)" />
-        <circle cx="9" cy="16" r="4" fill="var(--paper)" />
-        <circle cx="23" cy="9" r="4" fill="var(--paper)" />
-        <circle cx="23" cy="23" r="4" fill="var(--active)" />
-        <path d="M12.5 14.5 19.5 10.5M12.5 17.5l7 4" stroke="var(--paper)" strokeWidth="2" />
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="var(--accent)" />
+        <rect x="6" y="12.5" width="7" height="7" rx="2" fill="var(--paper)" />
+        <rect x="19" y="6" width="7" height="7" rx="2" fill="var(--paper)" />
+        <rect x="19" y="19" width="7" height="7" rx="2" fill="var(--active)" />
+        <path d="M13 15.2 19 10.3M13 16.8l6 4.9" stroke="var(--paper)" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
       <span className="brand-text">System Design Masterclass</span>
     </Link>
@@ -40,23 +41,29 @@ function Brand() {
 
 function SyncChip({ onOpen }: { onOpen: () => void }) {
   const { user, sync } = useProgress();
+  // Five honest states: saved locally (guest), saving, synced, pending, failed (brief §11).
   const label = !user
-    ? { short: 'Guest', long: 'Saved on this device' }
+    ? { short: 'On this device', long: 'Saved on this device' }
     : sync.kind === 'saved'
       ? { short: 'Synced', long: 'Synced to your account' }
       : sync.kind === 'saving'
-        ? { short: 'Saving…', long: 'Saving…' }
+        ? { short: 'Syncing…', long: 'Syncing…' }
         : sync.kind === 'pending'
-          ? { short: `${sync.count} pending`, long: `${sync.count} change(s) waiting to sync` }
+          ? { short: `${sync.count} waiting`, long: `${sync.count} change${sync.count === 1 ? '' : 's'} waiting to sync` }
           : sync.kind === 'error'
-            ? { short: 'Sync failed', long: 'Sync failed' }
-            : { short: 'Local', long: 'Saved locally' };
+            ? { short: 'Sync failed', long: 'Sync failed — retrying' }
+            : { short: 'Saved locally', long: 'Saved locally' };
   return (
-    <button className="sync-chip" data-kind={user ? sync.kind : 'local'} onClick={onOpen} title={sync.kind === 'pending' ? sync.reason : sync.kind === 'error' ? sync.message : label.long}>
+    <button
+      className="sync-chip"
+      data-kind={user ? sync.kind : 'local'}
+      onClick={onOpen}
+      title={sync.kind === 'pending' ? sync.reason : sync.kind === 'error' ? sync.message : label.long}
+      aria-label={`${label.long}. ${user ? 'Account and sync settings' : 'Sign in to sync across devices'}`}
+    >
       <span className="dot" aria-hidden="true" />
       <span className="label-long">{label.long}</span>
-      <span className="visually-hidden">{label.short}. </span>
-      <span>{user ? '' : ' · Sign in'}</span>
+      {user ? null : <span className="chip-action">Sign in</span>}
     </button>
   );
 }
@@ -82,7 +89,7 @@ function ThemeToggle() {
   const dark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   return (
     <button className="icon-btn" onClick={() => setTheme(dark ? 'light' : 'dark')} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'} title="Theme">
-      {dark ? '☀' : '☾'}
+      <Icon name={dark ? 'sun' : 'moon'} size={19} />
     </button>
   );
 }
@@ -114,13 +121,13 @@ function Header() {
         <NavLink to="/topics">Topics</NavLink>
         <NavLink to="/practice">Practice</NavLink>
         <NavLink to="/interview">Interview</NavLink>
-        <NavLink to="/progress">My progress</NavLink>
+        <NavLink to="/progress">Progress</NavLink>
       </nav>
       <div className="header-right">
         <SyncChip onOpen={() => setAccount(true)} />
         <ThemeToggle />
-        <button className="icon-btn menu-btn" aria-expanded={open} aria-label="Menu" onClick={() => setOpen(!open)}>
-          ☰
+        <button className="icon-btn menu-btn" aria-expanded={open} aria-label={open ? 'Close menu' : 'Menu'} onClick={() => setOpen(!open)}>
+          <Icon name={open ? 'close' : 'menu'} size={20} />
         </button>
       </div>
       {account && <AccountDialog onClose={() => setAccount(false)} />}

@@ -6,7 +6,8 @@
  *   `lagMs` after the leader applies it (asynchronous replication).
  * - The profile page reads according to a routing strategy.
  * - Network time between app and database is ignored so the lag is the only delay in view.
- * - The clock starts at 10:00:00.000; the learner saves "Alex" at 10:00:00.500.
+ * - The clock starts at 10:00:00.000, when the learner's save of "Alex" reaches the leader (the brief's benchmark:
+ *   primary at 10:00:00, replica at 10:00:02 with the lesson's 2 s lag).
  */
 
 export type ReadStrategy = 'follower' | 'leader-after-own-write' | 'synchronous';
@@ -24,7 +25,7 @@ export interface ReplicaEvent {
 }
 
 export const T0 = 10 * 3600_000; // 10:00:00.000 in ms since midnight
-export const WRITE_AT = T0 + 500;
+export const WRITE_AT = T0;
 
 export function fmtClock(t: number, withMs = false): string {
   const h = Math.floor(t / 3600_000);

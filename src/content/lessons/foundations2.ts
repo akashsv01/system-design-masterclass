@@ -63,21 +63,22 @@ export const latency: GenericLesson = {
     compute: (k) => {
       const p = 1 - 0.99 ** k;
       const pts: [number, number][] = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((x) => [x, Math.round((1 - 0.99 ** x) * 100)]);
-      return { text: `If each call is slow 1% of the time, a page waiting on all **${k}** calls is slow **${(p * 100).toFixed(1)}%** of the time.`, chart: { series: [{ name: 'chance page is slow (%)', points: pts, tone: 'fail' }], marks: [{ x: k, y: Math.round(p * 100), label: `${k} calls → ${(p * 100).toFixed(0)}%` }] } };
+      return { text: `If each call is slow 1% of the time **independently of the others**, the page is fast only when all ${k} are fast: 0.99^${k} = ${(0.99 ** k).toFixed(3)}. So it is slow **${(p * 100).toFixed(1)}%** of the time. If the slowness were perfectly correlated (one shared cause slows every call at once), it would stay at **1%** whatever the fan-out.`, chart: { series: [{ name: 'chance page is slow (%)', points: pts, tone: 'fail' }], marks: [{ x: k, y: Math.round(p * 100), label: `${k} calls → ${(p * 100).toFixed(0)}%` }] } };
     },
-    assumptions: ['Each backend call is independently slow 1% of the time (its p99), and the page waits for all of them.'],
+    assumptions: ['Each backend call is slow 1% of the time (slower than its p99), independently of the other calls, and the page waits for all of them.'],
   },
   steps: [
     { kicker: 'Idea', title: 'Line requests up from fastest to slowest', body: [`Here are 40 real-looking checkout times, sorted. Most take 40–90 ms. A few take far longer. The mean is ${mean} ms, a number that describes almost no actual request.`], chart: { series: [{ name: 'samples', points: sortedPts }], marks: [] } },
     { kicker: 'Idea', title: 'Percentiles describe what people feel', body: [`The **p50** (median) is the time half the requests beat: ${pct(50)} ms. The **p95** is the time 95% beat: ${pct(95)} ms. The **p99**: ${pct(99)} ms. The p99 tells you what your unluckiest regular users experience.`], chart: { series: [{ name: 'samples', points: sortedPts }], marks: [{ x: 50, y: pct(50), label: `p50 ${pct(50)} ms` }, { x: 95, y: pct(95), label: `p95 ${pct(95)} ms` }] }, code: { code: PCT, caption: 'python/sdm/percentiles.py — nearest-rank percentile, tested with pytest' } },
-    { kicker: 'Predict', title: 'Does the tail matter?', body: ['“Only 1 in 100 requests is slow” sounds acceptable. But one page load can make many requests.'], chart: { series: [{ name: 'samples', points: sortedPts }], marks: [{ x: 99, y: pct(99), label: `p99 ${pct(99)} ms` }] },
-      predict: { id: 'fanout', prompt: 'A page calls 100 backend services in parallel and waits for all of them. Each is slow 1% of the time. Roughly how often is the page slow?', choices: [
-        { id: '1', text: 'About 1% of the time', why: 'That would be true for one call. With 100 calls, it’s enough for any one of them to be slow.' },
-        { id: '63', text: 'About 63% of the time', why: 'Right. 1 − 0.99¹⁰⁰ ≈ 0.63. Fan-out turns rare tail latency into the common case.' },
-        { id: '100', text: 'Every time', why: 'Close, but each call is fast 99% of the time, so sometimes all 100 are fast.' },
+    { kicker: 'Predict', title: 'Does the tail matter?', body: ['“Only 1 in 100 requests is slow” sounds acceptable. But one page load can make many requests, and it isn’t finished until the slowest one returns.'], chart: { series: [{ name: 'samples', points: sortedPts }], marks: [{ x: 99, y: pct(99), label: `p99 ${pct(99)} ms` }] },
+      predict: { id: 'fanout', prompt: 'A page calls 100 backend services in parallel and waits for all of them. Each call is slow 1% of the time, **independently of the others**. Roughly how often is the page slow?', choices: [
+        { id: '1', text: 'About 1% of the time', why: 'That would be true for one call, or if all 100 were always slow together. With independent calls, it’s enough for any one of them to be slow.' },
+        { id: '63', text: 'About 63% of the time', why: 'Right. The page is fast only if all 100 calls are fast: 0.99¹⁰⁰ ≈ 0.366. So it’s slow 1 − 0.366 ≈ 63% of the time. Fan-out turns rare tail latency into the common case.' },
+        { id: '100', text: 'Every time', why: 'Close, but each call is fast 99% of the time, so about 37% of pages get all 100 fast.' },
       ], correct: '63' } },
-    { kicker: 'Failure', title: 'Fan-out makes the tail the norm', body: ['When a request waits for many others, its latency is set by the *slowest* of them. That’s why large systems care about p99 and p99.9, not averages.'], chart: { series: [{ name: 'chance page is slow (%)', points: [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((x) => [x, Math.round((1 - 0.99 ** x) * 100)] as [number, number]), tone: 'fail' }], marks: [{ x: 100, y: 63, label: '100 calls → 63%' }] } },
-    { kicker: 'Try it', title: 'Change the fan-out', body: ['Drag the number of backend calls a page waits on.'], code: { code: FAN, caption: 'python/sdm/percentiles.py' } },
+    { kicker: 'Failure', title: 'Fan-out makes the tail the norm', body: ['When a request waits for many others, its latency is set by the *slowest* of them. With independent calls, 0.99¹⁰⁰ ≈ 0.37 of pages are fully fast, so **63%** are slow. That’s why large systems care about p99 and p99.9, not averages.', 'The 63% depends on independence. If one shared cause (a busy shared database, a garbage-collection pause on a common dependency) slows all 100 calls *together*, the page is slow only when that cause strikes: still about **1%**. Real fan-outs sit between the two, so measure the page’s own p99 rather than assuming either extreme.'],
+      callout: { title: 'Assumption', text: 'Independent calls: each one’s chance of being slow doesn’t depend on the others.' }, chart: { series: [{ name: 'chance page is slow (%)', points: [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((x) => [x, Math.round((1 - 0.99 ** x) * 100)] as [number, number]), tone: 'fail' }], marks: [{ x: 100, y: 63, label: '100 calls → 63%' }] } },
+    { kicker: 'Try it', title: 'Change the fan-out', body: ['Drag the number of backend calls a page waits on. The curve assumes independent calls; the text under the slider shows the perfectly correlated case for comparison.'], code: { code: FAN, caption: 'python/sdm/percentiles.py' } },
   ],
   worked: { title: 'computing percentiles from samples', blocks: [
     { type: 'formula', title: 'Nearest-rank p95 of 40 samples', assumptions: ['40 samples sorted from fastest to slowest'], steps: ['rank = ceil(0.95 × 40) = 38', `p95 = the 38th fastest sample = ${pct(95)} ms`], result: `p95 = ${pct(95)} ms; mean = ${mean} ms`, changed: `Remove the single 980 ms outlier and the mean drops by about 23 ms, while p50 and p95 barely move. Percentiles are robust to one extreme value. The mean isn’t.` },
@@ -88,7 +89,7 @@ export const latency: GenericLesson = {
       { id: 'p99', text: '99% of checkouts finish within 300 ms', why: 'Right. A tail percentile with a threshold describes nearly every user’s experience.' },
       { id: 'avg', text: 'Average checkout time below 100 ms', why: 'An average can look great while 1 in 20 users waits seconds.' },
     ], correct: 'p99' },
-    { kind: 'numeric', id: 'fan', prompt: 'Each of 20 parallel calls is slow 1% of the time. What percent of pages are slow?', answer: 18.2, tolerance: 0.05, unit: '%', solution: ['P(all fast) = 0.99²⁰ ≈ 0.818', 'P(page slow) = 1 − 0.818 = 0.182 → 18.2%'] },
+    { kind: 'numeric', id: 'fan', prompt: 'A page waits for 20 parallel calls. Each is slow 1% of the time, independently of the others. What percent of pages are slow?', answer: 18.2, tolerance: 0.05, unit: '%', solution: ['Assume independence, so probabilities multiply.', 'P(all 20 fast) = 0.99²⁰ ≈ 0.818', 'P(page slow) = 1 − 0.818 = 0.182 → 18.2%', 'If the 20 calls were always slow together, the answer would be 1%.'] },
   ],
   exercise: { id: 'avg', prompt: 'Your manager wants to report average latency on the team dashboard. What would you suggest instead, in one or two sentences?', checklist: ['Suggests p50 plus a tail percentile (p95/p99).', 'Explains the average hides slow requests users notice.'], model: 'Show p50 for the typical request and p99 for the slow tail; the average is pulled around by outliers and hides the 1-in-100 experience users actually complain about.' },
   next: { id: 'throughput-bandwidth', reason: 'Latency is how long one request takes. Next: how many requests you can handle at once.' },
@@ -97,7 +98,7 @@ export const latency: GenericLesson = {
 export const throughputBandwidth: GenericLesson = {
   id: 'throughput-bandwidth',
   area: 'Foundations',
-  opening: 'Tickets for a big tour go on sale at 10:00. Last year’s server handled 1,500 requests a second fine. This year 2,000 arrive every second. Is “a bit busier” what happens, or does something break?',
+  opening: 'Tickets for a big tour go on sale at 10:00. Last year’s server handled 1,500 requests a second fine. This year 2,400 arrive every second. Is that just “a bit busier”, or does something break?',
   visual: {
     kind: 'diagram',
     spec: {
@@ -112,13 +113,17 @@ export const throughputBandwidth: GenericLesson = {
     },
   },
   experiment: {
-    step: 4, label: 'Arrivals', min: 500, max: 3000, stepSize: 100, initial: 1500, unit: 'req/s',
+    step: 4, label: 'Arrivals', min: 500, max: 3000, stepSize: 100, initial: 2400, unit: 'req/s',
     compute: (rate) => {
       const cap = 300 / 0.15;
       const inFlight = rate * 0.15;
-      if (rate <= cap) return { text: `In progress: ${rate.toLocaleString()} × 0.15 s = **${Math.round(inFlight)}** of 300 slots. Nothing waits. Throughput = **${rate.toLocaleString()}/s**.`, diagram: { values: { queue: '0 queued', clients: `${rate}/s` }, states: { server: inFlight > 270 ? 'active' : 'idle' } } };
+      if (rate <= cap) {
+        const busy = Math.round((inFlight / 300) * 100);
+        const note = busy >= 100 ? ' Exactly full: there is no spare capacity, so any burst of arrivals queues and never drains.' : busy > 85 ? ` ${busy}% busy: bursts will start to queue. Most teams plan for about 70% at peak.` : '';
+        return { text: `In progress: ${rate.toLocaleString()} × 0.15 s = **${Math.round(inFlight)}** of 300 slots (${busy}% busy). Nothing waits on average. Throughput = **${rate.toLocaleString()}/s**.${note}`, diagram: { values: { queue: '0 queued', clients: `${rate.toLocaleString()}/s`, server: `${Math.round(inFlight)} of 300` }, states: { server: busy > 85 ? 'active' : 'idle' } } };
+      }
       const growth = rate - cap;
-      return { text: `Capacity is 300 ÷ 0.15 s = **2,000/s**. The extra ${growth.toLocaleString()}/s pile up: after one minute **${(growth * 60).toLocaleString()} requests are waiting**, and each new one waits longer. Throughput stays at 2,000/s. Latency grows without limit.`, diagram: { values: { queue: `+${growth.toLocaleString()}/s`, clients: `${rate}/s` }, states: { queue: 'fail', server: 'active' }, tags: { queue: { text: 'growing', tone: 'fail' } } } };
+      return { text: `Capacity is 300 ÷ 0.15 s = **2,000/s**. The extra ${growth.toLocaleString()}/s pile up: after one minute **${(growth * 60).toLocaleString()} requests are waiting**, and a new arrival waits about ${Math.round((growth * 60) / 2000)} s before it even starts. Throughput stays at 2,000/s. Latency grows without limit.`, diagram: { values: { queue: `+${growth.toLocaleString()}/s`, clients: `${rate.toLocaleString()}/s`, server: '300 of 300' }, states: { queue: 'fail', server: 'active' }, tags: { queue: { text: 'growing', tone: 'fail' } } } };
     },
     assumptions: ['Each request takes 150 ms, and the server holds at most 300 requests at once. Arrivals are steady. Waiting requests never give up.'],
   },
@@ -131,11 +136,12 @@ export const throughputBandwidth: GenericLesson = {
         { id: '300', text: '300/s', why: '300 is how many it holds *at once*. Each slot frees up every 0.15 s, so it serves about 6.7 requests per second.' },
         { id: 'inf', text: 'No limit, as long as the CPU has room', why: 'The bottleneck is slots (threads and connections), not CPU.' },
       ], correct: '2000' } },
-    { kicker: 'Failure', title: 'Past the limit, the queue only grows', body: ['At 2,000/s arriving and 2,000/s finishing, the server is exactly full. One more request per second and the waiting line grows forever. Throughput stays flat while latency climbs: the system looks “slow” and then “down”.'], view: { values: { queue: 'growing' }, states: { queue: 'fail', server: 'active' } } },
+    { kicker: 'Failure', title: 'Past the limit, the queue only grows', body: ['At 2,400/s arriving and at most 2,000/s finishing, **400 more requests arrive every second than leave**. After one minute 24,000 are waiting, and a new arrival waits about 12 s just to start (24,000 ÷ 2,000/s). Throughput stays flat at 2,000/s while latency climbs: the system looks “slow” and then “down”.', 'Even exactly 2,000/s is not safe. Real arrivals come in bursts, and a server at 100% has no spare capacity to drain a burst, so the line never empties.'], view: { values: { queue: '+400/s', clients: '2,400/s' }, states: { queue: 'fail', server: 'active' }, tags: { queue: { text: 'growing', tone: 'fail' } } },
+      changes: [{ kind: 'chg', text: 'Waiting requests', from: '0', to: '+400 every second' }, { kind: 'chg', text: 'Throughput', from: '1,500/s', to: '2,000/s (the ceiling)' }] },
     { kicker: 'Try it', title: 'Change the arrival rate', body: ['Drag arrivals past 2,000/s. The bottleneck is the first resource to run out. Here it’s the 300 slots, and you could raise it with more servers, shorter requests, or by refusing some requests early.'] },
   ],
   worked: { title: 'checking a ticket drop', blocks: [
-    { type: 'formula', title: 'Will 2,000 requests/s fit?', assumptions: ['Arrivals: 2,000/s', 'Time per request: 150 ms', 'Max in progress per server: 300'], steps: ['In progress needed = 2,000 × 0.15 = 300', 'One server holds 300, so it’s exactly at capacity', 'Plan to run at ~70%: 300 ÷ 0.7 ≈ 429 slots needed', '429 ÷ 300 = 1.43, so 2 servers'], result: 'Two servers, not one', changed: 'If the database slows requests to 300 ms, in progress doubles to 600, and you need 600 ÷ 0.7 ÷ 300 ≈ 3 servers. Slower is also less capacity.' },
+    { type: 'formula', title: 'Will 2,400 requests/s fit?', assumptions: ['Arrivals: 2,400/s', 'Time per request: 150 ms', 'Max in progress per server: 300'], steps: ['In progress needed = 2,400 × 0.15 = 360 (Little’s law)', 'One server holds 300, so 60 requests have nowhere to go: overloaded', 'Plan to run at ~70% busy at peak: 360 ÷ 0.7 ≈ 514 slots needed', '514 ÷ 300 = 1.7, so 2 servers'], result: 'Two servers, not one', changed: 'If the database slows requests to 300 ms, in progress doubles to 720, and you need 720 ÷ 0.7 ÷ 300 ≈ 3.4, so 4 servers. Slower requests also mean less capacity.' },
     { type: 'code', lang: 'python', code: py('sdm/capacity.py', 'in_flight'), caption: 'python/sdm/capacity.py' },
   ] },
   checks: [

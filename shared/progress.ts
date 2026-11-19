@@ -7,6 +7,8 @@
  *   "draft:first-booking:race" → { text, drawing }  (learner drafts and drawings)
  *   "sim:replica-lag"          → { delayMs }       (simulation inputs)
  *   "note:<id>", "bookmark:<id>", "quiz:<id>", "mistake:<id>", "review:<id>", "interview:<id>"
+ *   "evidence:<topic>"         → { round, acts: { [activity]: { round, first, best, at } } }  (verified outcomes)
+ *   "self:<topic>"             → { ratings, confidence, at }  (self-assessment; never raises a status)
  *
  * Each record carries the server revision it was based on so the server can
  * detect concurrent edits (optimistic concurrency). Every push carries a
@@ -15,11 +17,11 @@
 import { z } from 'zod';
 
 export const RECORD_KINDS = [
-  'step', 'status', 'draft', 'sim', 'note', 'bookmark', 'quiz', 'mistake', 'review', 'interview', 'pref',
+  'step', 'status', 'draft', 'sim', 'note', 'bookmark', 'quiz', 'mistake', 'review', 'interview', 'pref', 'evidence', 'self',
 ] as const;
 export type RecordKind = (typeof RECORD_KINDS)[number];
 
-export const KEY_RE = /^(step|status|draft|sim|note|bookmark|quiz|mistake|review|interview|pref):[a-z0-9][a-z0-9:._@-]{0,160}$/;
+export const KEY_RE = /^(step|status|draft|sim|note|bookmark|quiz|mistake|review|interview|pref|evidence|self):[a-z0-9][a-z0-9:._@-]{0,160}$/;
 export const MAX_VALUE_BYTES = 200_000;
 
 export function kindOf(key: string): RecordKind {
@@ -108,7 +110,30 @@ export function mergeValues(key: string, server: unknown, incoming: unknown): { 
       return { value: (i?.reps ?? 0) >= (s?.reps ?? 0) ? incoming : server };
     }
     case 'mistake':
+    case 'self':
       return { value: incoming };
+    case 'evidence': {
+      // Union of activities. For the same activity keep the later round; within a round keep the more
+      // conservative first outcome and the better best outcome, so a merge can never inflate evidence.
+      type Act = { round: number; first: string; best: string; at: number };
+      const rank: Record<string, number> = { missed: 0, hinted: 1, independent: 2 };
+      const sv = (server as { round?: number; acts?: Record<string, Act> }) ?? {};
+      const iv = (incoming as { round?: number; acts?: Record<string, Act> }) ?? {};
+      const acts: Record<string, Act> = { ...(sv.acts ?? {}) };
+      for (const [id, a] of Object.entries(iv.acts ?? {})) {
+        const b = acts[id];
+        if (!b || a.round > b.round) acts[id] = a;
+        else if (a.round === b.round) {
+          acts[id] = {
+            round: a.round,
+            first: (rank[a.first] ?? 0) <= (rank[b.first] ?? 0) ? a.first : b.first,
+            best: (rank[a.best] ?? 0) >= (rank[b.best] ?? 0) ? a.best : b.best,
+            at: Math.max(a.at, b.at),
+          };
+        }
+      }
+      return { value: { ...sv, ...iv, round: Math.max(sv.round ?? 0, iv.round ?? 0), acts } };
+    }
     default:
       return null; // draft, note, interview: preserve both versions
   }

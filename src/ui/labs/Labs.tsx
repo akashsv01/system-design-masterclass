@@ -3,9 +3,11 @@ import { LabFrame, Slider, Choice } from './LabFrame';
 import { Chart, Timeline, type Series } from '../components/Visuals';
 import { Snippet } from '../components/Exercise';
 import { useRecord } from '../../progress/ProgressProvider';
-import { simulateLb, simulateCacheHitRate, stampede, shardLoads, backlogSeries, simulateRetries, reservationOutcomes, interleavings, runInterleaving, rng, type LbPolicy, type ReserveStrategy } from '../../sim/labs';
+import { simulateLb, simulateCacheHitRate, stampede, shardLoads, backlogSeries, simulateRetries, reservationOutcomes, interleavings, runInterleaving, type LbPolicy, type ReserveStrategy } from '../../sim/labs';
 import { staleFraction, type ReadStrategy } from '../../sim/replication';
-import { runLru, type LruOp } from '../../sim/lru';
+import { evictionPuzzle, type EvictionPuzzle, type LruOp } from '../../sim/lru';
+import { RecencyRow } from '../components/RecencyRow';
+import { Icon } from '../components/Icon';
 
 const Note = ({ children }: { children: ReactNode }) => <p className="notice" style={{ marginTop: 12, marginBottom: 0 }} aria-live="polite">{children}</p>;
 
@@ -280,50 +282,92 @@ export function LabPaymentRetries() {
 }
 
 /* ---------------- LRU operations ---------------- */
-function lruPuzzle(seed: number) {
-  const r = rng(seed);
-  const keys = ['A', 'B', 'C', 'D', 'E'];
-  const ops: LruOp[] = [];
-  for (let i = 0; i < 8; i++) {
-    const k = keys[Math.floor(r() * keys.length)];
-    ops.push(r() < 0.45 ? { type: 'get', key: k } : { type: 'put', key: k, value: k.toLowerCase() });
-  }
-  const trace = runLru(3, ops);
-  return { ops, trace, final: trace[trace.length - 1].order };
+const opText = (o: LruOp) => (o.type === 'get' ? `get(${o.key})` : `put(${o.key})`);
+
+/** Start state, operations, and (optionally) progress through them, drawn from one puzzle. */
+function PuzzleView({ pz, shown, reveal }: { pz: EvictionPuzzle; shown: number; reveal?: boolean }) {
+  const cur = shown === 0 ? null : pz.trace[shown - 1];
+  const order = cur ? cur.order : pz.start;
+  const values = cur ? cur.values : Object.fromEntries(pz.start.map((k) => [k, k.toLowerCase()]));
+  const moved = cur && cur.op.type === 'get' && cur.hit ? cur.op.key : cur && cur.op.type === 'put' && !cur.evicted ? cur.op.key : undefined;
+  return (
+    <>
+      <div className="stage-top">
+        <span className="stage-label">Cache · capacity 3 · puzzle #{pz.seed}</span>
+        <span className="clock">{cur ? `after ${opText(cur.op)}` : 'start'}</span>
+      </div>
+      <RecencyRow order={order} values={values} moved={moved ?? undefined} evicted={cur?.evicted} inserted={cur?.evicted ? cur.op.key : undefined} />
+      <ol className="op-list" aria-label="Operations, in order">
+        {pz.ops.map((o, i) => {
+          const done = i < shown;
+          const t = pz.trace[i];
+          const result = !done && !reveal ? '' : t.op.type === 'get' ? (t.hit ? 'hit: moves to the front' : 'miss: nothing changes') : t.evicted ? `evicts ${t.evicted}` : 'updates the value, moves to the front';
+          return (
+            <li key={i} className={done ? (i === shown - 1 ? 'current' : 'done') : ''}>
+              <code>{opText(o)}</code>
+              {result && <span className="op-result">{result}</span>}
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  );
 }
 
 export function LabLru() {
-  const [seed, setSeed] = useRecord<number>('sim:lab-lru:seed', 4);
+  const base = useMemo(() => evictionPuzzle(4), []);
   const [shown, setShown] = useRecord<number>('sim:lab-lru:shown', 0);
-  const pz = lruPuzzle(seed);
-  const opText = (o: LruOp) => (o.type === 'get' ? `get(${o.key})` : `put(${o.key})`);
+  const [freshSeed, setFreshSeed] = useRecord<number>('sim:lab-lru:fresh-seed', 101);
+  const fresh = useMemo(() => evictionPuzzle(freshSeed), [freshSeed]);
+  const safeShown = Math.min(Math.max(0, shown), base.ops.length);
+  const sorted = (keys: string[]) => [...keys].sort();
   return (
     <LabFrame
       id="lab-lru"
-      opening="Eight operations on a 3-slot LRU cache. Can you track the recency order in your head? Step through to check, then try a fresh sequence."
-      predict={{ id: 'p', prompt: `Capacity 3, empty to start. Run: ${pz.ops.map(opText).join(', ')}. Which order (most → least recent) is left?`, choices: [
-        { id: 'a', text: pz.final.join(', ') || '(empty)', why: 'Step through to confirm.' },
-        { id: 'b', text: [...pz.final].reverse().join(', ') || '(empty)', why: 'This is the reverse: least to most recent.' },
-      ] }}
-      experiment={{ title: 'Step through the operations', body: 'Each step shows the recency order after the operation. Gets that miss change nothing; puts on a full cache evict the least recent key.', render: () => (
-        <>
-          <ol className="history" style={{ listStyle: 'none' }}>
-            {pz.trace.slice(0, shown).map((t, i) => (
-              <li key={i}><time>{opText(t.op)}</time><span>{t.order.join(' → ') || '(empty)'} {t.evicted ? `· evicted ${t.evicted}` : t.op.type === 'get' ? (t.hit ? '· hit' : '· miss') : ''}</span></li>
-            ))}
-          </ol>
-          <div className="toolbar" style={{ marginTop: 10 }}>
-            <button className="btn btn-small btn-primary" onClick={() => setShown(Math.min(pz.trace.length, shown + 1))} disabled={shown >= pz.trace.length}>Next operation ▸</button>
-            <button className="btn btn-small btn-quiet" onClick={() => setShown(0)}>Restart</button>
-          </div>
-        </>
-      ) }}
-      explain={{ title: 'Track one list, not a history', body: ['You only ever need the current recency list. A hit moves the key to the front. A miss changes nothing. A put adds at the front and, if the cache was full, drops the last key.'] }}
-      exercise={{ id: 'trick', prompt: 'Which operation in a trace is easiest to get wrong, and why?', checklist: ['Names one (a miss that changes nothing, or a put that updates an existing key without eviction).', 'Explains the misconception.'], model: 'A `put` on a key already in the cache: it moves the key to the front and updates its value but evicts nothing, which is easy to miss if you assume every put evicts on a full cache.' }}
-      fresh={{ question: { id: 'fresh', prompt: 'Try a new sequence: press “New puzzle” below, then predict before stepping. Did tracking the single list make it easier?', choices: [{ id: 'y', text: 'Yes', why: 'Good. That’s the whole mechanism.' }, { id: 'n', text: 'Not yet', why: 'Step through a few more. Say the list out loud after each operation.' }] }, reveal: () => (
-        <div className="toolbar"><button className="btn btn-small" onClick={() => { setSeed(seed + 1); setShown(0); }}>New puzzle</button><span className="muted">Puzzle #{seed}</span></div>
-      ) }}
-      assumptions={['Capacity 3; puzzles are generated from a numbered seed, so each puzzle number always gives the same sequence.']}
+      opening="A 3-slot LRU cache forgets the item that was **used** least recently, not the one that arrived first. Reads change that order, and that is where predictions go wrong. Predict, step through it, then solve fresh cache states."
+      predictVisual={() => <PuzzleView pz={base} shown={0} />}
+      predict={{
+        id: 'evict',
+        prompt: `The cache starts full, most → least recent: **${base.start.join(', ')}**. Then: ${base.ops.map((o) => `\`${opText(o)}\``).join(', ')}. Which key does the last put evict?`,
+        choices: sorted(base.start).map((k) => ({
+          id: k,
+          text: k,
+          why: k === base.evicted
+            ? `Right: ${k} ended up least recently used. Step through to watch it reach the end of the row.`
+            : k === base.naive
+              ? `${k} was least recent at the start, but a read moved it forward. Step through to see which key took its place.`
+              : `${k} is not at the least-recent end when the put arrives. Step through to see the order change.`,
+        })),
+        correct: base.evicted,
+      }}
+      experiment={{
+        title: 'Apply one operation at a time',
+        body: 'Each operation updates the recency row. A hit moves the key to the front; a miss changes nothing; a put of a new key into a full cache evicts the key at the least-recent end.',
+        render: () => (
+          <>
+            <PuzzleView pz={base} shown={safeShown} />
+            {safeShown > 0 && (
+              <div className="stage-actions"><button className="btn btn-quiet btn-small" onClick={() => setShown(0)}><Icon name="reset" size={15} /> Back to the start state</button></div>
+            )}
+          </>
+        ),
+        action: () => (safeShown < base.ops.length ? { label: `Apply ${opText(base.ops[safeShown])}`, onClick: () => setShown(safeShown + 1), lockMs: 650 } : undefined),
+      }}
+      explain={{ title: 'Track one list, not a history', body: ['You only ever need the current recency list. A hit moves the key to the front. A miss changes nothing. A put of an existing key updates it and moves it to the front without evicting. A put of a new key goes to the front and, if the cache was full, drops the key at the end.', 'The common mistake is answering with the key that was oldest *at the start*. Any read of that key rescues it.'] }}
+      exercise={{ id: 'trick', prompt: 'Which operation in a trace is easiest to get wrong, and why?', checklist: ['Names one (a read that rescues the oldest key, a miss that changes nothing, or a put that updates an existing key without evicting).', 'Explains the misconception.'], model: 'A read of the least recent key: it moves that key to the front, so the next eviction takes a different key than the one that was oldest a moment ago.' }}
+      fresh={{
+        key: `p${freshSeed}`,
+        visual: () => <PuzzleView pz={fresh} shown={0} />,
+        question: {
+          id: 'fresh',
+          prompt: `New cache state, most → least recent: **${fresh.start.join(', ')}**. Then ${fresh.ops.map((o) => `\`${opText(o)}\``).join(', ')}. Which key is evicted?`,
+          choices: sorted(fresh.start).map((k) => ({ id: k, text: k, why: k === fresh.evicted ? 'Right.' : k === fresh.naive ? `${k} was oldest at the start, but a read moved it forward.` : `${k} isn’t at the least-recent end when the new key arrives.` })),
+          correct: fresh.evicted,
+        },
+        reveal: () => <PuzzleView pz={fresh} shown={fresh.ops.length} reveal />,
+        another: { label: 'Another cache state', onClick: () => setFreshSeed(freshSeed + 1) },
+      }}
+      assumptions={['Capacity 3. A read (get) of a cached key moves it to the front; a read of a missing key changes nothing; a put of a cached key updates it and moves it to the front; a put of a new key into a full cache evicts the least recently used key.', 'Puzzles are generated from a numbered seed, so each puzzle number always gives the same problem.']}
     />
   );
 }

@@ -12,11 +12,13 @@ import { Diagram, type DNode, type DEdge } from '../components/Diagram';
 import { Timeline, Chart, Compare } from '../components/Visuals';
 import { LayerStack } from '../components/LayerStack';
 import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useReplay, useStep } from '../components/Lesson';
-import { LinePick, ShortAnswer, Snippet } from '../components/Exercise';
+import { EvidenceScope, LinePick, ShortAnswer, Snippet, useOutcome, useRoundKey } from '../components/Exercise';
+import { RevisionBanner } from '../components/Revision';
 import { CodeBlock } from '../components/Code';
 import { Rich } from '../components/Rich';
 import { useProgress, useRecord } from '../../progress/ProgressProvider';
 import { raiseStatus } from '../../progress/activity';
+import { Icon } from '../components/Icon';
 
 export default function GenericLesson({ id }: { id: string }) {
   const lesson = GENERIC_LESSONS[id];
@@ -26,12 +28,13 @@ export default function GenericLesson({ id }: { id: string }) {
   const count = lesson.steps.length + 1; // last step: practice
   const practiceStep = lesson.steps.length;
   const [answers, setAnswers] = useState(0);
-  // Steps with a prediction must be answered before Next.
+  // Steps with a prediction must be answered before moving on: Next, → and the step list all stop there.
   const predictKeys = lesson.steps.map((s) => (s.predict ? `quiz:${id}:${s.predict.id}` : null));
-  const { step, next, back } = useStep(id, count, { onReplay: replay });
-  const cur = lesson.steps[step] as LessonStep | undefined;
-  const predictAnswered = cur?.predict ? !!store.get<{ attempts: unknown[] }>(predictKeys[step]!)?.attempts?.length : true;
+  const firstUnanswered = predictKeys.findIndex((k) => k !== null && !store.get<{ attempts: unknown[] }>(k)?.attempts?.length);
   void answers;
+  const { step, next, back, go, reachable } = useStep(id, count, { onReplay: replay, reachable: firstUnanswered >= 0 ? firstUnanswered : undefined });
+  const cur = lesson.steps[step] as LessonStep | undefined;
+  const predictAnswered = step < reachable || !cur?.predict;
 
   useEffect(() => {
     if (step === practiceStep) raiseStatus(store, id, 'studied');
@@ -42,14 +45,14 @@ export default function GenericLesson({ id }: { id: string }) {
   return (
     <LessonShell
       id={id}
-      crumbs={<><Link to={`/topics#${topic.module}`}>{lesson.area ?? module?.title}</Link> / {topic.short ?? topic.title}</>}
+      crumbs={<><Link to={`/topics#${topic.module}`}>{module?.title ?? lesson.area}</Link><span className="sep">/</span>{topic.short ?? topic.title}</>}
       title={topic.title}
       opening={<Rich text={lesson.opening} />}
     >
       {step < practiceStep && cur && (
         <>
           <StepStage lesson={lesson} step={step} replayKey={replayKey} />
-          <Caption kicker={cur.kicker} title={cur.title} changes={cur.changes}>
+          <Caption kicker={cur.kicker} title={cur.title} changes={cur.changes?.map((c) => ({ kind: c.kind, text: <Rich text={c.text} />, from: c.from, to: c.to }))}>
             {cur.body.map((p, i) => <p key={i}><Rich text={p} /></p>)}
             {cur.callout && (
               <div className={`callout ${cur.callout.tone === 'warn' ? 'warn' : ''}`}>
@@ -69,6 +72,7 @@ export default function GenericLesson({ id }: { id: string }) {
           {cur.predict && (
             <Question
               key={cur.predict.id}
+              required={step >= reachable}
               isPrediction={!cur.predict.correct}
               recordKey={`${id}:${cur.predict.id}`}
               prompt={<Rich text={cur.predict.prompt} />}
@@ -91,7 +95,10 @@ export default function GenericLesson({ id }: { id: string }) {
         onReplay={step < practiceStep ? replay : undefined}
         nextLabel={step + 1 < practiceStep ? lesson.steps[step + 1].title : step + 1 === practiceStep ? 'Check yourself' : undefined}
         nextDisabled={!predictAnswered}
-        nextHint={!predictAnswered ? 'Answer the question first' : undefined}
+        nextHint={!predictAnswered ? 'Answer the question above to continue' : undefined}
+        steps={[...lesson.steps.map((x) => x.title), 'Check yourself']}
+        reachable={reachable}
+        onJump={go}
       />
 
       <More summary={`Worked example: ${lesson.worked.title}`}>
@@ -163,14 +170,14 @@ function StepStage({ lesson, step, replayKey }: { lesson: GL; step: number; repl
     <section className="stage" aria-label="Visual">
       {visual}
       {exp && result && (
-        <div style={{ marginTop: 14, borderTop: '1px solid var(--line)', paddingTop: 14, display: 'grid', gap: 10 }}>
+        <div className="control-panel">
           <label className="range-row" style={{ fontSize: 15 }}>
-            <span style={{ minWidth: 140 }}>{exp.label}</span>
+            <span style={{ minWidth: 140, fontWeight: 600 }}>{exp.label}</span>
             <input type="range" min={exp.min} max={exp.max} step={exp.stepSize} value={val} onChange={(e) => setVal(Number(e.target.value))} aria-valuetext={`${val} ${exp.unit}`} />
-            <span className="mono" style={{ minWidth: 90 }}>{val.toLocaleString()} {exp.unit}</span>
+            <span className="mono" style={{ minWidth: 96, textAlign: 'right' }}>{val.toLocaleString()} {exp.unit}</span>
           </label>
-          <p className="notice" aria-live="polite" style={{ margin: 0 }}><Rich text={result.text} /></p>
-          <p className="muted" style={{ fontSize: 13, margin: 0 }}>Model: {exp.assumptions.join(' ')}</p>
+          <p className="result" aria-live="polite"><Rich text={result.text} /></p>
+          <p className="model-note">Model: {exp.assumptions.join(' ')}</p>
         </div>
       )}
     </section>
@@ -223,31 +230,34 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
 }
 
 function Practice({ lesson }: { lesson: GL }) {
+  const required = lesson.checks.map((c) => c.id);
   return (
-    <>
+    <EvidenceScope required={required}>
       <Caption kicker="Practice" title="Check yourself">
-        <p>Short checks on the main idea. Your answers are saved, and anything you miss goes into your mistake notebook.</p>
+        <p>
+          {lesson.checks.length === 1 ? 'One check' : `${lesson.checks.length} checks`} on the main idea, then one short explanation in your own words. Right first time
+          counts as solved independently; anything you miss goes to your mistake notebook and comes back later.
+        </p>
       </Caption>
+      <RevisionBanner topicId={lesson.id} />
       {lesson.checks.map((c) => <CheckView key={c.id} lessonId={lesson.id} check={c} />)}
       <ShortAnswer lessonId={lesson.id} spec={lesson.exercise} />
-    </>
+    </EvidenceScope>
   );
 }
 
 function CheckView({ lessonId, check }: { lessonId: string; check: Check }) {
-  const { store } = useProgress();
+  const record = useOutcome(lessonId);
+  const key = useRoundKey(lessonId, `${lessonId}:${check.id}`);
   if (check.kind === 'choice') {
     return (
       <Question
-        recordKey={`${lessonId}:${check.id}`}
+        key={key}
+        recordKey={key}
         prompt={<Rich text={check.prompt} />}
         choices={check.choices.map((c) => ({ id: c.id, text: <Rich text={c.text} /> }))}
         correct={check.correct}
-        onAnswered={(p) => {
-          const right = p === check.correct;
-          if (right) raiseStatus(store, lessonId, 'independent');
-          else store.set(`mistake:${lessonId}:${check.id}`, { lessonId, text: check.prompt.replace(/[*`]/g, ''), at: Date.now(), resolved: false });
-        }}
+        onAnswered={(p) => record(check.id, p === check.correct, false, check.prompt.replace(/[*`]/g, ''))}
         explain={(p) => <p><Rich text={check.choices.find((c) => c.id === p)?.why ?? ''} /></p>}
       />
     );
@@ -255,20 +265,20 @@ function CheckView({ lessonId, check }: { lessonId: string; check: Check }) {
   if (check.kind === 'line') {
     return <LinePick lessonId={lessonId} spec={check} />;
   }
-  if (check.kind === 'numeric') return <NumericCheck lessonId={lessonId} check={check} />;
-  return <OrderCheck lessonId={lessonId} check={check} />;
+  if (check.kind === 'numeric') return <NumericCheck key={key} lessonId={lessonId} check={check} />;
+  return <OrderCheck key={key} lessonId={lessonId} check={check} />;
 }
 
 function NumericCheck({ lessonId, check }: { lessonId: string; check: Extract<Check, { kind: 'numeric' }> }) {
-  const { store } = useProgress();
-  const [st, setSt] = useRecord<{ value: string; checked?: boolean; correct?: boolean; shown?: boolean }>(`quiz:${lessonId}:${check.id}`, { value: '' });
+  const record = useOutcome(lessonId);
+  const key = useRoundKey(lessonId, `quiz:${lessonId}:${check.id}`);
+  const [st, setSt] = useRecord<{ value: string; checked?: boolean; correct?: boolean; shown?: boolean }>(key, { value: '' });
   const value = typeof st.value === 'string' ? st.value : '';
   const num = Number(value.replace(/[, _]/g, ''));
   const submit = () => {
     const correct = Number.isFinite(num) && Math.abs(num - check.answer) <= Math.abs(check.answer) * check.tolerance;
     setSt({ ...st, checked: true, correct });
-    if (!correct) store.set(`mistake:${lessonId}:${check.id}`, { lessonId, text: check.prompt.replace(/[*`]/g, ''), at: Date.now(), resolved: false });
-    else raiseStatus(store, lessonId, st.shown ? 'hinted' : 'independent');
+    record(check.id, correct, !!st.shown, check.prompt.replace(/[*`]/g, ''));
   };
   return (
     <section className="question" aria-label="Estimate">
@@ -281,20 +291,21 @@ function NumericCheck({ lessonId, check }: { lessonId: string; check: Extract<Ch
       </div>
       {st.checked && (
         <div className="feedback">
-          {st.correct ? <p><strong>✓ Within {Math.round(check.tolerance * 100)}% of {check.answer.toLocaleString()} {check.unit}.</strong></p> : <p><strong>✕ Not quite.</strong> Estimates within {Math.round(check.tolerance * 100)}% count.</p>}
+          {st.correct ? <p className="verdict ok"><Icon name="check" size={16} strokeWidth={2.4} /> Within {Math.round(check.tolerance * 100)}% of {check.answer.toLocaleString()} {check.unit}.</p> : <p><span className="verdict fail"><Icon name="x" size={16} strokeWidth={2.4} /> Not quite.</span> Estimates within {Math.round(check.tolerance * 100)}% count. Change your number and check again.</p>}
         </div>
       )}
       {(st.checked || st.shown) ? (
         <ol className="mono" style={{ fontSize: 14.5 }}>{check.solution.map((s, i) => <li key={i}><Rich text={s} /></li>)}</ol>
       ) : (
-        <button className="btn btn-small btn-quiet" onClick={() => setSt({ ...st, shown: true })}>Show the working</button>
+        <button className="btn btn-small btn-quiet" onClick={() => setSt({ ...st, shown: true })}>Show the working (counts as help)</button>
       )}
     </section>
   );
 }
 
 function OrderCheck({ lessonId, check }: { lessonId: string; check: Extract<Check, { kind: 'order' }> }) {
-  const { store } = useProgress();
+  const record = useOutcome(lessonId);
+  const key = useRoundKey(lessonId, `quiz:${lessonId}:${check.id}`);
   // Deterministic shuffle so the starting order is stable across visits.
   const initial = useMemo(() => {
     const idx = check.items.map((_, i) => i);
@@ -307,7 +318,7 @@ function OrderCheck({ lessonId, check }: { lessonId: string; check: Extract<Chec
     if (idx.every((v, i) => v === i)) idx.reverse();
     return idx;
   }, [check]);
-  const [st, setSt] = useRecord<{ order: number[]; checked?: boolean; correct?: boolean }>(`quiz:${lessonId}:${check.id}`, { order: initial });
+  const [st, setSt] = useRecord<{ order: number[]; checked?: boolean; correct?: boolean }>(key, { order: initial });
   const order = Array.isArray(st.order) && st.order.length === check.items.length ? st.order : initial;
   const move = (i: number, d: number) => {
     const o = [...order];
@@ -319,8 +330,7 @@ function OrderCheck({ lessonId, check }: { lessonId: string; check: Extract<Chec
   const submit = () => {
     const correct = order.every((v, i) => v === i);
     setSt({ order, checked: true, correct });
-    if (correct) raiseStatus(store, lessonId, 'independent');
-    else store.set(`mistake:${lessonId}:${check.id}`, { lessonId, text: check.prompt.replace(/[*`]/g, ''), at: Date.now(), resolved: false });
+    record(check.id, correct, false, check.prompt.replace(/[*`]/g, ''));
   };
   return (
     <section className="question" aria-label="Put in order">
@@ -331,15 +341,21 @@ function OrderCheck({ lessonId, check }: { lessonId: string; check: Extract<Chec
           <li key={itemIdx} className={`choice ${st.checked ? (itemIdx === i ? 'right' : 'wrong') : ''}`} style={{ cursor: 'default', alignItems: 'center' }}>
             <span className="mark" aria-hidden="true">{i + 1}</span>
             <span style={{ flex: 1 }}><Rich text={check.items[itemIdx]} /></span>
-            <button className="btn btn-small btn-quiet" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-            <button className="btn btn-small btn-quiet" onClick={() => move(i, 1)} disabled={i === order.length - 1} aria-label="Move down">↓</button>
+            <button className="btn btn-small btn-quiet" onClick={() => move(i, -1)} disabled={i === 0 || st.checked} aria-label="Move up"><Icon name="arrow-right" size={15} style={{ transform: 'rotate(-90deg)' }} /></button>
+            <button className="btn btn-small btn-quiet" onClick={() => move(i, 1)} disabled={i === order.length - 1 || st.checked} aria-label="Move down"><Icon name="arrow-right" size={15} style={{ transform: 'rotate(90deg)' }} /></button>
           </li>
         ))}
       </ol>
       <div className="toolbar" style={{ marginTop: 10, marginBottom: 0 }}>
         <button className="btn btn-small btn-primary" onClick={submit}>Check order</button>
       </div>
-      {st.checked && <div className="feedback"><p>{st.correct ? '✓ ' : '✕ Not yet. '}<Rich text={check.explain} /></p></div>}
+      {st.checked && (
+        <div className="feedback">
+          <p className={`verdict ${st.correct ? 'ok' : 'fail'}`}><Icon name={st.correct ? 'check' : 'x'} size={16} strokeWidth={2.4} /> {st.correct ? 'Right order.' : 'Not this order.'}</p>
+          <p><Rich text={check.explain} /></p>
+          {!st.correct && <button className="btn btn-small btn-quiet" onClick={() => setSt({ order, checked: false })}><Icon name="replay" size={15} /> Try again</button>}
+        </div>
+      )}
     </section>
   );
 }

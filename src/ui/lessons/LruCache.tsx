@@ -3,14 +3,15 @@
  * Format: behaviour → implementation. Storyboard: docs/STORYBOARDS.md §3.
  * Behaviour views derive from runLru(); the code view highlights lines of python/sdm/lru_cache.py.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Caption, Controls, LessonShell, More, NextLesson, Question, Sources, useStep } from '../components/Lesson';
-import { FillBlank, LinePick, Snippet } from '../components/Exercise';
+import { EvidenceScope, FillBlank, LinePick, Snippet, useOutcome } from '../components/Exercise';
 import { extractDefAt } from '../../py/snippets';
 import blankSource from '../../../python/blanks/lru_evict_condition.py?raw';
 import blankChecks from '../../../python/blanks/lru_evict_condition_check.py?raw';
 import { CodeBlock } from '../components/Code';
+import { RecencyRow } from '../components/RecencyRow';
 import { runLru, linesFor, type LruOp, type LruStep } from '../../sim/lru';
 import { useProgress, useRecord } from '../../progress/ProgressProvider';
 import { raiseStatus } from '../../progress/activity';
@@ -49,56 +50,15 @@ function opText(op: LruOp) {
 }
 
 /** Recency row: fixed slots, items slide between them; evicted item fades out. */
-function RecencyRow({ order, values, moved, evicted, inserted, capacity = 3 }: { order: string[]; values: Record<string, string>; moved?: string; evicted?: string; inserted?: string; capacity?: number }) {
-  const [width, setWidth] = useState(0);
-  const slotW = 100 / capacity;
-  const all = evicted ? [...order, evicted] : order;
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--muted)', marginBottom: 6 }}>
-        <span>← most recently used</span>
-        <span>least recently used →</span>
-      </div>
-      <div ref={(el) => el && el.clientWidth !== width && setWidth(el.clientWidth)} style={{ position: 'relative', height: 104 }} role="list" aria-label={`Cache from most to least recently used: ${order.join(', ') || 'empty'}`}>
-        {Array.from({ length: capacity }, (_, i) => (
-          <div key={`slot-${i}`} aria-hidden="true" style={{ position: 'absolute', left: `calc(${i * slotW}% + 6px)`, width: `calc(${slotW}% - 12px)`, top: 0, height: 96, border: '1.5px dashed var(--line)', borderRadius: 12 }} />
-        ))}
-        {all.map((k) => {
-          const i = order.indexOf(k);
-          const gone = k === evicted;
-          const tone = gone ? 'fail' : k === moved || k === inserted ? 'active' : i === order.length - 1 && order.length === capacity ? 'warn' : '';
-          return (
-            <div
-              key={k}
-              role="listitem"
-              style={{
-                position: 'absolute', top: 0, height: 96,
-                left: `calc(${(gone ? capacity - 0.3 : i) * slotW}% + 6px)`,
-                width: `calc(${slotW}% - 12px)`,
-                opacity: gone ? 0 : 1,
-                transition: 'left .6s cubic-bezier(.45,0,.25,1), opacity .6s',
-                background: tone === 'active' ? 'var(--active-soft)' : 'var(--surface)',
-                border: `2px solid ${tone === 'active' ? 'var(--active)' : tone === 'fail' ? 'var(--fail)' : 'var(--line-strong)'}`,
-                borderRadius: 12, display: 'grid', placeItems: 'center', alignContent: 'center', gap: 2,
-              }}
-            >
-              <span style={{ fontSize: 26, fontWeight: 700, fontFamily: 'var(--mono)' }}>{k}</span>
-              <span className="muted" style={{ fontSize: 14 }}>{values[k] ?? ''}</span>
-              {tone === 'warn' && <span style={{ fontSize: 12, color: 'var(--fail)' }}>next to go</span>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export default function LruCacheLesson() {
   const { store } = useProgress();
-  const { step, next, back } = useStep(ID, STEPS.length);
   const [didRead, setDidRead] = useRecord<boolean>('sim:lru-cache:read', false);
   const [pred] = useRecord<{ attempts: { picked: string }[] } | null>('quiz:lru-cache:predict', null);
   const answered = !!pred?.attempts?.length;
+  const blocked = [!didRead ? 1 : null, !answered ? 2 : null].filter((x): x is number => x !== null);
+  const { step, next, back, go, reachable } = useStep(ID, STEPS.length, { reachable: blocked.length ? Math.min(...blocked) : undefined });
+  const record = useOutcome(ID);
   const topic = topicById(ID);
 
   useEffect(() => {
@@ -113,22 +73,17 @@ export default function LruCacheLesson() {
   return (
     <LessonShell
       id={ID}
-      crumbs={<><Link to="/topics">LLD and machine coding</Link> / Caching</>}
+      crumbs={<><Link to="/topics#lld">LLD and machine coding</Link><span className="sep">/</span>Caching</>}
       title="Which item should the cache forget?"
       opening="A cache keeps copies of things you looked up recently so the next lookup is instant. It has room for only a few. When a new item arrives and it’s full, something has to go. Which one?"
     >
       {step <= 2 && (
         <section className="stage" aria-label="Cache contents">
           <div className="stage-top">
-            <span className="muted" style={{ fontSize: 14 }}>Cache · capacity 3</span>
+            <span className="stage-label">Cache · capacity 3</span>
             {step > 0 && <span className="clock">{step === 1 ? (didRead ? 'get("A")' : '—') : answered ? 'put("D")' : 'put("D") ?'}</span>}
           </div>
           <RecencyRow order={view.st.order} values={view.st.values} moved={view.moved} evicted={view.evicted} inserted={view.inserted} />
-          {step === 1 && (
-            <div className="stage-actions">
-              <button className="btn btn-primary btn-lg" onClick={() => setDidRead(true)} disabled={didRead}>{didRead ? 'Read A' : 'Read A'}</button>
-            </div>
-          )}
         </section>
       )}
       {step === 3 && <Playground />}
@@ -139,6 +94,7 @@ export default function LruCacheLesson() {
       {step === 2 && (
         <Question
           isPrediction
+          required={!answered}
           recordKey="lru-cache:predict"
           prompt="The cache is full: A, C, B (most → least recent). You now put D. Which item is evicted?"
           choices={[{ id: 'A', text: 'A — it was added first.' }, { id: 'C', text: 'C — it’s in the middle.' }, { id: 'B', text: 'B — it was used least recently.' }]}
@@ -152,8 +108,9 @@ export default function LruCacheLesson() {
       )}
 
       {step === 5 && (
-        <>
+        <EvidenceScope required={['trace', 'bug', 'evict-condition']}>
           <Question
+            onAnswered={(p) => record('trace', p === 'a', false, 'Trace an LRU sequence: a miss changes nothing; a put on a full cache evicts the least recent key.')}
             recordKey="lru-cache:trace"
             prompt={'Capacity 2. Run: put("X"), put("Y"), get("X"), put("Z"), get("Y"). What does the last get return, and what is the order?'}
             choices={[
@@ -188,12 +145,14 @@ export default function LruCacheLesson() {
               explain: 'The `elif` only runs for new keys, so the cache evicts exactly when it’s full and a new key arrives.',
             }}
           />
-        </>
+        </EvidenceScope>
       )}
 
       <Controls step={step} count={STEPS.length} onBack={back} onNext={next} nextLabel={STEPS[step + 1]}
-        nextDisabled={(step === 1 && !didRead) || (step === 2 && !answered)}
-        nextHint={step === 1 && !didRead ? 'Read A first' : step === 2 && !answered ? 'Make a prediction first' : undefined} />
+        nextDisabled={step >= reachable}
+        nextHint={step === 2 && !answered ? 'Predict the evicted item to continue' : undefined}
+        action={step === 1 && !didRead ? { label: 'Read A: get("A")', onClick: () => setDidRead(true) } : undefined}
+        steps={STEPS} reachable={reachable} onJump={go} />
 
       <More summary="The short version with the standard library">
         <p>

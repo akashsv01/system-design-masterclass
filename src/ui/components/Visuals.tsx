@@ -161,7 +161,9 @@ export function Chart({
   })();
   const maxY = yLog ? rawMax : Math.ceil(rawMax / niceStep) * niceStep;
   const sx = (v: number) => L + ((W - L - 16) * (v - minX)) / (maxX - minX || 1);
-  const sy = (v: number) => H - B - ((H - B - 16) * v) / maxY;
+  // The y-axis title sits above the plot, so the top tick never collides with it.
+  const TOP = 34;
+  const sy = (v: number) => H - B - ((H - B - TOP) * v) / maxY;
   const color = (t?: string) => (t === 'fail' ? 'var(--fail)' : t === 'ok' ? 'var(--ok)' : t === 'active' ? 'var(--active)' : 'var(--accent)');
   const ticks = yLog ? Array.from({ length: Math.ceil(maxY) }, (_, i) => i + 0.3).filter((t) => t <= maxY) : Array.from({ length: Math.round(maxY / niceStep) + 1 }, (_, i) => i * niceStep);
   const fmtLin = (v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : v >= 10 ? String(Math.round(v)) : String(Math.round(v * 10) / 10));
@@ -179,7 +181,7 @@ export function Chart({
             <text x={L - 6} y={sy(t)} dy="0.35em" textAnchor="end" className="edge-label">{fmt(t)}</text>
           </g>
         ))}
-        <text x={L} y={12} className="edge-label">{yLabel}</text>
+        <text x={L - 6} y={14} className="edge-label" style={{ fontWeight: 600 }}>{yLabel}</text>
         <text x={W - 16} y={H - 8} textAnchor="end" className="edge-label">{xLabel}</text>
         {thresholds.map((t) => (
           <g key={t.label}>

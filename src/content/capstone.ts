@@ -35,7 +35,30 @@ export const CAPSTONE = {
     { area: 'Correctness after reconnect', strong: 'Idempotent, ordered sync of offline transactions; reconciliation and conflict handling.' },
     { area: 'Communication', strong: 'States assumptions, names the trade-off, adapts the design to the surprise instead of defending the first version.' },
   ],
-  /** Concepts the learner may demonstrate; terms are matched case-insensitively in their notes. */
+  /** Graded transfer checks on the partition problem (objective evidence; the rubric is self-assessment). */
+  checks: [
+    {
+      id: 'cap-allowance',
+      prompt: 'During the outage, a wristband with €30 left taps at two different offline bars a minute apart. Neither bar can reach the ledger. What stops the €30 being spent twice?',
+      choices: [
+        { id: 'chip', text: 'Each purchase writes the remaining offline allowance onto the wristband chip, so the second bar reads what is actually left.', why: 'Right. With no link, the only shared state the two terminals both touch is the wristband itself. Storing the remaining allowance on it makes the card the source of truth during the partition.' },
+        { id: 'ledger', text: 'Each bar asks the ledger for the balance before charging.', why: 'The ledger is unreachable for 90 minutes. A design that needs it stops selling, which the surprise requirement forbids.' },
+        { id: 'sync', text: 'The bars sync with each other over the local network.', why: 'The east food court may not have a working local network either, and peer sync between 400 terminals adds the same coordination problem in a new place.' },
+      ],
+      correct: 'chip',
+    },
+    {
+      id: 'cap-resend',
+      prompt: 'When the link returns, a terminal uploads its 900 offline payments, the upload times out, and it sends the same batch again. What keeps the ledger from charging twice?',
+      choices: [
+        { id: 'ids', text: 'Every offline payment carries a unique id (terminal id + sequence number), and the ledger applies each id once.', why: 'Right. Idempotent application by transaction id makes a retried batch harmless, and the sequence numbers let the ledger spot gaps.' },
+        { id: 'time', text: 'The ledger ignores payments with the same amount at the same minute.', why: 'Two genuine €6 drinks at the same bar in the same minute would be wrongly dropped. Deduplicate by identity, not by content.' },
+        { id: 'once', text: 'Terminals are configured never to retry.', why: 'Then a lost upload loses real payments. Retries are needed; they must be safe, not forbidden.' },
+      ],
+      correct: 'ids',
+    },
+  ],
+  /** Concepts the learner's notes mention; terms are matched case-insensitively. A prompt for reflection, not a grade. */
   skills: [
     { concept: 'Idempotency', terms: ['idempoten', 'unique id', 'dedup', 'transaction id'], lesson: 'idempotency' },
     { concept: 'Behaviour during partitions (CAP)', terms: ['offline', 'partition', 'availability', 'cap '], lesson: 'cap-quorums' },

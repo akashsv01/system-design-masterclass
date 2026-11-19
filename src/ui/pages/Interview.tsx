@@ -10,6 +10,7 @@ import { CASES } from '../../content/cases';
 import { CURRICULUM, topicById } from '../../content/curriculum';
 import { useProgress, useRecord, useRecords } from '../../progress/ProgressProvider';
 import { raiseStatus } from '../../progress/activity';
+import { recordSelf } from '../../progress/evidence';
 import { Workspace, EMPTY_DIAGRAM, type WsDiagram } from '../components/Workspace';
 import { Blocks } from '../lessons/GenericLesson';
 import { Rich } from '../components/Rich';
@@ -204,11 +205,12 @@ function Session({ sessionId }: { sessionId: string }) {
           ))}
           <button className="btn btn-primary" disabled={Object.keys(rec.scores).length < cs.rubric.length} onClick={() => {
             set({ finishedAt: Date.now() });
-            const allStrong = cs.rubric.every((r) => rec.scores[r.area] === 2);
-            raiseStatus(store, rec.caseId, allStrong && rec.hintsUsed === 0 ? 'independent' : 'hinted');
-            cs.rubric.filter((r) => (rec.scores[r.area] ?? 0) < 2).forEach((r) => store.set(`mistake:${rec.caseId}:iv-${r.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, { lessonId: rec.caseId, text: `${r.area}: ${r.strong}`, at: Date.now(), resolved: false }));
+            // Interview ratings are self-assessment: recorded, compared over time, but never a verified "solved".
+            raiseStatus(store, rec.caseId, 'studied');
+            recordSelf(store, rec.caseId, { ratings: Object.fromEntries(Object.entries(rec.scores).map(([k, v]) => [`interview: ${k}`, v])) });
+            cs.rubric.filter((r) => (rec.scores[r.area] ?? 0) < 2).forEach((r) => store.set(`mistake:${rec.caseId}:iv-${r.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, { lessonId: rec.caseId, text: `${r.area}: ${r.strong}`, self: true, at: Date.now(), resolved: false }));
           }}>{rec.finishedAt ? 'Update my result' : 'Finish interview'}</button>
-          {rec.finishedAt && <p className="notice" style={{ marginTop: 12 }}>Saved. Areas you rated below “Strong” are in your <Link to="/progress">mistake notebook</Link>, and the case will come back for revision.</p>}
+          {rec.finishedAt && <p className="notice" style={{ marginTop: 12 }}>Saved as self-assessment. Areas you rated below “Strong” are in your <Link to="/progress">mistake notebook</Link>. To turn this into verified evidence, answer the case’s graded checks in an <Link to={topic.route}>independent attempt</Link>.</p>}
           <h2>Reference answers</h2>
           {cs.stages.map((s, i) => (
             <details key={i} className="more"><summary>{s.title}</summary><div className="more-body"><Blocks blocks={s.reference} /></div></details>

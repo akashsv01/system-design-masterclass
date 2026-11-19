@@ -3,11 +3,12 @@
  *  - ShortAnswer: explain a trade-off in one or two sentences, then compare with a model and a checklist.
  *  - LinePick:    "spot the mistake" / "which line explains it?" by selecting a line of a short snippet.
  *  - FillBlank:   complete one expression in an otherwise complete snippet; checked by running Python tests.
- * Each records "independent" when solved without hints or reveals, otherwise "hinted".
+ * Objective activities report through progress/evidence: first-try, no-help success is "independent";
+ * success after a miss, hint or reveal is "hinted". Short answers are self-assessment and never raise a status.
  */
-import { useState } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useProgress, useRecord } from '../../progress/ProgressProvider';
-import { raiseStatus } from '../../progress/activity';
+import { recordOutcome, recordSelf, type Evidence } from '../../progress/evidence';
 import { Rich } from './Rich';
 import { SaveStatus } from './Draft';
 import { runPython, type RunResult } from '../../py/runner';
@@ -16,21 +17,25 @@ const kicker = (text: string) => (
   <p style={{ margin: '0 0 4px', fontSize: 13, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--muted)', fontWeight: 600 }}>{text}</p>
 );
 
-function useOutcome(lessonId: string) {
+const ScopeCtx = createContext<{ required?: string[] }>({});
+
+/** Declares which objective activities must all be solved for the topic to count as solved (brief §10). */
+export function EvidenceScope({ required, children }: { required: string[]; children: ReactNode }) {
+  return <ScopeCtx.Provider value={{ required }}>{children}</ScopeCtx.Provider>;
+}
+
+export function useOutcome(lessonId: string) {
   const { store } = useProgress();
-  return (activityId: string, solved: boolean, helped: boolean, gap?: string) => {
-    if (solved) raiseStatus(store, lessonId, helped ? 'hinted' : 'independent');
-    if (!solved || helped) {
-      store.set(`mistake:${lessonId}:${activityId}`, { lessonId, activityId, text: gap ?? '', at: Date.now(), resolved: false });
-    } else if (store.get(`mistake:${lessonId}:${activityId}`)) {
-      store.set(`mistake:${lessonId}:${activityId}`, { ...(store.get(`mistake:${lessonId}:${activityId}`) as object), resolved: true });
-    }
-    const prev = store.get<{ reps: number }>(`review:${lessonId}`);
-    const reps = solved && !helped ? (prev?.reps ?? 0) + 1 : 0;
-    // Spaced revision: 1, 3, 7, 16, 35 days.
-    const days = [1, 3, 7, 16, 35][Math.min(reps, 4)];
-    store.set(`review:${lessonId}`, { lessonId, reps, due: Date.now() + days * 86400_000, last: Date.now() });
-  };
+  const { required } = useContext(ScopeCtx);
+  return (activityId: string, solved: boolean, helped: boolean, gap?: string) =>
+    recordOutcome(store, lessonId, activityId, !solved ? 'missed' : helped ? 'hinted' : 'independent', { required, gap });
+}
+
+/** The current revision round for a topic; record keys get a round suffix so revision shows fresh copies. */
+export function useRoundKey(topicId: string, base: string): string {
+  const [ev] = useRecord<Evidence | null>(`evidence:${topicId}`, null);
+  const r = ev?.round ?? 0;
+  return r > 0 ? `${base}:r${r}` : base;
 }
 
 /* ---------------- Short answer ---------------- */
@@ -47,7 +52,7 @@ export interface ShortAnswerSpec {
 interface SAState { text: string; hint: boolean; model: boolean; checked: boolean[]; done?: boolean; savedAt?: number }
 
 export function ShortAnswer({ lessonId, spec }: { lessonId: string; spec: ShortAnswerSpec }) {
-  const record = useOutcome(lessonId);
+  const { store } = useProgress();
   const [st, setSt] = useRecord<SAState>(`draft:sa:${lessonId}:${spec.id}`, { text: '', hint: false, model: false, checked: [] });
   const set = (p: Partial<SAState>) => setSt({ ...st, ...p, savedAt: Date.now() });
   const long = st.text.length > 400;
@@ -79,11 +84,13 @@ export function ShortAnswer({ lessonId, spec }: { lessonId: string; spec: ShortA
           ))}
           <div className="toolbar" style={{ marginTop: 6, marginBottom: 0 }}>
             <button className="btn btn-small" onClick={() => {
-              const all = spec.checklist.every((_, i) => st.checked[i]);
               set({ done: true });
-              record(spec.id, all, st.hint, spec.checklist.filter((_, i) => !st.checked[i]).join(' '));
+              // Self-assessment: kept apart from verified evidence. Points you say you missed go to the notebook.
+              recordSelf(store, lessonId, { checklist: { [spec.id]: spec.checklist.map((_, i) => !!st.checked[i]) } });
+              const missed = spec.checklist.filter((_, i) => !st.checked[i]);
+              if (missed.length) store.set(`mistake:${lessonId}:${spec.id}`, { lessonId, activityId: spec.id, text: `You said your answer missed: ${missed.join(' ')}`, self: true, at: Date.now(), resolved: false });
             }}>Save my self-check</button>
-            {st.done && <span className="pill ok">Saved</span>}
+            {st.done && <span className="pill">Saved as self-assessment</span>}
           </div>
         </>
       )}
@@ -154,7 +161,8 @@ export interface LinePickSpec {
 
 export function LinePick({ lessonId, spec, kickerText = 'Spot it' }: { lessonId: string; spec: LinePickSpec; kickerText?: string }) {
   const record = useOutcome(lessonId);
-  const [st, setSt] = useRecord<{ attempts: { picked: string; at: number; correct: boolean }[]; hint?: boolean } | null>(`quiz:${lessonId}:${spec.id}`, null);
+  const key = useRoundKey(lessonId, `quiz:${lessonId}:${spec.id}`);
+  const [st, setSt] = useRecord<{ attempts: { picked: string; at: number; correct: boolean }[]; hint?: boolean } | null>(key, null);
   const last = st?.attempts?.[st.attempts.length - 1];
   const pickedLine = last ? Number(last.picked) : null;
   const correct = last?.correct;
@@ -189,7 +197,7 @@ export function LinePick({ lessonId, spec, kickerText = 'Spot it' }: { lessonId:
             <p><strong>Not line {pickedLine}.</strong> <Rich text={spec.wrong?.[pickedLine!] ?? 'Look again at which line makes the decision.'} /></p>
           )}
           {!correct && <button className="btn btn-small" onClick={() => setRetry(true)}>Try another line</button>}
-          {correct && <button className="btn btn-small btn-quiet" onClick={() => setRetry(true)}>Answer again</button>}
+
         </div>
       )}
     </section>
@@ -214,7 +222,8 @@ export interface FillBlankSpec {
 
 export function FillBlank({ lessonId, spec }: { lessonId: string; spec: FillBlankSpec }) {
   const record = useOutcome(lessonId);
-  const [st, setSt] = useRecord<{ value: string; hint: boolean; revealed: boolean; passed?: boolean; tries: number; savedAt?: number }>(`draft:blank:${lessonId}:${spec.id}`, { value: '', hint: false, revealed: false, tries: 0 });
+  const key = useRoundKey(lessonId, `draft:blank:${lessonId}:${spec.id}`);
+  const [st, setSt] = useRecord<{ value: string; hint: boolean; revealed: boolean; passed?: boolean; tries: number; savedAt?: number }>(key, { value: '', hint: false, revealed: false, tries: 0 });
   const [running, setRunning] = useState(false);
   const [res, setRes] = useState<RunResult | null>(null);
   const [before, after] = spec.code.split('____');
@@ -230,7 +239,7 @@ export function FillBlank({ lessonId, spec }: { lessonId: string; spec: FillBlan
     const tries = st.tries + 1;
     setSt({ ...st, passed, tries, savedAt: Date.now() });
     if (passed) record(spec.id, true, st.hint || st.revealed || tries > 1);
-    else if (tries === 1) record(spec.id, false, st.hint, spec.prompt);
+    else record(spec.id, false, st.hint, spec.prompt);
   };
   void after;
   return (
@@ -278,7 +287,7 @@ export function FillBlank({ lessonId, spec }: { lessonId: string; spec: FillBlan
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 15 }}>
               {res.results.map((r) => (
                 <li key={r.name}>
-                  {r.outcome === 'passed' ? '✓' : '✕'} <code>{r.name.replace(/^test_/, '').replace(/_/g, ' ')}</code>
+                  {r.outcome === 'passed' ? 'Pass:' : 'Fail:'} <code>{r.name.replace(/^test_/, '').replace(/_/g, ' ')}</code>
                   {r.outcome !== 'passed' && <div className="muted" style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}>{r.message}</div>}
                 </li>
               ))}

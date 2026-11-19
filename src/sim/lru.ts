@@ -151,3 +151,53 @@ export function linesFor(source: string, id: string): number[] {
   // Highlight only the first line of multi-line snippets (the rest give uniqueness context).
   return [first];
 }
+
+/**
+ * A fresh eviction problem (brief §3, B5): a full 3-slot cache in a stated recency order, two operations that
+ * change recency (at least one read that moves an older key forward), then a put of a new key. The learner names
+ * the evicted key. Deterministic per seed so a puzzle number always means the same problem.
+ */
+export interface EvictionPuzzle {
+  seed: number;
+  /** Keys from most to least recently used before the operations. */
+  start: string[];
+  ops: LruOp[];
+  /** Trace of the operations only (the set-up puts are not shown). */
+  trace: LruStep[];
+  /** Key evicted by the final put. */
+  evicted: string;
+  /** The answer a learner gets by ignoring reads ("evict whatever was last at the start"). */
+  naive: string;
+}
+
+function seeded(seed: number) {
+  let s = seed >>> 0 || 1;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+export function evictionPuzzle(seed: number): EvictionPuzzle {
+  const r = seeded(seed * 7919 + 13);
+  const pool = ['A', 'B', 'C', 'D', 'E', 'F'];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const start = pool.slice(0, 3);
+  const outside = pool.slice(3);
+  // First operation always reads an older key, so recency (not arrival) decides the answer.
+  const first: LruOp = { type: 'get', key: r() < 0.6 ? start[2] : start[1] };
+  const kind = r();
+  const second: LruOp =
+    kind < 0.34 ? { type: 'get', key: outside[0] } // a miss: changes nothing
+      : kind < 0.67 ? { type: 'put', key: start[0], value: start[0].toLowerCase() + '2' } // update an existing key: moves it, evicts nothing
+        : { type: 'get', key: start[r() < 0.5 ? 0 : 1] };
+  const newKey = outside[outside.length - 1];
+  const ops: LruOp[] = [first, second, { type: 'put', key: newKey, value: newKey.toLowerCase() }];
+  const setup: LruOp[] = [...start].reverse().map((k) => ({ type: 'put', key: k, value: k.toLowerCase() }));
+  const full = runLru(3, [...setup, ...ops]);
+  const trace = full.slice(setup.length);
+  return { seed, start, ops, trace, evicted: trace[trace.length - 1].evicted ?? '', naive: start[2] };
+}

@@ -4,12 +4,12 @@
 - **Governing brief:** Revamp Brief (2026-11-19) at the top of `docs/MASTER_PROMPT.md`. Earlier spec: `docs/SPEC_2026-11-18.md`.
 
 ## Revamp progress (2026-11-19)
-- [ ] Audit of running product (desktop + mobile), reproduce the brief's listed findings
-- [ ] Reference re-study → `docs/DESIGN.md`
-- [ ] Fix misleading exercises / broken flows (latency independence, LRU lab, notification cases, booking race, layer labels)
-- [ ] Design-system refinement; screen purposes (home, reader, catalog, practice, progress, interview)
-- [ ] Motion / one-primary-action discipline
-- [ ] Practice + progress: verified vs self-assessed, independent mode
+- [x] Audit of running product (desktop + mobile), brief findings reproduced → `docs/DESIGN_REVIEW.md` Review 4
+- [x] Reference re-study → `docs/DESIGN.md` §1b, decisions D12–D18
+- [x] Fix misleading exercises / broken flows: fan-out independence + correlated case; throughput 2,400/s; LRU lab (graded eviction puzzles, fresh cache states, confidence separate); cases guided vs independent; booking race one primary action; upright layer labels; replica-lag copy choice at 10:00:01 (write 10:00:00, copy 10:00:02)
+- [~] Design system: tokens, self-hosted fonts (Inter / Source Serif 4 / JetBrains Mono), SVG icon set, buttons/segmented/choices states, placeholders, metrics strip. **Still to do:** Home, Topics catalog (decision lines), Practice, Progress, Interview picker
+- [x] One primary action in the control row; `reachable` gating (keys, step list, Next); click lock
+- [~] Evidence model (`src/progress/evidence.ts`): first-attempt outcomes, required checks per topic, revision rounds, self-assessment under `self:`. **Still to do:** Progress page and Practice page using it
 - [ ] Curriculum + sources audit
 - [ ] Final verification (tests, e2e, a11y, screenshots, recording)
 - **Decisions in force:** MASTER_PROMPT Amendments 1–4 (Python 3 learner code, visual-first, small required exercises, full curriculum preserved). Lesson rules: `docs/LESSON_GUIDE.md` (step titles ≤ 40 chars, chart notes for units/illustrative data, narrow layouts).

@@ -7,9 +7,11 @@
  * as "ghost" (invisible but reserving space) so nothing moves when they appear (D3).
  */
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { SvgIcon, type IconName } from './Icon';
 
 export type NodeKind = 'client' | 'server' | 'db' | 'cache' | 'queue' | 'service' | 'ext' | 'lb' | 'box';
-export type NodeState = 'idle' | 'ghost' | 'dim' | 'active' | 'ok' | 'fail' | 'focus';
+/** ghost: invisible but holding its slot. placeholder: a dashed “?” outline for a part not introduced yet (D17). */
+export type NodeState = 'idle' | 'ghost' | 'placeholder' | 'dim' | 'active' | 'ok' | 'fail' | 'focus';
 
 export interface DNode {
   id: string;
@@ -29,7 +31,7 @@ export interface DEdge {
   from: string;
   to: string;
   label?: string;
-  state?: 'idle' | 'ghost' | 'active';
+  state?: 'idle' | 'ghost' | 'placeholder' | 'active';
   dashed?: boolean;
 }
 
@@ -64,8 +66,8 @@ interface Props {
   depth?: 'flat' | 'layered';
 }
 
-const GLYPH: Record<NodeKind, string> = {
-  client: '▯', server: '▣', db: '⛁', cache: '⚡', queue: '☰', service: '◆', ext: '◎', lb: '⇉', box: '',
+const ICON: Record<NodeKind, IconName | null> = {
+  client: 'phone', server: 'server', db: 'database', cache: 'bolt', queue: 'queue', service: 'service', ext: 'globe', lb: 'split', box: null,
 };
 
 export function useStageWidth<T extends HTMLElement>(): [React.RefObject<T>, number] {
@@ -172,20 +174,24 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
           // The path a message took this step stays highlighted after the token fades.
           const traveled = tokens.some((t) => (t.from === e.from && t.to === e.to) || (t.from === e.to && t.to === e.from));
           const hidden = e.state === 'ghost' || byId[e.from]?.state === 'ghost' || byId[e.to]?.state === 'ghost';
+          const pending = !hidden && (e.state === 'placeholder' || byId[e.from]?.state === 'placeholder' || byId[e.to]?.state === 'placeholder');
           const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
           return (
             <g key={e.id}>
               <line
-                className={`edge ${hidden ? 'ghost' : e.state ?? (traveled ? 'active' : '')} ${e.dashed ? 'dashed' : ''}`}
+                className={`edge ${hidden ? 'ghost' : pending ? 'placeholder' : e.state ?? (traveled ? 'active' : '')} ${e.dashed ? 'dashed' : ''}`}
                 x1={p1.x}
                 y1={p1.y}
                 x2={p2.x}
                 y2={p2.y}
               />
-              {e.label && !hidden && Math.hypot(p2.x - p1.x, p2.y - p1.y) > e.label.length * 7.5 + 18 && (
-                <text className="edge-label" x={mid.x} y={mid.y - 8} textAnchor="middle">
-                  {e.label}
-                </text>
+              {e.label && !hidden && !pending && Math.hypot(p2.x - p1.x, p2.y - p1.y) > (Math.abs(p2.x - p1.x) < Math.abs(p2.y - p1.y) * 0.4 ? 30 : e.label.length * 7.5 + 18) && (
+                // Mostly vertical edges carry their label beside the line, so a message travelling along it never covers it.
+                Math.abs(p2.x - p1.x) < Math.abs(p2.y - p1.y) * 0.4 ? (
+                  <text className="edge-label" x={mid.x + 12} y={mid.y} dy="0.35em" textAnchor="start">{e.label}</text>
+                ) : (
+                  <text className="edge-label" x={mid.x} y={mid.y - 8} textAnchor="middle">{e.label}</text>
+                )
               )}
             </g>
           );
@@ -201,16 +207,17 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
                 return <rect key={k} className="n-box n-back" x={b.x - b.w / 2 + off} y={b.y - b.h / 2 - off} width={b.w} height={b.h} rx={n.kind === 'db' ? 18 : 10} />;
               })}
               <rect className="n-box" x={b.x - b.w / 2} y={b.y - b.h / 2} width={b.w} height={b.h} rx={n.kind === 'db' ? 18 : 10} />
-              <text className="n-label" x={b.x} y={b.y - (hasValue ? 10 : n.sub ? 6 : -1)} textAnchor="middle" dy="0.35em">
-                {GLYPH[n.kind] ? `${GLYPH[n.kind]} ` : ''}
-                {n.label}
-              </text>
-              {n.sub && !hasValue && (
+              {n.state === 'placeholder' ? (
+                <text className="n-label" x={b.x} y={b.y} textAnchor="middle" dy="0.35em" style={{ fontSize: fs + 6 }}>?</text>
+              ) : (
+                <NodeLabel x={b.x} y={b.y - (hasValue ? 10 : n.sub ? 6 : -1)} label={n.label} icon={ICON[n.kind]} fs={fs} />
+              )}
+              {n.sub && !hasValue && n.state !== 'placeholder' && (
                 <text className="n-sub" x={b.x} y={b.y + 16} textAnchor="middle" dy="0.35em" style={{ fontSize: fs - 2 }}>
                   {n.sub}
                 </text>
               )}
-              {hasValue && (
+              {hasValue && n.state !== 'placeholder' && (
                 <text className="n-value" x={b.x} y={b.y + 15} textAnchor="middle" dy="0.35em" style={{ fontSize: fs - 1 }}>
                   {n.value}
                 </text>
@@ -218,10 +225,7 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
               {n.stack && n.stack > 1 && n.state !== 'ghost' && (
                 <text className="n-sub" x={b.x + b.w / 2 - 6} y={b.y + b.h / 2 - 8} textAnchor="end" style={{ fontSize: fs - 3 }}>×{n.stack}</text>
               )}
-              {n.tag && n.state !== 'ghost' && (
-                // Above the node, unless that would leave the stage; then below it.
-                <TagLabel x={b.x} y={b.y - b.h / 2 - 20 < 14 ? b.y + b.h / 2 + 20 : b.y - b.h / 2 - 20} text={n.tag.text} tone={n.tag.tone ?? 'plain'} />
-              )}
+              {n.tag && n.state !== 'ghost' && n.state !== 'placeholder' && <TagLabel {...tagPlace(b, n.tag.text, layout.width)} text={n.tag.text} tone={n.tag.tone ?? 'plain'} />}
             </g>
           );
         })}
@@ -231,6 +235,29 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
       </svg>
     </div>
   );
+}
+
+/** Node title with its kind icon, centred as one unit. Width is estimated from the label length. */
+function NodeLabel({ x, y, label, icon, fs }: { x: number; y: number; label: string; icon: IconName | null; fs: number }) {
+  if (!icon) return <text className="n-label" x={x} y={y} textAnchor="middle" dy="0.35em">{label}</text>;
+  const iconSize = fs + 1;
+  const textW = label.length * fs * 0.58;
+  const total = iconSize + 6 + textW;
+  const left = x - total / 2;
+  return (
+    <>
+      <SvgIcon name={icon} x={left + iconSize / 2} y={y} size={iconSize} className="n-icon" />
+      <text className="n-label" x={left + iconSize + 6 + textW / 2} y={y} textAnchor="middle" dy="0.35em">{label}</text>
+    </>
+  );
+}
+
+/** Above the node; if that would leave the stage, beside it on the right; failing that, below it. */
+function tagPlace(b: { x: number; y: number; w: number; h: number }, text: string, stageW: number) {
+  const w = text.length * 7.8 + 18;
+  if (b.y - b.h / 2 - 20 >= 14) return { x: b.x, y: b.y - b.h / 2 - 20 };
+  if (b.x + b.w / 2 + 10 + w <= stageW - 4) return { x: b.x + b.w / 2 + 10 + w / 2, y: b.y - b.h / 2 + 14 };
+  return { x: b.x, y: b.y + b.h / 2 + 20 };
 }
 
 function TagLabel({ x, y, text, tone }: { x: number; y: number; text: string; tone: string }) {

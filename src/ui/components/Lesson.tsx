@@ -1,12 +1,21 @@
 /**
- * Calm lesson reader primitives (docs/DESIGN.md D2, D4, D7, D10).
+ * Calm lesson reader primitives (docs/DESIGN.md D2, D4, D7, D10, D12–D18).
  * One column: title → opening → stage → active-step caption → controls → disclosures.
+ *
+ * Navigation rules:
+ *  - `reachable` is the furthest step the learner may open. A step that needs an answer or an action
+ *    holds `reachable` at itself until it is done. Next, → and the step list all respect it.
+ *  - Each moment has one primary action. When a step needs an action (Reserve, Next event), the control
+ *    row's primary button performs it; once its outcome is visible the button becomes "Next: <step>".
+ *  - Rapid clicks on the primary button are ignored for a short lock period, so an event can't be
+ *    duplicated or skipped faster than it animates.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecord } from '../../progress/ProgressProvider';
 import { useMarkStarted } from '../../progress/activity';
 import type { Source } from '../../content/types';
+import { Icon } from './Icon';
 
 export function LessonShell({
   id,
@@ -34,19 +43,26 @@ export function LessonShell({
   );
 }
 
+function prefersReducedMotion() {
+  return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
+
 /**
  * Current step, persisted per lesson so a learner returns to the exact step.
- * ← / → move between steps; R replays (handled by the caller via onReplay).
+ * ← / → move between steps (→ never past `reachable`); R replays (handled by the caller via onReplay).
  */
-export function useStep(lessonId: string, count: number, opts: { onReplay?: () => void; canAdvance?: boolean } = {}) {
+export function useStep(lessonId: string, count: number, opts: { onReplay?: () => void; reachable?: number } = {}) {
   const [stored, setStored] = useRecord<number>(`step:${lessonId}`, 0);
+  const reachable = Math.min(count - 1, Math.max(0, opts.reachable ?? count - 1));
   const step = Math.min(Math.max(stored, 0), count - 1);
-  const canAdvance = opts.canAdvance ?? true;
-  const go = useCallback((n: number) => setStored(Math.min(Math.max(n, 0), count - 1)), [count, setStored]);
+  const go = useCallback(
+    (n: number) => setStored(Math.min(Math.max(n, 0), count - 1, Math.max(reachable, step))),
+    [count, setStored, reachable, step],
+  );
   const replayRef = useRef(opts.onReplay);
   replayRef.current = opts.onReplay;
 
-  // After a step change, bring the stage into view if it is hidden under the header or far above/below.
+  // After a step change, keep the stage and its caption in view together (D12).
   const first = useRef(true);
   useEffect(() => {
     if (first.current) {
@@ -63,12 +79,9 @@ export function useStep(lessonId: string, count: number, opts: { onReplay?: () =
     const capBottom = caption ? caption.getBoundingClientRect().bottom : top;
     const visibleBottom = window.innerHeight - controlsH - 8;
     let delta = 0;
-    if (top < header + 4) delta = top - header - 8; // stage hidden under the header
-    else if (capBottom > visibleBottom) delta = Math.min(top - header - 8, capBottom - visibleBottom); // caption hidden under the controls
-    if (Math.abs(delta) > 4) {
-      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      window.scrollTo({ top: window.scrollY + delta, behavior: reduce ? 'auto' : 'smooth' });
-    }
+    if (top < header + 4) delta = top - header - 12; // stage hidden under the header
+    else if (capBottom > visibleBottom) delta = Math.min(top - header - 12, capBottom - visibleBottom); // caption hidden under the controls
+    if (Math.abs(delta) > 4) window.scrollTo({ top: window.scrollY + delta, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   }, [step]);
 
   useEffect(() => {
@@ -76,20 +89,23 @@ export function useStep(lessonId: string, count: number, opts: { onReplay?: () =
       const t = e.target as HTMLElement;
       if (t.closest('input, textarea, select, [contenteditable="true"], canvas')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === 'ArrowRight' && canAdvance) go(step + 1);
+      if (e.key === 'ArrowRight' && step < reachable) go(step + 1);
       else if (e.key === 'ArrowLeft') go(step - 1);
       else if ((e.key === 'r' || e.key === 'R') && replayRef.current) replayRef.current();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, step, canAdvance]);
+  }, [go, step, reachable]);
 
-  return { step, go, next: () => go(step + 1), back: () => go(step - 1) };
+  return { step, go, reachable, next: () => go(step + 1), back: () => go(step - 1) };
 }
 
 export interface Change {
   kind: 'add' | 'chg' | 'del';
   text: ReactNode;
+  /** For a changed value: what it was and what it is now (D13). */
+  from?: ReactNode;
+  to?: ReactNode;
 }
 
 export function Caption({
@@ -103,29 +119,45 @@ export function Caption({
   children: ReactNode;
   changes?: Change[];
 }) {
-  const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className="caption" ref={ref} aria-live="polite">
+    <div className="caption" aria-live="polite">
       {kicker && <p className="step-kicker">{kicker}</p>}
       <h2>{title}</h2>
       {children}
-      {changes && changes.length > 0 && (
-        <ul className="changes" aria-label="What changed">
-          {changes.map((c, i) => (
-            <li key={i} className={c.kind}>
-              <span className="sym" aria-hidden="true">
-                {c.kind === 'add' ? '+' : c.kind === 'chg' ? '~' : '−'}
-              </span>
-              <span>
-                <span className="visually-hidden">{c.kind === 'add' ? 'Added: ' : c.kind === 'chg' ? 'Changed: ' : 'Removed or failed: '}</span>
-                {c.text}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+      {changes && changes.length > 0 && <ChangeList changes={changes} />}
     </div>
   );
+}
+
+export function ChangeList({ changes }: { changes: Change[] }) {
+  return (
+    <ul className="changes" aria-label="What changed">
+      {changes.map((c, i) => (
+        <li key={i} className={c.kind}>
+          <span className="sym" aria-hidden="true">
+            {c.kind === 'add' ? '+' : c.kind === 'chg' ? '~' : '−'}
+          </span>
+          <span>
+            <span className="visually-hidden">{c.kind === 'add' ? 'Added: ' : c.kind === 'chg' ? 'Changed: ' : 'Removed or failed: '}</span>
+            {c.text}
+            {c.from !== undefined && c.to !== undefined && (
+              <>
+                {c.text ? ': ' : ''}
+                <span className="from">{c.from}</span> <span aria-hidden="true">→</span><span className="visually-hidden"> became </span> <span className="to">{c.to}</span>
+              </>
+            )}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export interface PrimaryAction {
+  label: string;
+  onClick: () => void;
+  /** Minimum time between two accepted clicks (ms). Defaults to 450; lower under reduced motion. */
+  lockMs?: number;
 }
 
 export function Controls({
@@ -137,6 +169,10 @@ export function Controls({
   nextLabel,
   nextDisabled,
   nextHint,
+  action,
+  steps,
+  reachable,
+  onJump,
 }: {
   step: number;
   count: number;
@@ -144,38 +180,88 @@ export function Controls({
   onNext: () => void;
   onReplay?: () => void;
   nextLabel?: string;
+  /** True when the step still needs the learner's input. The reason belongs beside that input; `nextHint` repeats it here. */
   nextDisabled?: boolean;
   nextHint?: string;
+  /** When set, the primary button performs this action instead of moving to the next step (D15). */
+  action?: PrimaryAction;
+  /** Step titles, for the "Steps" list. */
+  steps?: string[];
+  reachable?: number;
+  onJump?: (n: number) => void;
 }) {
   const last = step >= count - 1;
+  const lastClick = useRef(0);
+  const [open, setOpen] = useState(false);
+  useEffect(() => setOpen(false), [step]);
+  const guarded = (fn: () => void, ms: number) => () => {
+    const now = Date.now();
+    if (now - lastClick.current < (prefersReducedMotion() ? Math.min(ms, 150) : ms)) return;
+    lastClick.current = now;
+    fn();
+  };
+  const reach = reachable ?? count - 1;
   return (
-    <nav className="controls" aria-label="Lesson steps">
-      <button className="btn" onClick={onBack} disabled={step === 0} aria-label="Previous step">
-        ← <span className="replay-label">Back</span>
-      </button>
-      {onReplay && (
-        <button className="btn btn-quiet" onClick={onReplay} aria-label="Replay this step" title="Replay (R)">
-          ↻ <span className="replay-label">Replay</span>
+    <>
+      <nav className="controls" aria-label="Lesson steps">
+        <button className="btn" onClick={onBack} disabled={step === 0} aria-label="Previous step">
+          <Icon name="arrow-left" /> <span className="replay-label">Back</span>
         </button>
-      )}
-      <span className="count" aria-live="polite">
-        <span className="count-long">Step {step + 1} of {count}</span>
-        <span className="count-short" aria-hidden="true">{step + 1}/{count}</span>
-      </span>
-      {!last && (
-        <button className="btn btn-primary btn-next" onClick={onNext} disabled={nextDisabled} title={nextHint}>
-          {nextDisabled && nextHint ? (
-            <span className="next-name">{nextHint}</span>
+        {onReplay && (
+          <button className="btn btn-quiet" onClick={onReplay} aria-label="Replay this step" title="Replay this step (R)">
+            <Icon name="replay" /> <span className="replay-label">Replay</span>
+          </button>
+        )}
+        <span className="count">
+          {steps && onJump ? (
+            <button className="steps-toggle" aria-expanded={open} aria-controls="steps-list" onClick={() => setOpen(!open)} title="Show all steps">
+              <span className="count-long">Step {step + 1} of {count}</span>
+              <span className="count-short" aria-hidden="true">{step + 1}/{count}</span>
+              <Icon name="chevron-down" size={14} />
+            </button>
           ) : (
+            <span aria-live="polite">
+              <span className="count-long">Step {step + 1} of {count}</span>
+              <span className="count-short" aria-hidden="true">{step + 1}/{count}</span>
+            </span>
+          )}
+        </span>
+        {action ? (
+          <button className="btn btn-primary btn-next is-action" onClick={guarded(action.onClick, action.lockMs ?? 450)}>
+            <span className="next-text"><span className="next-name">{action.label}</span></span>
+            <Icon name="play" size={14} />
+          </button>
+        ) : !last ? (
+          <button
+            className="btn btn-primary btn-next"
+            onClick={guarded(onNext, 250)}
+            disabled={nextDisabled}
+            title={nextDisabled ? nextHint : undefined}
+            aria-describedby={nextDisabled ? 'gate-reason' : undefined}
+          >
             <span className="next-text">
               <span className="next-k">Next{nextLabel ? ':' : ''}</span>
               {nextLabel && <span className="next-name">{nextLabel}</span>}
             </span>
-          )}
-          <span aria-hidden="true">→</span>
-        </button>
+            {nextDisabled ? <Icon name="lock" size={16} /> : <Icon name="arrow-right" />}
+          </button>
+        ) : null}
+        {nextDisabled && nextHint && !action && <span id="gate-reason" className="visually-hidden">{nextHint}</span>}
+      </nav>
+      {open && steps && onJump && (
+        <ol className="steps-list enter" id="steps-list" aria-label="All steps">
+          {steps.map((s, i) => (
+            <li key={i}>
+              <button aria-current={i === step ? 'step' : undefined} disabled={i > Math.max(reach, step)} onClick={() => onJump(i)}>
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span>{s}</span>
+                {i > Math.max(reach, step) ? <Icon name="lock" size={14} /> : i < step ? <Icon name="check" size={14} /> : <span />}
+              </button>
+            </li>
+          ))}
+        </ol>
       )}
-    </nav>
+    </>
   );
 }
 
@@ -198,12 +284,13 @@ export function Sources({ sources }: { sources: Source[] }) {
             {s.url ? <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a> : <cite>{s.title}</cite>}
             {s.where && <> — {s.where}</>}
             {s.note && <span className="muted"> · {s.note}</span>}
+            {s.checked ? <span className="pill ok" style={{ marginLeft: 6 }}>checked against the source</span> : null}
           </li>
         ))}
       </ul>
       <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>
-        Sources point to where the ideas are treated in depth. Examples, numbers and company scenarios in this lesson are
-        illustrative unless a source is named next to them.
+        Sources point to where the ideas are treated in depth. Numbers in the visuals are illustrative unless a source is named next to them.
+        Items marked “checked against the source” were read for this lesson; the rest identify where the topic is covered.
       </p>
     </More>
   );
@@ -215,8 +302,8 @@ export interface Choice {
 }
 
 /**
- * One prediction or check question. The answer is saved, so the learner sees
- * their own prediction when they return.
+ * One prediction or check question. The answer is saved, so the learner sees their own prediction when they return.
+ * A graded question records whether the *first* attempt was right; later attempts can't upgrade it (see progress/evidence).
  */
 export function Question({
   recordKey,
@@ -226,6 +313,8 @@ export function Question({
   explain,
   onAnswered,
   isPrediction,
+  required,
+  kicker,
 }: {
   recordKey: string;
   prompt: ReactNode;
@@ -233,35 +322,44 @@ export function Question({
   /** Omit for an opinion/prediction with no single right answer. */
   correct?: string;
   explain: (picked: string) => ReactNode;
-  onAnswered?: (picked: string) => void;
+  onAnswered?: (picked: string, attempt: number) => void;
   isPrediction?: boolean;
+  /** Shows that answering is what unlocks the next step (the reason sits beside the input, not only on the button). */
+  required?: boolean;
+  kicker?: string;
 }) {
   const [saved, setSaved] = useRecord<{ attempts: { picked: string; at: number; correct?: boolean }[] } | null>(`quiz:${recordKey}`, null);
   const picked = saved?.attempts?.[saved.attempts.length - 1]?.picked ?? null;
   const [retrying, setRetrying] = useState(false);
   const show = picked && !retrying;
+  const answeredAt = useRef(0);
   const pick = (id: string) => {
+    if (Date.now() - answeredAt.current < 300) return; // a double tap must not record two attempts
+    answeredAt.current = Date.now();
     const attempts = [...(saved?.attempts ?? []), { picked: id, at: Date.now(), ...(correct ? { correct: id === correct } : {}) }];
     setSaved({ attempts });
     setRetrying(false);
-    onAnswered?.(id);
+    onAnswered?.(id, attempts.length);
     if (isPrediction) {
       // The answer usually triggers motion on the stage; make sure the learner can see it.
       setTimeout(() => {
         const stage = document.querySelector<HTMLElement>('.lesson .stage');
         const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
         if (stage && stage.getBoundingClientRect().top < header) {
-          const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-          window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - header - 8, behavior: reduce ? 'auto' : 'smooth' });
+          window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - header - 8, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
         }
       }, 50);
     }
   };
+  const firstRight = saved?.attempts?.[0]?.correct;
   return (
     <div className="question" role="group" aria-label={isPrediction ? 'Prediction' : 'Check your understanding'}>
-      <p className="step-kicker" style={{ margin: '0 0 4px', fontSize: 13, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--muted)', fontWeight: 600 }}>
-        {isPrediction ? 'Predict' : 'Check'}
-      </p>
+      <div className="q-head">
+        <p className="step-kicker">{kicker ?? (isPrediction ? 'Predict' : 'Check')}</p>
+        {required && !picked && (
+          <span className="required"><Icon name="lock" size={13} /> Answer to continue</span>
+        )}
+      </div>
       <h3>{prompt}</h3>
       <div className="choices">
         {choices.map((c, i) => {
@@ -272,15 +370,15 @@ export function Question({
                 ? 'right'
                 : isPicked
                   ? 'wrong'
-                  : ''
+                  : 'faded'
               : isPicked
                 ? 'picked'
-                : ''
+                : 'faded'
             : '';
           return (
             <button key={c.id} className={`choice ${cls}`} onClick={() => pick(c.id)} disabled={!!show} aria-pressed={isPicked || undefined}>
               <span className="mark" aria-hidden="true">
-                {show && correct && c.id === correct ? '✓' : isPicked && correct ? '✕' : String.fromCharCode(65 + i)}
+                {show && correct && c.id === correct ? <Icon name="check" size={14} strokeWidth={2.6} /> : isPicked && correct ? <Icon name="x" size={14} strokeWidth={2.6} /> : String.fromCharCode(65 + i)}
               </span>
               <span>{c.text}</span>
             </button>
@@ -288,29 +386,40 @@ export function Question({
         })}
       </div>
       {show && (
-        <div className="feedback">
+        <div className="feedback enter">
+          {correct && (
+            <p className={`verdict ${picked === correct ? 'ok' : 'fail'}`}>
+              <Icon name={picked === correct ? 'check' : 'x'} size={16} strokeWidth={2.4} />
+              {picked === correct ? 'Right.' : 'Not this one.'}
+            </p>
+          )}
+          {!correct && isPrediction && <p className="muted small" style={{ marginTop: 0 }}>Prediction saved. You’ll see what actually happens next.</p>}
           {explain(picked!)}
-          <div style={{ marginTop: 8 }}>
-            <button className="btn btn-small btn-quiet" onClick={() => setRetrying(true)}>
-              Answer again
-            </button>
-          </div>
+          {correct && saved && saved.attempts.length > 1 && firstRight === false && (
+            <p className="muted small">Your first answer was recorded as a miss, so this one counts as solved with help.</p>
+          )}
+          {correct && picked !== correct && (
+            <div style={{ marginTop: 8 }}>
+              <button className="btn btn-small btn-quiet" onClick={() => setRetrying(true)}>
+                <Icon name="replay" size={15} /> Try again
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export function NextLesson({ to, title, reason }: { to: string; title: string; reason: ReactNode }) {
+export function NextLesson({ to, title, reason, consequence }: { to: string; title: string; reason: ReactNode; consequence?: ReactNode }) {
   return (
-    <aside className="next-lesson" aria-label="Recommended next lesson">
-      <p className="step-kicker" style={{ margin: 0, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--muted)', fontWeight: 600 }}>
-        Recommended next
-      </p>
+    <aside className="next-lesson enter" aria-label="Recommended next">
+      <p className="step-kicker">Recommended next</p>
+      {consequence && <p className="consequence">{consequence}</p>}
       <h2>{title}</h2>
       <p>{reason}</p>
       <Link className="btn btn-primary" to={to}>
-        Continue to {title} →
+        Continue <Icon name="arrow-right" />
       </Link>
     </aside>
   );
@@ -330,8 +439,23 @@ export function Clock({ time }: { time: string }) {
   }, [time]);
   return (
     <span className={`clock ${changed ? 'changed' : ''}`} aria-label={`Time ${time}`}>
-      ⏱ {time}
+      <Icon name="clock" size={15} /> {time}
     </span>
+  );
+}
+
+/** Named values above a visual (D14). The changed one is marked with a rule and the word "changed". */
+export function Metrics({ items }: { items: { name: string; value: ReactNode; changed?: boolean; tone?: 'good' | 'bad' }[] }) {
+  return (
+    <ul className="metrics" aria-label="Current values">
+      {items.map((m) => (
+        <li key={m.name} className={`${m.changed ? 'changed' : ''} ${m.tone ?? ''}`}>
+          <span className="m-name">{m.name}</span>
+          <span className="m-value">{m.value}</span>
+          {m.changed && <span className="m-note">changed</span>}
+        </li>
+      ))}
+    </ul>
   );
 }
 

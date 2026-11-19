@@ -84,7 +84,8 @@ export interface LessonStep {
   code?: { code: string; highlight?: number[]; caption: string; open?: boolean };
   kicker?: 'Problem' | 'Idea' | 'Watch' | 'Try it' | 'Trade-off' | 'Failure' | 'Fix' | 'Recap' | 'Predict' | 'Example';
   body: string[];
-  changes?: { kind: 'add' | 'chg' | 'del'; text: string }[];
+  /** What changed in this step. For a changed value give `from` and `to` (shown as before → after). */
+  changes?: { kind: 'add' | 'chg' | 'del'; text: string; from?: string; to?: string }[];
   view?: StepView;
   /** Optional question embedded in this step; must be answered before Next. */
   predict?: ChoiceQuestion;

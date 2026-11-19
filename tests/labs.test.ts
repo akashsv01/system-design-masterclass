@@ -79,3 +79,22 @@ describe('concurrent reservations', () => {
     expect(fixed.doubleBooked).toBe(0);
   });
 });
+
+import { evictionPuzzle } from '../src/sim/lru';
+describe('LRU eviction puzzles', () => {
+  it('are deterministic per seed and always evict exactly one key that was cached', () => {
+    for (let seed = 1; seed <= 200; seed++) {
+      const a = evictionPuzzle(seed);
+      expect(evictionPuzzle(seed)).toEqual(a);
+      expect(a.start).toHaveLength(3);
+      expect(a.start).toContain(a.evicted);
+      expect(a.trace[a.trace.length - 1].order).not.toContain(a.evicted);
+      expect(a.ops[0].type).toBe('get');
+    }
+  });
+  it('often differ from the naive "last at the start" answer, so recency matters', () => {
+    let differs = 0;
+    for (let seed = 1; seed <= 200; seed++) if (evictionPuzzle(seed).evicted !== evictionPuzzle(seed).naive) differs++;
+    expect(differs).toBeGreaterThan(80);
+  });
+});
