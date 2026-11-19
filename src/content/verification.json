@@ -1,5 +1,5 @@
 {
-  "note": "Written by scripts/e2e.mjs. Lists topic ids that rendered every step in a browser with no console errors and passed objective-check key validation.",
+  "note": "Written by scripts/review-lessons.cjs --write-verification (or from its full-course report). Lists topic ids whose every step rendered at 1280x900 and iPhone 13 with no console errors, no blocked step, controls fully visible, no header overlap, no truncated Next label, no horizontal scroll and diagram text >= 12 px. Last full run: 2026-11-19 (revamp build), 1,350 steps; the 27 topics flagged for a truncated label were re-run after the fix (300 steps, 0 issues).",
   "verified": [
     "access-patterns",
     "api-design",

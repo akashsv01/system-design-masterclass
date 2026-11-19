@@ -127,3 +127,36 @@ All findings below were reproduced live before any fix. Author review only, not 
 | A7 | Practice: "Nothing due right now" and "No gaps recorded yet" with no recommended activity; labs listed with their objectives only. | Medium (brief §4, §10) |
 | A8 | Home shows the same 11-module list to first-time and returning learners; the returning card says "Pick up at step N" without naming the step. | Medium |
 | A9 | Phone header sync chip reads "● · Sign in". | Low |
+
+## Review 5: revamp verification (2026-11-19)
+
+Automated checks plus the author's own inspection of screenshots and a recording. Not an independent human review.
+
+| Check | Result |
+|---|---|
+| Unit and simulation tests (`npm test`) | 40/40 (adds deterministic LRU eviction puzzles) |
+| Learner Python (`npm run test:py`) | 73/73 |
+| Typecheck, build, content audit | pass; audit 0 errors (adds missing/duplicate catalog decision lines) |
+| End-to-end (`scripts/e2e.mjs`, fresh DB) | **41/41**: adds step gating (→ key, step list), double-click on the race, LRU fresh cache states and separate confidence, independent case hides the reference, rubric ratings never mark solved, retry after a miss → solved with help |
+| Accessibility (`scripts/a11y.mjs`) | 17 pages × light and dark: no serious/critical axe violations; keyboard-only walk with visible focus; reduced motion opens the layered view flat with ~0 ms transitions |
+| Full-course layout review (`scripts/review-lessons.cjs`, every step, 1280×900 and iPhone 13) | 124 topics, 1,350 steps: no console errors, no blocked steps, no header overlap, no horizontal scroll, no diagram text under 12 px. 32 “Next label truncated” cases (31 phone, 1 desktop) → controls compacted, labels allowed 3 lines on phones / 2 on desktop → re-run of the 27 flagged topics: 300 steps, 0 issues |
+| Recording (`docs/screens/after/transitions.webm`, 78 s, normal speed; frame sheets `frames-*.webp`) | Request tokens travel, rest short of the target, fade in ~0.4 s and leave the edge lit; the race advances one event per click; layers pull apart and turn with upright labels; the replica read and the 10:00:02 copy are in sync with the clock. **Found only in the recording:** after an in-step action (Reserve) the longer caption slid under the sticky controls at 1280×800, because keep-in-view ran only on step changes. Fixed (`keepInView()` after every primary action); measured afterwards: caption bottom 723 px, controls top 731 px. |
+
+### Before and after
+
+| Before (`docs/screens/before/`) | After (`docs/screens/after/`) | What changed |
+|---|---|---|
+| `desk-home` | `desk-home`, `desk-home-returning`, `phone-home` | A concrete first question with the scenario drawn; returning learners get the exact step |
+| `desk-first-booking-01`, `phone-first-booking-02` | same names, `desk-first-booking-race` | Placeholders instead of an empty stage; one primary action; caption kept in view |
+| `desk-inside-a-request-02`, `phone-inside-a-request-03` | same names, `reduced-desk-inside-a-request-02` | Upright labels with leader lines; flat list under reduced motion |
+| `phone-latency-03b` | `desk-latency-03` | Independence stated in the question; correlated case explained |
+| `desk-throughput-bandwidth-04` | same name | Overload numbers consistent (2,400/s against a 2,000/s ceiling) |
+| `desk-case-notifications` | same name, `desk-case-notifications-independent` | Guided vs independent; reference hidden until the learner saves |
+| `desk-practice` | `desk-practice`, `desk-progress`, `desk-topics`, `phone-topics` | One recommendation with a reason; evidence vs self-assessment; decision lines |
+| — | `desk-lab-lru`, `desk-lab-payment-retries`, `dark-phone-lab-load-balancing` | Lab readouts; graded fresh cache states |
+| — | `desk-interview-session` | Sketch and notes side by side |
+
+### Not verified
+- Independent human editorial review (none yet).
+- Production deployment: HTTPS cookies, persistent storage and backups (local setup only).
+- Real devices: all mobile checks used Chromium's iPhone 13 emulation, not Safari on iOS.

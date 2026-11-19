@@ -48,6 +48,26 @@ function prefersReducedMotion() {
 }
 
 /**
+ * Keep the stage and its caption visible together (D12): scroll only if the stage is under the header or the
+ * caption is under the sticky controls. Called after step changes and after a step's action changes the caption.
+ */
+export function keepInView() {
+  const stage = document.querySelector<HTMLElement>('.lesson .stage') ?? document.querySelector<HTMLElement>('.lesson .caption');
+  if (!stage) return;
+  // Reserve the header's full height even if it is currently tucked away: it reappears on upward scrolls.
+  const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
+  const controlsH = document.querySelector<HTMLElement>('.lesson .controls')?.offsetHeight ?? 0;
+  const top = stage.getBoundingClientRect().top;
+  const caption = document.querySelector<HTMLElement>('.lesson .caption');
+  const capBottom = caption ? caption.getBoundingClientRect().bottom : top;
+  const visibleBottom = window.innerHeight - controlsH - 8;
+  let delta = 0;
+  if (top < header + 4) delta = top - header - 12; // stage hidden under the header
+  else if (capBottom > visibleBottom) delta = Math.min(top - header - 12, capBottom - visibleBottom); // caption under the controls
+  if (Math.abs(delta) > 4) window.scrollTo({ top: window.scrollY + delta, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+}
+
+/**
  * Current step, persisted per lesson so a learner returns to the exact step.
  * ← / → move between steps (→ never past `reachable`); R replays (handled by the caller via onReplay).
  */
@@ -69,19 +89,7 @@ export function useStep(lessonId: string, count: number, opts: { onReplay?: () =
       first.current = false;
       return;
     }
-    const stage = document.querySelector<HTMLElement>('.lesson .stage') ?? document.querySelector<HTMLElement>('.lesson .caption');
-    if (!stage) return;
-    // Reserve the header's full height even if it is currently tucked away: it reappears on upward scrolls.
-    const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
-    const controlsH = document.querySelector<HTMLElement>('.lesson .controls')?.offsetHeight ?? 0;
-    const top = stage.getBoundingClientRect().top;
-    const caption = document.querySelector<HTMLElement>('.lesson .caption');
-    const capBottom = caption ? caption.getBoundingClientRect().bottom : top;
-    const visibleBottom = window.innerHeight - controlsH - 8;
-    let delta = 0;
-    if (top < header + 4) delta = top - header - 12; // stage hidden under the header
-    else if (capBottom > visibleBottom) delta = Math.min(top - header - 12, capBottom - visibleBottom); // caption hidden under the controls
-    if (Math.abs(delta) > 4) window.scrollTo({ top: window.scrollY + delta, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    keepInView();
   }, [step]);
 
   useEffect(() => {
@@ -244,7 +252,7 @@ export function Controls({
           )}
         </span>
         {action ? (
-          <button className="btn btn-primary btn-next is-action" onClick={guarded(action.onClick, action.lockMs ?? 450, action.family ?? action.label.split(' ')[0])}>
+          <button className="btn btn-primary btn-next is-action" onClick={guarded(() => { action.onClick(); setTimeout(keepInView, 80); }, action.lockMs ?? 450, action.family ?? action.label.split(' ')[0])}>
             <span className="next-text"><span className="next-name">{action.label}</span></span>
             <Icon name="play" size={14} />
           </button>

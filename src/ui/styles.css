@@ -290,10 +290,10 @@ main > .page, main > .lesson { animation: fade-in 260ms var(--ease) both; }
 .steps-toggle { border: 0; background: transparent; color: var(--muted); font: inherit; font-family: var(--mono); font-size: 13.5px; cursor: pointer; padding: 6px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
 .steps-toggle:hover { background: color-mix(in srgb, var(--paper-2) 75%, transparent); color: var(--ink); }
 .count-short { display: none; }
-.controls .btn-next { margin-left: auto; text-align: left; max-width: 62%; }
+.controls .btn-next { margin-left: auto; text-align: left; max-width: 66%; padding-top: 6px; padding-bottom: 6px; }
 .next-text { display: inline-flex; gap: 6px; align-items: baseline; min-width: 0; }
 .next-k { flex: none; }
-.next-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.next-name { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; }
 .controls .btn-next.is-action { background: var(--accent); }
 .controls .gate-note { font-size: 13.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
 .steps-list { max-width: var(--read); list-style: none; margin: 4px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow-2); display: grid; gap: 2px; }
@@ -316,7 +316,11 @@ main > .page, main > .lesson { animation: fade-in 260ms var(--ease) both; }
   .controls .btn-next { flex: 1; min-width: 0; max-width: none; justify-content: space-between; padding: 5px 14px; line-height: 1.25; }
   .controls .next-text { flex-direction: column; gap: 0; }
   .controls .next-k { font-size: 12px; font-weight: 600; opacity: 0.85; }
-  .controls .next-name { font-size: 14.5px; line-height: 1.25; max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; }
+  .controls .next-name { font-size: 14px; line-height: 1.22; max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-align: left; }
+  /* Compact secondary controls so the primary label keeps its width. */
+  .controls > .btn:not(.btn-next) { min-width: 42px; padding: 0 10px; }
+  .steps-toggle { padding: 6px 4px; }
+  .steps-toggle .icon { display: none; }
   .controls .count { margin: 0 2px; font-size: 13px; }
   .controls .count-short { display: inline; }
   .controls .count-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -619,3 +623,12 @@ button.snip-line:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(
 /* A labelled choice inside the stage ("Read from: Follower | Leader"). */
 .stage-choice { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .stage-choice > span { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+
+/* Interview workspace: sketch and notes side by side when there is room, so revising never means scrolling away. */
+.iv-grid { display: grid; gap: 20px; align-items: start; }
+.iv-notes textarea { min-height: 200px; }
+@media (min-width: 1100px) {
+  .iv-grid { grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); }
+  .iv-notes { position: sticky; top: calc(var(--header-h) + 16px); }
+  .iv-notes textarea { min-height: 380px; }
+}

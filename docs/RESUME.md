@@ -30,11 +30,14 @@ Done and verified (details in `docs/DESIGN_REVIEW.md` Reviews 4–5):
   report separates implementation / technical verification / source verification / human review.
 - Every worked formula and numeric check re-derived by hand.
 
-## Last verified (this session)
-- `npm test` 40/40 · `npm run test:py` 73 · typecheck · build · `npm run audit:content` 0 errors
+## Last verified (this session, final build)
+- `npm test` 40/40 · `npm run test:py` 73/73 · typecheck · build · `npm run audit:content` 0 errors
 - e2e 41/41 (`scripts/e2e.mjs`, fresh DB, `AUTH_ATTEMPTS_PER_15MIN=1000`)
-- a11y: no serious/critical axe violations on 17 pages, light and dark; keyboard path; reduced-motion check
-- Full-course layout review: see Review 5 in `docs/DESIGN_REVIEW.md`
+- a11y: 17 pages, light and dark, no serious/critical axe violations; keyboard path; reduced motion
+- Full-course layout review: 124 topics / 1,350 steps at 1280×900 and iPhone 13; the 27 topics flagged for a truncated
+  Next label re-run after the fix with 0 issues (`src/content/verification.json`)
+- Recording `docs/screens/after/transitions.webm` (+ frame sheets) watched at normal speed; one issue found and fixed
+  (caption hidden after an in-step action). Before/after index: `docs/DESIGN_REVIEW.md` Review 5.
 
 ## Known gaps
 - No independent human editorial review (`src/content/reviews.json` empty).
@@ -42,6 +45,8 @@ Done and verified (details in `docs/DESIGN_REVIEW.md` Reviews 4–5):
 - No public deployment (needs owner authorisation). Dockerfile and README instructions exist.
 - Production accounts/sync verified only in the local setup (SQLite, `INSECURE_COOKIES=1` over HTTP); HTTPS cookies,
   backups and multi-instance storage are documented but unverified.
+- Mobile checks used Chromium's iPhone 13 emulation, not Safari on a real device.
+- The new environment's setup script (`npm ci`) is unproven until a fresh session starts on that environment.
 
 ## Next actions
 1. Human editorial review, starting with first-booking, latency, lab-lru and case-notifications (record in `reviews.json`).

@@ -156,7 +156,7 @@ function Session({ sessionId }: { sessionId: string }) {
   const reviewing = rec.phase === phases.length - 1;
 
   return (
-    <div className="page" style={{ maxWidth: 1000 }}>
+    <div className="page" style={{ maxWidth: 1240 }}>
       <p className="crumbs"><Link to="/interview">Interview practice</Link> / {topic.title}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
         <h1 style={{ margin: '0 0 6px', fontSize: 30 }}>“{cs.prompt}”</h1>
@@ -178,17 +178,21 @@ function Session({ sessionId }: { sessionId: string }) {
             )
           )}
           {topic.kind === 'case-hld' && rec.phase === 1 && <section className="stage" style={{ marginBottom: 16 }}><Estimator value={rec.estimates} onChange={(estimates) => set({ estimates })} /></section>}
-          <section className="stage" aria-label="Diagram workspace">
-            <Workspace value={rec.diagram} onChange={(diagram) => set({ diagram })} />
-          </section>
-          <label className="field" style={{ marginTop: 16 }} htmlFor="iv-notes"><span>Notes ({phases[rec.phase]})</span></label>
-          <textarea id="iv-notes" value={rec.notes} onChange={(e) => set({ notes: e.target.value })} style={{ minHeight: 160 }} placeholder={rec.phase === 0 ? 'Questions you’d ask, and the answers you’d assume…' : 'Keep writing; notes are shared across phases.'} />
-          <p className="save-note"><SaveStatus savedAt={rec.savedAt} /></p>
-          <div className="toolbar">
-            {rec.hintsUsed < allHints.length && <button className="btn btn-small" onClick={() => set({ hintsUsed: rec.hintsUsed + 1 })}>{rec.hintsUsed ? 'Another hint' : 'I’m stuck: show a hint'}</button>}
-            <button className="btn btn-small btn-primary" onClick={() => set({ phase: Math.min(phases.length - 1, rec.phase + 1) })}>Next: {phases[Math.min(phases.length - 1, rec.phase + 1)]} <Icon name="arrow-right" size={15} /></button>
+          <div className="iv-grid">
+            <section className="stage" aria-label="Diagram workspace">
+              <Workspace value={rec.diagram} onChange={(diagram) => set({ diagram })} />
+            </section>
+            <div className="iv-notes">
+              <label className="field" htmlFor="iv-notes" style={{ marginBottom: 6 }}><span>Notes · {phases[rec.phase]}</span></label>
+              <textarea id="iv-notes" value={rec.notes} onChange={(e) => set({ notes: e.target.value })} placeholder={rec.phase === 0 ? 'Questions you’d ask, and the answers you’d assume…' : 'Keep writing; notes are shared across phases.'} />
+              <p className="save-note"><SaveStatus savedAt={rec.savedAt} /></p>
+              <div className="toolbar">
+                {rec.hintsUsed < allHints.length && <button className="btn btn-small" onClick={() => set({ hintsUsed: rec.hintsUsed + 1 })}>{rec.hintsUsed ? 'Another hint' : 'I’m stuck: show a hint'}</button>}
+                <button className="btn btn-small btn-primary" onClick={() => set({ phase: Math.min(phases.length - 1, rec.phase + 1) })}>Next: {phases[Math.min(phases.length - 1, rec.phase + 1)]} <Icon name="arrow-right" size={15} /></button>
+              </div>
+              {allHints.slice(0, rec.hintsUsed).map((h, i) => <div key={i} className="callout enter"><strong>Hint {i + 1}</strong><Rich text={h} /></div>)}
+            </div>
           </div>
-          {allHints.slice(0, rec.hintsUsed).map((h, i) => <div key={i} className="callout"><strong>Hint {i + 1}</strong><Rich text={h} /></div>)}
         </>
       )}
 
