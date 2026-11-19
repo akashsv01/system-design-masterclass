@@ -3,14 +3,19 @@
  * that treats a topic in depth.
  *
  * `checked: false` means the pointer comes from the work's published table of contents or
- * well-known structure, but the specific claims in our lessons have NOT been re-verified
- * against the source text in a session with access to it. (In the authoring environment,
- * primary-source domains were blocked by the network policy.) Never flip this to true
- * without actually reading the cited section.
+ * well-known structure, but the specific claims in our lessons have NOT been verified against
+ * the source text. Books are not accessible from the authoring environment, so book entries stay
+ * unchecked. Entries built with `v()` were read on 2026-11-19 (see docs/SOURCES_AUDIT.md).
+ * Never mark an entry checked without actually reading the cited section.
  */
 import type { Source } from './types';
 
 const s = (title: string, where?: string, url?: string): Source & { checked: boolean } => ({ title, where, url, checked: false });
+/**
+ * Verified: the cited section was read on 2026-11-19 and the lessons' claims compared with it. `note` says
+ * what was confirmed. Details, including simplifications and what was not checked: docs/SOURCES_AUDIT.md.
+ */
+const v = (title: string, where: string, url: string, note: string): Source & { checked: boolean } => ({ title, where, url, note, checked: true });
 
 export const SRC = {
   // Designing Data-Intensive Applications (Kleppmann, 1st ed., O'Reilly 2017)
@@ -33,40 +38,41 @@ export const SRC = {
 
   kurose: s('Computer Networking: A Top-Down Approach (Kurose & Ross)', 'Ch. 1–3: the Internet, application layer (HTTP, DNS), transport layer (TCP, UDP)'),
   ostepProc: s('Operating Systems: Three Easy Pieces', 'The Abstraction: The Process', 'https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf'),
-  ostepThreads: s('Operating Systems: Three Easy Pieces', 'Concurrency: An Introduction', 'https://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf'),
+  ostepThreads: v('Operating Systems: Three Easy Pieces', 'Ch. 26, Concurrency: An Introduction (26.3–26.4, shared counter)', 'https://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf', 'two threads incrementing a shared counter give an indeterminate result: a race condition'),
   ostepLocks: s('Operating Systems: Three Easy Pieces', 'Locks', 'https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf'),
   ostepBugs: s('Operating Systems: Three Easy Pieces', 'Common Concurrency Problems (deadlock)', 'https://pages.cs.wisc.edu/~remzi/OSTEP/threads-bugs.pdf'),
   ostepPersist: s('Operating Systems: Three Easy Pieces', 'Persistence: Hard Disk Drives, Flash-based SSDs', 'https://pages.cs.wisc.edu/~remzi/OSTEP/'),
 
-  rfc9110: s('RFC 9110: HTTP Semantics', 'Sec. 9 (methods; 9.2.2 idempotent methods), Sec. 15 (status codes)', 'https://www.rfc-editor.org/rfc/rfc9110'),
+  rfc9110: v('RFC 9110: HTTP Semantics', 'Sec. 9.2.1 Safe Methods; Sec. 9.2.2 Idempotent Methods', 'https://www.rfc-editor.org/rfc/rfc9110', 'PUT, DELETE and safe methods are idempotent; POST is not defined as idempotent; clients should not retry non-idempotent requests automatically'),
   rfc9113: s('RFC 9113: HTTP/2', undefined, 'https://www.rfc-editor.org/rfc/rfc9113'),
   rfc9114: s('RFC 9114: HTTP/3', undefined, 'https://www.rfc-editor.org/rfc/rfc9114'),
-  rfc9293: s('RFC 9293: Transmission Control Protocol (TCP)', undefined, 'https://www.rfc-editor.org/rfc/rfc9293'),
+  rfc9293: v('RFC 9293: Transmission Control Protocol (TCP)', 'Sec. 3.5, Establishing a Connection (three-way handshake, Figure 6)', 'https://www.rfc-editor.org/rfc/rfc9293', 'connection set-up is a three-way handshake'),
   rfc768: s('RFC 768: User Datagram Protocol', undefined, 'https://www.rfc-editor.org/rfc/rfc768'),
-  rfc8446: s('RFC 8446: TLS 1.3', undefined, 'https://www.rfc-editor.org/rfc/rfc8446'),
-  rfc1034: s('RFC 1034: Domain Names — Concepts and Facilities', undefined, 'https://www.rfc-editor.org/rfc/rfc1034'),
+  rfc8446: v('RFC 8446: TLS 1.3', 'Sec. 2, Protocol Overview (Figure 1, full handshake)', 'https://www.rfc-editor.org/rfc/rfc8446', 'the client sends application data after one round trip of handshake'),
+  rfc1034: v('RFC 1034: Domain Names — Concepts and Facilities', 'Sec. 3.6, Resource Records (TTL)', 'https://www.rfc-editor.org/rfc/rfc1034', 'resolvers cache answers for at most their TTL'),
   rfc791: s('RFC 791: Internet Protocol', undefined, 'https://www.rfc-editor.org/rfc/rfc791'),
-  rfc6455: s('RFC 6455: The WebSocket Protocol', undefined, 'https://www.rfc-editor.org/rfc/rfc6455'),
+  rfc6455: v('RFC 6455: The WebSocket Protocol', 'Abstract and Sec. 1.1, Background', 'https://www.rfc-editor.org/rfc/rfc6455', 'two-way communication between client and server over one connection'),
   sse: s('HTML Living Standard: Server-sent events', undefined, 'https://html.spec.whatwg.org/multipage/server-sent-events.html'),
+  mdnSse: v('MDN Web Docs', 'Using server-sent events', 'https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events', 'SSE is one-way, server to client; the browser reconnects after a lost connection'),
   rfc6749: s('RFC 6749: The OAuth 2.0 Authorization Framework', undefined, 'https://www.rfc-editor.org/rfc/rfc6749'),
   rfc7519: s('RFC 7519: JSON Web Token (JWT)', undefined, 'https://www.rfc-editor.org/rfc/rfc7519'),
   oidc: s('OpenID Connect Core 1.0', undefined, 'https://openid.net/specs/openid-connect-core-1_0.html'),
-  rfc6585: s('RFC 6585: Additional HTTP Status Codes', 'Sec. 4, 429 Too Many Requests', 'https://www.rfc-editor.org/rfc/rfc6585'),
+  rfc6585: v('RFC 6585: Additional HTTP Status Codes', 'Sec. 4, 429 Too Many Requests', 'https://www.rfc-editor.org/rfc/rfc6585', '429 signals rate limiting and may carry Retry-After'),
   rfc8259: s('RFC 8259: The JSON Data Interchange Format', undefined, 'https://www.rfc-editor.org/rfc/rfc8259'),
 
   fsa: s('Fundamentals of Software Architecture (Richards & Ford)', 'Architecture characteristics; modular monolith and microservices styles'),
   sap: s('Software Architecture in Practice (Bass, Clements & Kazman)', 'Quality attributes: availability, performance, modifiability'),
   releaseIt: s('Release It! (Nygard)', 'Stability antipatterns and stability patterns: timeouts, circuit breaker, bulkheads'),
-  sreSlo: s('Site Reliability Engineering (Google)', 'Service Level Objectives', 'https://sre.google/sre-book/service-level-objectives/'),
-  sreRisk: s('Site Reliability Engineering (Google)', 'Embracing Risk (error budgets)', 'https://sre.google/sre-book/embracing-risk/'),
+  sreSlo: v('Site Reliability Engineering (Google)', 'Ch. 4, Service Level Objectives (SLI and SLO definitions)', 'https://sre.google/sre-book/service-level-objectives/', 'an SLI is a measure of service; an SLO is a target for an SLI'),
+  sreRisk: v('Site Reliability Engineering (Google)', 'Ch. 3, Embracing Risk: Motivation for Error Budgets', 'https://sre.google/sre-book/embracing-risk/', 'the error budget is the failure rate the SLO allows (1 − SLO)'),
   sreMonitoring: s('Site Reliability Engineering (Google)', 'Monitoring Distributed Systems', 'https://sre.google/sre-book/monitoring-distributed-systems/'),
   sreOverload: s('Site Reliability Engineering (Google)', 'Handling Overload', 'https://sre.google/sre-book/handling-overload/'),
   sreCascading: s('Site Reliability Engineering (Google)', 'Addressing Cascading Failures', 'https://sre.google/sre-book/addressing-cascading-failures/'),
   sreLbFront: s('Site Reliability Engineering (Google)', 'Load Balancing at the Frontend', 'https://sre.google/sre-book/load-balancing-frontend/'),
   sreLbDc: s('Site Reliability Engineering (Google)', 'Load Balancing in the Datacenter', 'https://sre.google/sre-book/load-balancing-datacenter/'),
   sreWorkbookSlo: s('The Site Reliability Workbook (Google)', 'Implementing SLOs', 'https://sre.google/workbook/implementing-slos/'),
-  ablRetries: s('Amazon Builders’ Library', 'Timeouts, retries, and backoff with jitter', 'https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/'),
-  ablIdempotent: s('Amazon Builders’ Library', 'Making retries safe with idempotent APIs', 'https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/'),
+  ablRetries: v('Amazon Builders’ Library', 'Timeouts, retries, and backoff with jitter', 'https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/', 'capped exponential backoff, jitter, retries multiplying across layers, limiting retries locally'),
+  ablIdempotent: v('Amazon Builders’ Library', 'Making retries safe with idempotent APIs', 'https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/', 'a unique client request token lets the service return an equivalent response to a repeated request'),
   ablBacklog: s('Amazon Builders’ Library', 'Avoiding insurmountable queue backlogs', 'https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/'),
   ablShedding: s('Amazon Builders’ Library', 'Using load shedding to avoid overload', 'https://aws.amazon.com/builders-library/using-load-shedding-to-avoid-overload/'),
   ablCaching: s('Amazon Builders’ Library', 'Caching challenges and strategies', 'https://aws.amazon.com/builders-library/caching-challenges-and-strategies/'),
@@ -87,8 +93,8 @@ export const SRC = {
   sdi2: s('System Design Interview, Vol. 2 (Alex Xu & Sahn Lam)', 'used for interview scope'),
   primer: s('The System Design Primer (Donne Martin)', 'used for topic breadth', 'https://github.com/donnemartin/system-design-primer'),
 
-  dynamo: s('DeCandia et al., “Dynamo: Amazon’s Highly Available Key-value Store”, SOSP 2007'),
-  raft: s('Ongaro & Ousterhout, “In Search of an Understandable Consensus Algorithm”, USENIX ATC 2014', undefined, 'https://raft.github.io/'),
+  dynamo: v('DeCandia et al., “Dynamo: Amazon’s Highly Available Key-value Store”, SOSP 2007', 'Sec. 4.2 Partitioning (virtual nodes); Sec. 4.5 get() and put() (R + W > N)', 'https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf', 'consistent hashing with virtual nodes; R + W > N gives a quorum-like system'),
+  raft: v('Ongaro & Ousterhout, “In Search of an Understandable Consensus Algorithm”, USENIX ATC 2014', 'Sec. 5.1–5.4 (terms, leader election, log replication, election restriction)', 'https://raft.github.io/raft.pdf', 'randomised election timeouts; stale terms rejected; commit on a majority; votes only for an up-to-date log'),
   mapreduce: s('Dean & Ghemawat, “MapReduce: Simplified Data Processing on Large Clusters”, OSDI 2004'),
   bigtable: s('Chang et al., “Bigtable: A Distributed Storage System for Structured Data”, OSDI 2006'),
   spanner: s('Corbett et al., “Spanner: Google’s Globally-Distributed Database”, OSDI 2012'),
@@ -100,17 +106,17 @@ export const SRC = {
   lsm: s('O’Neil et al., “The Log-Structured Merge-Tree (LSM-Tree)”, Acta Informatica 1996'),
   critique: s('Berenson et al., “A Critique of ANSI SQL Isolation Levels”, SIGMOD 1995'),
 
-  pgIso: s('PostgreSQL documentation', 'Transaction Isolation', 'https://www.postgresql.org/docs/current/transaction-iso.html'),
+  pgIso: v('PostgreSQL documentation', 'Sec. 13.2, Transaction Isolation', 'https://www.postgresql.org/docs/current/transaction-iso.html', 'Read Committed is the default; PostgreSQL’s Repeatable Read also prevents phantom reads'),
   pgExplain: s('PostgreSQL documentation', 'Using EXPLAIN', 'https://www.postgresql.org/docs/current/using-explain.html'),
   pgIndexes: s('PostgreSQL documentation', 'Indexes', 'https://www.postgresql.org/docs/current/indexes.html'),
   pgWal: s('PostgreSQL documentation', 'Write-Ahead Logging (WAL)', 'https://www.postgresql.org/docs/current/wal-intro.html'),
-  pgMvcc: s('PostgreSQL documentation', 'Concurrency Control: Introduction', 'https://www.postgresql.org/docs/current/mvcc-intro.html'),
+  pgMvcc: v('PostgreSQL documentation', 'Sec. 13.1, Concurrency Control: Introduction', 'https://www.postgresql.org/docs/current/mvcc-intro.html', 'under MVCC, reading never blocks writing and writing never blocks reading'),
   pgLocking: s('PostgreSQL documentation', 'Explicit Locking', 'https://www.postgresql.org/docs/current/explicit-locking.html'),
   pyThreading: s('Python documentation', 'threading — Thread-based parallelism (Lock, Condition)', 'https://docs.python.org/3/library/threading.html'),
   pyDataclasses: s('Python documentation', 'dataclasses — Data Classes (frozen instances, field validation in __post_init__)', 'https://docs.python.org/3/library/dataclasses.html'),
   pyProtocol: s('Python documentation', 'typing.Protocol and structural subtyping (PEP 544)', 'https://docs.python.org/3/library/typing.html#typing.Protocol'),
   pyDict: s('Python documentation', 'Mapping types — dict', 'https://docs.python.org/3/library/stdtypes.html#mapping-types-dict'),
-  pyOrderedDict: s('Python documentation', 'collections.OrderedDict (move_to_end, popitem)', 'https://docs.python.org/3/library/collections.html#collections.OrderedDict'),
+  pyOrderedDict: v('Python documentation', 'collections.OrderedDict: move_to_end(), popitem()', 'https://docs.python.org/3/library/collections.html#collections.OrderedDict', 'move_to_end() moves a key to the end; popitem(last=False) removes in FIFO order'),
   pyMock: s('Python documentation', 'unittest.mock — mock object library', 'https://docs.python.org/3/library/unittest.mock.html'),
   pytest: s('pytest documentation', 'Get started; fixtures; monkeypatch', 'https://docs.pytest.org/en/stable/'),
   pyAbc: s('Python documentation', 'abc — Abstract Base Classes', 'https://docs.python.org/3/library/abc.html'),

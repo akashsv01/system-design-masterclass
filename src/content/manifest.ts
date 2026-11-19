@@ -91,7 +91,7 @@ export const TOPICS: Topic[] = [
     ['HTTP', 'REST', 'RPC'], ['rfc9110', 'rfc9113', 'rfc9114'], 'HTTP, REST and RPC'),
   T('realtime-delivery', 'How does the score update without refreshing?', 'foundations', 'lesson', ['http-rest-rpc', 'tcp-udp'],
     'Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour.',
-    ['polling', 'SSE', 'WebSockets'], ['sse', 'rfc6455'], 'Polling, SSE, WebSockets'),
+    ['polling', 'SSE', 'WebSockets'], ['sse', 'mdnSse', 'rfc6455'], 'Polling, SSE, WebSockets'),
   T('latency', 'The average is 80 ms. Why are users complaining?', 'foundations', 'lesson', ['inside-a-request'],
     'Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out.',
     ['latency', 'percentiles'], ['sreMonitoring', 'ddia1'], 'Latency and percentiles'),

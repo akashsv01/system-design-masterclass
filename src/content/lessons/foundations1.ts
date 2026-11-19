@@ -36,7 +36,7 @@ export const insideARequest: GenericLesson = {
     },
     {
       kicker: 'Watch', title: 'Find the address: DNS, 20 ms',
-      body: ['Computers route by numeric **IP address**, not by name. The phone first asks **DNS**, the internet’s directory, where `tickets.example` lives. The answer, `203.0.113.7`, comes back in about 20 ms and is cached, so the next request skips this step.'],
+      body: ['Computers route by numeric **IP address**, not by name. The phone first asks **DNS**, the internet’s directory, where `tickets.example` lives. The answer, `203.0.113.7`, comes back in about 20 ms and is cached for as long as its time-to-live (TTL) allows, so the next request skips this step.'],
       stack: { separation: 0.6, focus: 'ip', tones: { ip: 'active' } },
       changes: [{ kind: 'add', text: 'Address known: 203.0.113.7 (+20 ms)' }],
     },
@@ -233,7 +233,7 @@ export const httpRestRpc: GenericLesson = {
     { kicker: 'Predict', title: 'The retry problem', body: ['The phone sends “create a hold”, the connection drops before the reply arrives, and the app retries.'],
       compare: { left: { title: 'GET /holds/h_81f2', points: ['Read twice, nothing changes'], tone: 'ok', verdict: 'safe to retry' }, right: { title: 'POST /holds', points: ['Sent twice → maybe two holds'], tone: 'fail', verdict: 'needs protection' }, focus: 'right' },
       predict: { id: 'idem', prompt: 'Which methods does the HTTP standard define as *idempotent* (repeating them has the same effect as doing them once)?', choices: [
-        { id: 'a', text: 'GET, PUT, DELETE', why: 'Right. `PUT /holds/h1` with the same body twice leaves the same state, and so does deleting twice. `POST` is not idempotent by definition, which is why retried POSTs need an idempotency key.' },
+        { id: 'a', text: 'GET, PUT, DELETE', why: 'Right. `PUT /holds/h1` with the same body twice leaves the same state, and so does deleting twice. The standard doesn’t define `POST` as idempotent, so a client can’t assume a retried POST is harmless; that is why retried POSTs carry an idempotency key.' },
         { id: 'b', text: 'GET, POST', why: 'POST creates something new each time it’s processed, so repeating it can create two.' },
         { id: 'c', text: 'All of them', why: 'POST and PATCH aren’t guaranteed to be idempotent.' },
       ], correct: 'a' } },
