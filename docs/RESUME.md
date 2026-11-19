@@ -1,6 +1,17 @@
 # Resume notes
 
-- **Branch:** `claude/gallant-johnson-2xsvdb`. Pushes work; verify `git rev-parse HEAD` = `origin/<branch>` after each push.
+- **Branch:** `claude/dazzling-bohr-89a9c9` (revamp, based on `claude/gallant-johnson-2xsvdb` @ `5a80971`). Verify `git rev-parse HEAD` = `origin/<branch>` after each push.
+- **Governing brief:** Revamp Brief (2026-11-19) at the top of `docs/MASTER_PROMPT.md`. Earlier spec: `docs/SPEC_2026-11-18.md`.
+
+## Revamp progress (2026-11-19)
+- [ ] Audit of running product (desktop + mobile), reproduce the brief's listed findings
+- [ ] Reference re-study → `docs/DESIGN.md`
+- [ ] Fix misleading exercises / broken flows (latency independence, LRU lab, notification cases, booking race, layer labels)
+- [ ] Design-system refinement; screen purposes (home, reader, catalog, practice, progress, interview)
+- [ ] Motion / one-primary-action discipline
+- [ ] Practice + progress: verified vs self-assessed, independent mode
+- [ ] Curriculum + sources audit
+- [ ] Final verification (tests, e2e, a11y, screenshots, recording)
 - **Decisions in force:** MASTER_PROMPT Amendments 1–4 (Python 3 learner code, visual-first, small required exercises, full curriculum preserved). Lesson rules: `docs/LESSON_GUIDE.md` (step titles ≤ 40 chars, chart notes for units/illustrative data, narrow layouts).
 
 ## State (2026-11-18)

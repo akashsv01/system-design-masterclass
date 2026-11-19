@@ -2,7 +2,8 @@
 
 Start every session by reading, in order:
 1. `docs/RESUME.md` — current branch, last verified work, known failures, next acceptance criterion.
-2. `docs/MASTER_PROMPT.md` — the full product specification (source of truth).
+2. `docs/MASTER_PROMPT.md` — the governing Revamp Brief (2026-11-19) plus reconciliation with the earlier spec
+   (`docs/SPEC_2026-11-18.md`).
 3. `docs/DESIGN.md` — reference observations and the design decisions they drive.
 4. `docs/COVERAGE.md` — generated curriculum coverage report (`npm run coverage:report`).
 
