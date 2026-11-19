@@ -12,6 +12,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CASES } from '../../content/cases';
+import { guaranteesFor } from '../../content/cases/guarantees';
 import { topicById } from '../../content/curriculum';
 import { Diagram } from '../components/Diagram';
 import { Caption, Controls, LessonShell, Sources, useStep, Question } from '../components/Lesson';
@@ -245,6 +246,23 @@ function Wrap({ caseId, mode }: { caseId: string; mode: Mode }) {
           <p className="muted small">Open each stage with the step list to see its reference answer beside yours.</p>
         </div>
       )}
+      {guaranteesFor(caseId) && (() => {
+        const g = guaranteesFor(caseId)!;
+        const isHld = g.hld === caseId;
+        const other = topicById(isHld ? g.lld : g.hld);
+        return (
+          <div className="caption">
+            <h3 style={{ fontSize: 19 }}>Who guarantees what, at both zoom levels</h3>
+            <p className="muted small">This case is paired with <Link to={other?.route ?? '/topics'}>{other?.title}</Link>. Each promise has an owner in the architecture and a mechanism inside that owner.</p>
+            <div className="table-wrap">
+              <table className="data">
+                <thead><tr><th>Promise</th><th>HLD: which part owns it</th><th>LLD: what enforces it</th><th>What would change it</th></tr></thead>
+                <tbody>{g.rows.map((r) => <tr key={r.behavior}><td><strong>{r.behavior}</strong></td><td><Rich text={r.hld} /></td><td><Rich text={r.lld} /></td><td><Rich text={r.changes} /></td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
       {cs.alternatives && cs.alternatives.length > 0 && (
         <div className="caption">
           <h3 style={{ fontSize: 19 }}>Defensible alternatives, and what would change the answer</h3>
