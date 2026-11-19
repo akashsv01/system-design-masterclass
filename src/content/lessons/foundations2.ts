@@ -158,7 +158,7 @@ export const throughputBandwidth: GenericLesson = {
 export const availability: GenericLesson = {
   id: 'availability',
   area: 'Foundations',
-  opening: 'Each part of your booking system is up 99.9% of the time. So the system is 99.9% available, right? Not quite. Chain three such parts together and you lose about two hours more downtime a month than you planned for.',
+  opening: 'Each part of your booking system is up 99.9% of the time. So the system is 99.9% available, right? Not quite. Chain three such parts together and the path is down about 130 minutes a month: three times the 43 you planned for.',
   visual: {
     kind: 'diagram',
     spec: {
