@@ -264,6 +264,8 @@ export function Controls({
           </button>
         ) : null}
         {nextDisabled && nextHint && !action && <span id="gate-reason" className="visually-hidden">{nextHint}</span>}
+        {/* A stable live region: captions remount per step (for their entrance), so the step change is announced here. */}
+        <span className="visually-hidden" aria-live="polite" aria-atomic="true">Step {step + 1} of {count}{stepTitle ? `: ${stepTitle}` : ''}</span>
       </nav>
       {open && steps && onJump && (
         <ol className="steps-list enter" id="steps-list" aria-label="All steps">

@@ -148,17 +148,18 @@ export default function ReplicaLag() {
           description={`At ${fmtClock(t)}, the leader stores ${s.leader} and the follower stores ${s.follower}.`}
         />
         {step === 2 && (
-          <div className="stage-actions" role="group" aria-label="Which copy serves the profile read?">
+          <div className="stage-actions stage-choice" role="group" aria-label="Which copy serves the profile read?">
+            <span aria-hidden="true">Read from:</span>
             <div className="segmented">
-              <button aria-pressed={source === 'follower'} onClick={() => setSource('follower')}>Read from the follower</button>
-              <button aria-pressed={source === 'leader'} onClick={() => setSource('leader')}>Read from the leader</button>
+              <button aria-pressed={source === 'follower'} aria-label="Read from the follower" onClick={() => setSource('follower')}>Follower</button>
+              <button aria-pressed={source === 'leader'} aria-label="Read from the leader" onClick={() => setSource('leader')}>Leader</button>
             </div>
           </div>
         )}
         {step === 4 && <Experiment sim={sim} setSim={setSim} />}
       </section>
 
-      <StepText step={step} saved={saved} answered={answered} readValue={read.value} lag={cfg.lagMs} source={source} />
+      <StepText key={step} step={step} saved={saved} answered={answered} readValue={read.value} lag={cfg.lagMs} source={source} />
 
       {step === 2 && !source && (
         <p className="notice" style={{ maxWidth: 'var(--read)', marginTop: 14 }}>Choose a copy above. Then predict what the profile shows.</p>

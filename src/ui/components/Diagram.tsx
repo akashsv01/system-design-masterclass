@@ -171,7 +171,8 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
         </defs>
         {edges.map((e) => {
           const { p1, p2 } = endpoints(layout, e.from, e.to);
-          // The path a message took this step stays highlighted after the token fades.
+          // The path a message took this step stays highlighted after the token fades. While a message is on an edge,
+          // the token names what travels, so the edge's own label steps aside instead of being covered.
           const traveled = tokens.some((t) => (t.from === e.from && t.to === e.to) || (t.from === e.to && t.to === e.from));
           const hidden = e.state === 'ghost' || byId[e.from]?.state === 'ghost' || byId[e.to]?.state === 'ghost';
           const pending = !hidden && (e.state === 'placeholder' || byId[e.from]?.state === 'placeholder' || byId[e.to]?.state === 'placeholder');
@@ -185,7 +186,7 @@ export function Diagram({ nodes, edges, tokens = [], wide, narrow, description, 
                 x2={p2.x}
                 y2={p2.y}
               />
-              {e.label && !hidden && !pending && Math.hypot(p2.x - p1.x, p2.y - p1.y) > (Math.abs(p2.x - p1.x) < Math.abs(p2.y - p1.y) * 0.4 ? 30 : e.label.length * 7.5 + 18) && (
+              {e.label && !hidden && !pending && !traveled && Math.hypot(p2.x - p1.x, p2.y - p1.y) > (Math.abs(p2.x - p1.x) < Math.abs(p2.y - p1.y) * 0.4 ? 30 : e.label.length * 7.5 + 18) && (
                 // Mostly vertical edges carry their label beside the line, so a message travelling along it never covers it.
                 Math.abs(p2.x - p1.x) < Math.abs(p2.y - p1.y) * 0.4 ? (
                   <text className="edge-label" x={mid.x + 12} y={mid.y} dy="0.35em" textAnchor="start">{e.label}</text>

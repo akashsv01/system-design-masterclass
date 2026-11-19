@@ -183,8 +183,8 @@ main { min-height: calc(100vh - var(--header-h)); }
 .btn-primary[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); }
 .btn .icon { margin: 0 -2px; }
 /* Segmented control: a set of mutually exclusive options. */
-.segmented { display: inline-flex; padding: 3px; gap: 2px; border-radius: 11px; background: var(--paper-2); border: 1px solid var(--line); flex-wrap: wrap; }
-.segmented button { border: 0; background: transparent; padding: 7px 14px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast); }
+.segmented { display: inline-flex; max-width: 100%; padding: 3px; gap: 2px; border-radius: 11px; background: var(--paper-2); border: 1px solid var(--line); flex-wrap: wrap; }
+.segmented button { flex: 1 1 auto; text-align: center; border: 0; background: transparent; padding: 7px 14px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast); }
 .segmented button:hover { color: var(--ink); background: color-mix(in srgb, var(--surface) 55%, transparent); }
 .segmented button[aria-pressed='true'], .segmented button[aria-selected='true'], .segmented button[aria-checked='true'] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-1), inset 0 0 0 1px var(--line-strong); }
 .segmented button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
@@ -261,7 +261,10 @@ main { min-height: calc(100vh - var(--header-h)); }
 .metrics li.good { border-left-color: var(--ok); }
 @media (max-width: 600px) { .metrics li { flex: 1 1 calc(50% - 8px); min-width: 0; } }
 
-.caption { max-width: var(--read); margin: 20px 0 0; }
+.caption { max-width: var(--read); margin: 20px 0 0; animation: caption-in 320ms var(--ease) both; }
+@keyframes caption-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Page transitions: a new page fades up once; step changes inside a lesson animate only the caption. */
+main > .page, main > .lesson { animation: fade-in 260ms var(--ease) both; }
 .caption h2 { font-size: 25px; margin: 0 0 10px; }
 .caption p { margin: 0 0 12px; }
 .caption p:last-child { margin-bottom: 0; }
@@ -612,3 +615,7 @@ button.snip-line:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(
 .op-list li.done { opacity: 0.7; }
 .op-list li.current { border-color: var(--active); background: var(--active-soft); }
 .op-list .op-result { font-size: 13px; color: var(--ink-2); }
+
+/* A labelled choice inside the stage ("Read from: Follower | Leader"). */
+.stage-choice { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.stage-choice > span { font-size: 15px; font-weight: 600; color: var(--ink-2); }

@@ -1,21 +1,23 @@
 // Visual review: walk every step of a lesson, doing the interaction each step requires,
 // screenshot it, and report console errors and layout problems.
-// Usage: node scripts/review-lessons.cjs <baseUrl> <outDir> [lessonId ...]
+// Usage: node scripts/review-lessons.cjs <baseUrl> <outDir> [lessonId ...] [--write-verification]
+// Set NO_SHOTS=1 to check layout without saving screenshots (for full-course runs).
 const { chromium, devices } = require('playwright');
 const [, , base = 'http://localhost:8787', out = 'screenshots-local', ...only] = process.argv;
 
 async function act(p) {
-  // Do whatever this step needs before Next can be pressed.
-  for (const name of [/^Reserve seat F12$/, /^Save “Alex”$/, /^Read A$/, /^Reserve as Maya$/]) {
-    const b = p.getByRole('button', { name }).first();
-    if (await b.isVisible().catch(() => false) && await b.isEnabled().catch(() => false)) { await b.click(); await p.waitForTimeout(900); }
-  }
-  const leo = p.getByRole('button', { name: /^Reserve as Leo$/ });
-  if (await leo.isVisible().catch(() => false) && await leo.isEnabled().catch(() => false)) { await leo.click(); await p.waitForTimeout(500); }
-  // Race: play all events.
+  // Case studies open with a choice of mode; the review walks the guided walkthrough.
+  const guided = p.getByRole('button', { name: /Guided walkthrough/ });
+  if (await guided.isVisible().catch(() => false)) { await guided.click(); await p.waitForTimeout(500); }
+  // Replica lag: choose which copy serves the 10:00:01 read.
+  const follower = p.getByRole('button', { name: 'Read from the follower' });
+  if (await follower.isVisible().catch(() => false) && (await follower.getAttribute('aria-pressed')) !== 'true') { await follower.click(); await p.waitForTimeout(400); }
+  // Step actions live in the control row (D15): press until the step's outcome is visible.
   for (let i = 0; i < 12; i++) {
-    const ev = p.getByRole('button', { name: /^(Start: both press Reserve|Next event ▸)$/ });
-    if (await ev.isVisible().catch(() => false) && await ev.isEnabled().catch(() => false)) { await ev.click(); await p.waitForTimeout(350); } else break;
+    const a = p.locator('.controls .btn-next.is-action');
+    if (!(await a.count())) break;
+    await a.click();
+    await p.waitForTimeout(1000);
   }
   // Answer any unanswered question with its last choice (often the right one in our lessons is not first).
   for (let round = 0; round < 3; round++) {
@@ -35,6 +37,12 @@ async function act(p) {
       if (await hl.count()) await hl.first().click(); else if (await opts.count() > 2) await opts.nth(2).click();
       await p.waitForTimeout(300);
     }
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = p.locator('.controls .btn-next.is-action');
+    if (!(await a.count())) break;
+    await a.click();
+    await p.waitForTimeout(1000);
   }
 }
 
@@ -88,10 +96,10 @@ async function layoutIssues(p) {
         await p.waitForTimeout(1100);
         // Measure what the learner sees on arriving at the step, before interacting.
         const issues = await layoutIssues(p);
-        await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}.png` });
+        if (!process.env.NO_SHOTS) await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}.png` });
         await act(p);
         await p.waitForTimeout(500);
-        await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}b.png` });
+        if (!process.env.NO_SHOTS) await p.screenshot({ path: `${out}/${id}-${label}-${String(s).padStart(2, '0')}b.png` });
         const count = await p.locator('.controls .count-long').textContent().catch(() => '');
         report.push(`${label} ${id} ${count} ${issues.join('; ')}`);
         if (issues.length) failedIds.add(id);
@@ -99,7 +107,7 @@ async function layoutIssues(p) {
         if (!(await next.count())) break;
         if (!(await next.isEnabled())) { report.push(`  BLOCKED: ${await next.textContent()}`); failedIds.add(id); break; }
         await next.click();
-        await p.waitForTimeout(300);
+        await p.waitForTimeout(450);
       }
       if (errors.length) { report.push(`  CONSOLE ERRORS (${id} ${label}): ${[...new Set(errors)].slice(0, 5).join(' | ')}`); failedIds.add(id); }
       await ctx.close();

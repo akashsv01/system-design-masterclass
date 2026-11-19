@@ -52,7 +52,7 @@ export default function GenericLesson({ id }: { id: string }) {
       {step < practiceStep && cur && (
         <>
           <StepStage lesson={lesson} step={step} replayKey={replayKey} />
-          <Caption kicker={cur.kicker} title={cur.title} changes={cur.changes?.map((c) => ({ kind: c.kind, text: <Rich text={c.text} />, from: c.from, to: c.to }))}>
+          <Caption key={step} kicker={cur.kicker} title={cur.title} changes={cur.changes?.map((c) => ({ kind: c.kind, text: <Rich text={c.text} />, from: c.from, to: c.to }))}>
             {cur.body.map((p, i) => <p key={i}><Rich text={p} /></p>)}
             {cur.callout && (
               <div className={`callout ${cur.callout.tone === 'warn' ? 'warn' : ''}`}>

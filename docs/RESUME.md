@@ -1,38 +1,49 @@
 # Resume notes
 
-- **Branch:** `claude/dazzling-bohr-89a9c9` (revamp, based on `claude/gallant-johnson-2xsvdb` @ `5a80971`). Verify `git rev-parse HEAD` = `origin/<branch>` after each push.
+- **Branch:** `claude/dazzling-bohr-89a9c9` (revamp; based on `claude/gallant-johnson-2xsvdb` @ `5a80971`). After each
+  push, verify `git rev-parse HEAD` = `git rev-parse origin/claude/dazzling-bohr-89a9c9`.
 - **Governing brief:** Revamp Brief (2026-11-19) at the top of `docs/MASTER_PROMPT.md`. Earlier spec: `docs/SPEC_2026-11-18.md`.
+- **Cloud environment:** personal environment `system-design-masterclass` (allows primary-source hosts and the design
+  reference; setup script `npm ci`, unproven until a fresh session starts on it). The Default environment still only
+  allows the design reference.
 
-## Revamp progress (2026-11-19)
-- [x] Audit of running product (desktop + mobile), brief findings reproduced → `docs/DESIGN_REVIEW.md` Review 4
-- [x] Reference re-study → `docs/DESIGN.md` §1b, decisions D12–D18
-- [x] Fix misleading exercises / broken flows: fan-out independence + correlated case; throughput 2,400/s; LRU lab (graded eviction puzzles, fresh cache states, confidence separate); cases guided vs independent; booking race one primary action; upright layer labels; replica-lag copy choice at 10:00:01 (write 10:00:00, copy 10:00:02)
-- [x] Design system: tokens, self-hosted fonts (Inter / Source Serif 4 / JetBrains Mono), SVG icon set, buttons/segmented/choices states, placeholders, metrics strip
-- [x] Screens: Home (first visit: question + teaser + Start from scratch; return: exact step), Topics (search, module chips, 124 unique “You decide” lines in `src/content/decisions.ts`, audited), Practice (one recommendation + reason, useful empty states), Progress (can-do from evidence, notebook, schedule, self-assessment apart), Interview picker
-- [x] One primary action in the control row; `reachable` gating (keys, step list, Next); click lock
-- [x] Evidence model (`src/progress/evidence.ts`): first-attempt outcomes, required checks per topic, revision rounds, self-assessment under `self:`; capstone has 2 graded transfer checks
-- [x] e2e 41/41 (`scripts/e2e.mjs`): adds gating, double-click, LRU fresh states, confidence separate, independent case hides reference, rubric never marks solved, retry → hinted
-- [ ] Curriculum + sources audit
-- [ ] Final verification (tests, e2e, a11y, screenshots, recording)
-- **Decisions in force:** MASTER_PROMPT Amendments 1–4 (Python 3 learner code, visual-first, small required exercises, full curriculum preserved). Lesson rules: `docs/LESSON_GUIDE.md` (step titles ≤ 40 chars, chart notes for units/illustrative data, narrow layouts).
+## Revamp status (2026-11-19)
 
-## State (2026-11-18)
-- **Curriculum:** 124 topics; all have explanation, worked example, exercise, assessment (0 planned). Status is computed (`src/content/curriculum.ts`); "verified" only via `scripts/review-lessons.cjs --write-verification`; "reviewed" only by humans (`src/content/reviews.json`, empty).
-- **Content:** 3 custom lessons + 85 generic lessons (`src/content/lessons/*.ts`), 9 labs (`src/ui/labs/Labs.tsx`, sims in `src/sim/labs.ts`), 31 cases (17 HLD + 14 LLD; paired: booking, notifications, live scores) in `src/content/cases/`, GoF reference (23) at `/patterns`, capstone at `/capstone/capstone`.
-- **Practice:** `/practice` (revision due, fresh exercises for gaps), `/interview` (workspace, timer, hints, changed requirement, rubric), `/progress` (mistake notebook, spaced revision, export/import), `/coverage`.
-- **Accounts/sync:** `server/*` (Hono + node:sqlite), `src/progress/*`.
+Done and verified (details in `docs/DESIGN_REVIEW.md` Reviews 4–5):
+- Audit of the running product; all brief findings reproduced live (Review 4) with before-screenshots in `docs/screens/before/`.
+- Reference re-study (`docs/DESIGN.md` §1b) → decisions D12–D18.
+- Design system: tokens (light/dark), self-hosted Inter / Source Serif 4 / JetBrains Mono, SVG icon set, full
+  interaction states, segmented controls, metrics strip / lab readouts, placeholders, upright layer view.
+- Reader: one primary action in the control row, `reachable` gating (Next, → key, step list), click lock per action
+  family, step list, caption entrance keyed by step with a stable live region, page fade-in, scroll to top on navigation.
+- Misleading/broken items fixed: fan-out independence (+ correlated case); throughput overload numbers; LRU lab
+  (graded eviction puzzles from stated cache states, fresh states, confidence separate); cases guided vs independent
+  (reference hidden until the learner saves); booking race single primary action; layer labels upright; replica-lag
+  benchmark (write 10:00:00, copy 10:00:02, learner chooses the copy at 10:00:01); payment-retry readout; availability
+  opening; backpressure longest wait; LB rounding.
+- Evidence model (`src/progress/evidence.ts`): first-attempt outcomes per required check, revision rounds,
+  self-assessment under `self:` (rubrics, short answers, confidence, interviews never raise a status).
+- Screens: Home (first visit / return visit), Topics (search, module chips, 124 audited “You decide” lines),
+  Practice (one recommendation + reason), Progress (can-do, notebook, schedule, self-assessment apart), Interview picker.
+- Paired cases: “who guarantees what” tables checked against the tested Python.
+- Sources: 17 cited sections read and marked with `v()`; three wordings fixed (`docs/SOURCES_AUDIT.md`). Coverage
+  report separates implementation / technical verification / source verification / human review.
+- Every worked formula and numeric check re-derived by hand.
 
-## Last verified
-- `npm test` 38 · `npm run test:py` 73 · typecheck · build · `npm run audit:content` 0 errors · **124/124 topics verified** (both sizes).
-- e2e 25/25 (server needs `AUTH_ATTEMPTS_PER_15MIN=1000` for repeated runs) · a11y: no serious/critical axe violations, keyboard path OK. Full audit in `docs/DESIGN_REVIEW.md` (Review 3).
+## Last verified (this session)
+- `npm test` 40/40 · `npm run test:py` 73 · typecheck · build · `npm run audit:content` 0 errors
+- e2e 41/41 (`scripts/e2e.mjs`, fresh DB, `AUTH_ATTEMPTS_PER_15MIN=1000`)
+- a11y: no serious/critical axe violations on 17 pages, light and dark; keyboard path; reduced-motion check
+- Full-course layout review: see Review 5 in `docs/DESIGN_REVIEW.md`
 
 ## Known gaps
-- Primary-source sites blocked → all sources `checked: false`.
-- No human editorial review yet.
-- No public deployment (needs owner authorisation); Dockerfile + README instructions exist.
+- No independent human editorial review (`src/content/reviews.json` empty).
+- Books not accessible: their citations stay unchecked. Google papers and several docs are reachable but not yet read.
+- No public deployment (needs owner authorisation). Dockerfile and README instructions exist.
+- Production accounts/sync verified only in the local setup (SQLite, `INSECURE_COOKIES=1` over HTTP); HTTPS cookies,
+  backups and multi-instance storage are documented but unverified.
 
-## Next acceptance criteria
-1. Human editorial review of lessons (record in `src/content/reviews.json`), starting with the first-booking journey.
-2. Verify sources against primary texts once those domains are reachable; set `checked: true` only after reading.
-3. Owner-authorised deployment (Dockerfile ready); configure HTTPS, persistent `DATABASE_PATH`, backups.
-4. Ongoing: deepen weaker lessons found in review; add more fresh problems per lab.
+## Next actions
+1. Human editorial review, starting with first-booking, latency, lab-lru and case-notifications (record in `reviews.json`).
+2. Read the remaining reachable sources in `docs/SOURCES_AUDIT.md` and mark each with `v()` only after comparison.
+3. Owner-authorised deployment.

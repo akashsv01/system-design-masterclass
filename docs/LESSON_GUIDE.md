@@ -30,6 +30,24 @@ Amendments 1–4) and the reference study (`DESIGN.md`) into concrete rules. The
 - Text, diagram, clock and values are all computed from one simulation state (`src/sim/*`). Never hand-write a
   value in a caption that the diagram also shows.
 
+### One primary action per moment (D15)
+- If a step needs the learner to do something (Reserve, Save, Apply an operation, Next event), pass it to `Controls`
+  as `action`. The control row's primary button performs it until its outcome is visible, then becomes “Next: <step>”.
+  Never put a second primary button inside the stage. Secondary helpers (Restart, Reset) are quiet buttons.
+- Steps that need an answer or an action hold `reachable` at that step (`useStep(id, n, { reachable })`). Next, the →
+  key and the step list all stop there. Put the reason beside the input (`Question required`), not only on the button.
+- Repeated clicks of the same action wait for its animation (`lockMs`); actions that belong together share a `family`.
+  A different button only has a double-click guard, so a deliberate click is never ignored.
+
+### Evidence, not self-report (brief §10)
+- Graded activities (choice with `correct`, line pick, fill-in, estimate, ordering, a lab's fresh problem, case and
+  capstone checks) report through `useOutcome` / `recordOutcome`. Wrap a lesson's activities in
+  `<EvidenceScope required={[...ids]}>` listing every graded check that must be solved.
+- The first answer in a round decides: right first time with no hint, reveal or retry → independent; solved after
+  help → hinted. Retries can't upgrade it. Revision rounds ask the same checks again, unanswered.
+- Rubric ratings, short-answer self-checks and confidence go to `recordSelf` and never change a status.
+- Predictions (before seeing the mechanism) are not evidence.
+
 ### Layout guarantees (enforced by shared components)
 - The control row (`Controls`) is sticky at the bottom of the viewport at every width, so Back / Replay / Next
   stay reachable while the learner reads.
@@ -75,6 +93,10 @@ Record the chosen format and the reason in the lesson's storyboard (`docs/STORYB
 - Timelines: below 560 px they become a vertical, time-ordered list.
 - 3D layer stacks: always offer "Flat view", and default to flat under reduced motion.
 
+### Labs: the readout
+Put a `Readout` (2–4 named values) directly under a lab's controls, before the chart. It marks the values that changed
+on the last input and adds one sentence of interpretation. Round every displayed number.
+
 ## 5. Writing
 
 - Sound like a thoughtful engineer explaining to a smart newcomer. Ask specific questions. Use concrete values
@@ -89,6 +111,12 @@ Record the chosen format and the reason in the lesson's storyboard (`docs/STORYB
   title, the visual and the caption together and fix whichever disagrees.
 - Every chart states its units on the axes. Unusual scales (log) and illustrative numbers are explained in the
   chart's `note`, which is shown under it.
+- **State independence and other assumptions in the question itself**, not only in a model note elsewhere. If a
+  result depends on an assumption (independent calls, steady arrivals, FIFO), say what changes when it doesn't hold.
+- Every topic needs a catalog line in `src/content/decisions.ts`: the specific decision it practises (“You decide: …”).
+  The audit fails on a missing or duplicate line.
+- Cite a source as checked only after reading the section (`v()` in `src/content/sources.ts`), and record it in
+  `docs/SOURCES_AUDIT.md`.
 
 ## 6. Exercises (Amendments 3–4)
 

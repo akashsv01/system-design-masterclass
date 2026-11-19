@@ -122,18 +122,49 @@ the product spec.
 | D10 | **Change:** the step rail is a compact "Step 3 of 7" with Back/Next/Replay. Every step's text stays available through an "Event history" disclosure instead of being on screen all the time. | Keeps the stage calm. History is there when you ask for it. |
 | D11 | **Our own visual identity**: warm paper background, deep-ink blue primary, amber for "in flight / delayed", green for "confirmed", red for "failed", each paired with an icon or shape. Flat 2D diagrams (not isometric) in a readable sans/mono pairing. Light and dark themes. | Original identity. Flat diagrams keep labels large and easy to reflow for mobile. |
 
-## 3. Visual system (implemented in `src/ui/styles.css`)
+## 3. Visual system (implemented in `src/ui/styles.css`, revamped 2026-11-19)
 
-- Type: system UI sans for prose (17 px base, 1.6 line-height, max 66ch), monospace for values and code.
-- Colour tokens: `--ink`, `--paper`, `--accent` (primary), `--active` (amber), `--ok` (green), `--fail` (red), `--muted`.
-  Every state colour is paired with a shape or text: ● active, ✓ confirmed, ✕ failed, ⧗ delayed.
-- Motion: tokens move along edges for 600–900 ms with ease-in-out. Under `prefers-reduced-motion`, tokens jump straight to their end state and only a highlight fades in.
-- Focus: a 3 px accent outline with an offset on every interactive element.
-- Spacing: an 8 px scale. The stage gets 24–32 px of breathing room. The caption sits 16 px under the stage, so it reads as part of the diagram.
+**Type.** Three self-hosted variable fonts (no third-party requests): *Source Serif 4* for question-led headings
+(h1/h2: editorial, warm, easy to scan), *Inter* for prose and UI (17 px, 1.6 line height, max 66ch), *JetBrains Mono*
+for stored values, clocks, code and metrics. Kickers are 12.5 px uppercase Inter with 0.08em tracking.
+
+**Tokens.** One set for light and one for dark (`:root`, `prefers-color-scheme`, `[data-theme]`):
+`--paper / --paper-2` (warm reading surface), `--surface / --surface-2` (working surfaces), `--ink / --ink-2 / --muted`,
+`--line / --line-strong`, `--accent` + hover/press/soft/line (the blue action colour), and meanings `--active`
+(in flight, delayed, changed), `--ok` (confirmed, correct), `--fail` (failed, wrong), each with a `-soft` fill.
+Every meaning is paired with a word or shape (“changed” label, check/cross icon, dashed border for failure).
+Radii 8/12/16 px; two shadows; motion tokens `--ease`, `--ease-move`, `--t-fast` 120 ms, `--t` 200 ms, `--t-slow` 420 ms.
+
+**Icons.** `src/ui/components/Icon.tsx`: one original 24-unit stroke set (arrows, replay, lock, sun/moon, menu,
+phone, server, database, queue, service, globe, split, …) used in the UI and, via `SvgIcon`, inside diagrams. It
+replaces Unicode glyphs that rendered as missing-character boxes.
+
+**Interaction states.** Buttons: hover (border + surface shift), pressed (1 px down), focus (3 px accent ring),
+disabled (flat, muted, `not-allowed`), `aria-pressed` selected. Segmented controls for mutually exclusive options.
+Choices: hover, picked, right, wrong, faded. Form fields: hover, focus ring. Chips for filters. Details summaries
+rotate a chevron and keep scroll position (native `<details>`).
+
+**Reader layout (D12, D15, D17, D18).** Single column. The stage visual is height-capped on laptop screens so stage,
+caption and controls fit together; step changes scroll the stage under the header. The sticky control row holds
+Back, Replay, a “Step n of N” button that opens a labelled step list (locked past the first unmet requirement), and
+one primary button that is either the step’s action or “Next: <step>”. Parts not yet introduced are dashed “?”
+placeholders. Edge labels step aside while a message travels on that edge.
+
+**Motion.** Tokens travel 850 ms on `--ease-move`, stop short of the target, fade, and leave the edge lit. Tags and
+revealed content rise in over 420 ms. Layer stacks tween separation and turn over 420 ms. Under
+`prefers-reduced-motion` every transition and animation is ~0 ms, layer stacks start in the flat list, and smooth
+scrolling becomes instant; all information remains in text (captions, change lists, readouts, history).
 
 ## 4. Lesson formats in use
 
 1. **Guided trace** (first-booking): the learner triggers each request and inspects stored values.
 2. **Timeline experiment** (replica-lag): a clock, a prediction, an adjustable delay, deterministic replay.
-3. **Behaviour → implementation** (lru-cache): operate the cache, predict which entry gets evicted, then see the map and linked list with synced Java lines.
+3. **Behaviour → implementation** (lru-cache): operate the cache, predict which entry gets evicted, then see the map and linked list with synced Python lines.
 4. **Generic stepped lesson** (most topics): data-driven steps over a stable diagram with prose, a worked example, a quiz, and an exercise.
+
+5. **Lab with a readout** (all nine labs): a prediction, one or two controls, a readout of the values they change
+   (changed ones marked) directly under the controls, then the chart; ends with a graded fresh problem and a separate
+   confidence question.
+6. **Case in two modes** (31 cases): guided walkthrough with the reference design drawn stage by stage, or an
+   independent attempt where the learner sketches and writes first and each stage’s reference opens only after saving.
+   Paired cases end with “who guarantees what” at both zoom levels.

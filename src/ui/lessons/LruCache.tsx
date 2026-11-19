@@ -89,7 +89,7 @@ export default function LruCacheLesson() {
       {step === 3 && <Playground />}
       {step === 4 && <Implementation />}
 
-      <StepText step={step} didRead={didRead} answered={answered} />
+      <StepText key={step} step={step} didRead={didRead} answered={answered} />
 
       {step === 2 && (
         <Question

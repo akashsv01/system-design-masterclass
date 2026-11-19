@@ -91,7 +91,7 @@ export default function CaseStudyPage({ id }: { id: string }) {
               <SketchStage caseId={id} isLld={isLld} />
             )}
 
-            {stage ? <StageView caseId={id} stage={stage} index={step} mode={mode} /> : <Wrap caseId={id} mode={mode} />}
+            {stage ? <StageView key={step} caseId={id} stage={stage} index={step} mode={mode} /> : <Wrap caseId={id} mode={mode} />}
           </>
         )}
 

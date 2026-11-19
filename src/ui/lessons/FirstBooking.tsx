@@ -221,7 +221,7 @@ export default function FirstBooking() {
         </section>
       )}
 
-      <StepCaption step={step} phase={phase} hasPrediction={hasPrediction} />
+      <StepCaption key={step} step={step} phase={phase} hasPrediction={hasPrediction} />
 
       {step === 4 && (
         <Question
