@@ -15,6 +15,8 @@ import { Workspace, EMPTY_DIAGRAM, type WsDiagram } from '../components/Workspac
 import { Blocks } from '../lessons/GenericLesson';
 import { Rich } from '../components/Rich';
 import { SaveStatus } from '../components/Draft';
+import { DECISIONS } from '../../content/decisions';
+import { Icon } from '../components/Icon';
 
 export interface InterviewRecord {
   caseId: string;
@@ -58,27 +60,29 @@ function Picker() {
   const surprise = () => start(pool[Math.floor(Math.random() * pool.length)].id, timed);
   return (
     <div className="page reading">
-      <h1 style={{ marginTop: 0 }}>Practise a design interview</h1>
-      <p style={{ fontSize: 18, color: 'var(--ink-2)' }}>
-        A clean workspace: a diagram, notes and a quick estimator. You’ll get a changed requirement part-way through, as in a real interview.
-        Hints are there if you need them, and using them is recorded honestly. At the end you rate yourself against a visible rubric and compare
-        with reference answers.
+      <h1 className="page-title">Practise a design interview</h1>
+      <p className="page-lede">
+        A quiet workspace to think, sketch and revise: a diagram, notes and an estimator. Part-way through, the interviewer changes a requirement.
+        Hints are there if you need them and are recorded honestly. At the end you compare with reference answers and rate yourself against the rubric.
       </p>
-      <div className="toolbar">
-        <div className="tabs" role="tablist" style={{ border: 0 }}>
+      <div className="toolbar" style={{ gap: 14, marginBottom: 18 }}>
+        <div className="segmented" role="tablist" aria-label="Interview type">
           <button role="tab" aria-selected={kind === 'case-hld'} onClick={() => setKind('case-hld')}>High-level design</button>
           <button role="tab" aria-selected={kind === 'case-lld'} onClick={() => setKind('case-lld')}>Low-level design</button>
         </div>
-        <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 15 }}>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 15 }}>
           <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} /> 45-minute timer
         </label>
-        <button className="btn btn-primary" onClick={surprise}>Surprise me</button>
+        <button className="btn btn-primary" onClick={surprise} style={{ marginLeft: 'auto' }}><Icon name="spark" size={16} /> Pick one for me</button>
       </div>
       <ul className="card-list">
         {pool.map((c) => (
-          <li key={c.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-            <span><strong>{c.title}</strong><p>“{CASES[c.id].prompt}”</p></span>
-            <button className="btn btn-small" onClick={() => start(c.id, timed)}>Start</button>
+          <li key={c.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+            <span>
+              <strong>{c.short ?? c.title.replace(/^Design an? /, '').replace(/^./, (x) => x.toUpperCase())}</strong>
+              <p>“{CASES[c.id].prompt}” <span className="muted">You decide: {DECISIONS[c.id]}.</span></p>
+            </span>
+            <button className="btn btn-small" onClick={() => start(c.id, timed)} aria-label={`Start: ${c.title}`}>Start</button>
           </li>
         ))}
       </ul>
@@ -155,8 +159,8 @@ function Session({ sessionId }: { sessionId: string }) {
     <div className="page" style={{ maxWidth: 1000 }}>
       <p className="crumbs"><Link to="/interview">Interview practice</Link> / {topic.title}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: '0 0 6px', fontSize: 28 }}>“{cs.prompt}”</h1>
-        {rec.timed && <span className={`clock ${remaining < 5 * 60_000 ? 'changed' : ''}`} aria-live="off">⏱ {remaining > 0 ? fmtTime(remaining) : `+${fmtTime(-remaining)} over`}</span>}
+        <h1 style={{ margin: '0 0 6px', fontSize: 30 }}>“{cs.prompt}”</h1>
+        {rec.timed && <span className={`clock ${remaining < 5 * 60_000 ? 'changed' : ''}`} aria-live="off"><Icon name="clock" size={15} /> {remaining > 0 ? fmtTime(remaining) : `+${fmtTime(-remaining)} over`}</span>}
       </div>
       <nav className="tabs" aria-label="Interview phases" style={{ marginBottom: 16 }}>
         {phases.map((p, i) => <button key={p} aria-selected={rec.phase === i} onClick={() => set({ phase: i })}>{i + 1}. {p}</button>)}
@@ -182,7 +186,7 @@ function Session({ sessionId }: { sessionId: string }) {
           <p className="save-note"><SaveStatus savedAt={rec.savedAt} /></p>
           <div className="toolbar">
             {rec.hintsUsed < allHints.length && <button className="btn btn-small" onClick={() => set({ hintsUsed: rec.hintsUsed + 1 })}>{rec.hintsUsed ? 'Another hint' : 'I’m stuck: show a hint'}</button>}
-            <button className="btn btn-small btn-primary" onClick={() => set({ phase: Math.min(phases.length - 1, rec.phase + 1) })}>Next phase →</button>
+            <button className="btn btn-small btn-primary" onClick={() => set({ phase: Math.min(phases.length - 1, rec.phase + 1) })}>Next: {phases[Math.min(phases.length - 1, rec.phase + 1)]} <Icon name="arrow-right" size={15} /></button>
           </div>
           {allHints.slice(0, rec.hintsUsed).map((h, i) => <div key={i} className="callout"><strong>Hint {i + 1}</strong><Rich text={h} /></div>)}
         </>

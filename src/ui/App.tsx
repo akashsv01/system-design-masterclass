@@ -192,9 +192,19 @@ function NotFound() {
   );
 }
 
+/** New page, new reading position: start at the top unless the link targets a section. */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+}
+
 export function App() {
   return (
     <>
+      <ScrollToTop />
       <a className="skip-link" href="#main">Skip to content</a>
       <Header />
       <main id="main">

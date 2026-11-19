@@ -41,25 +41,43 @@ try {
   const opened = await a.getByRole('heading', { level: 1, name: /Two buyers see one seat left/ }).waitFor({ timeout: 10000 }).then(() => true, () => false);
   ok('public deep link opens a lesson without signing in', opened);
 
-  // Walk to the prediction step (step 8) doing required actions.
-  await a.locator('.controls .btn-next').click();
-  await a.getByRole('button', { name: 'Reserve seat F12' }).click();
-  for (let i = 0; i < 4; i++) await a.locator('.controls .btn-next').click();
-  await a.getByRole('button', { name: 'Reserve as Maya' }).click();
-  await a.getByRole('button', { name: 'Reserve as Leo' }).click();
+  // Walk to the prediction step (step 8). Each required action is the control row's primary button (D15).
+  const primary = a.locator('.controls .btn-next');
+  const press = async (wait = 700) => { await primary.click(); await a.waitForTimeout(wait); };
+  await press(); // step 2
+  ok('the step action is the one primary button', (await primary.textContent()).includes('Reserve seat F12'));
+  // Gating: → must not skip a required action (A1).
+  await a.keyboard.press('ArrowRight');
+  await a.waitForTimeout(300);
+  ok('→ key cannot skip a required action', (await a.locator('.controls .count-long').textContent()) === 'Step 2 of 12');
+  await press(1300); // Reserve
+  for (let i = 0; i < 4; i++) await press(500); // to step 6 (code)
+  await press(); // Run reserve() for Maya
+  await press(); // Run reserve() for Leo
   await a.getByRole('button', { name: /“Sold out”/ }).click();
   await a.locator('button.snip-line', { hasText: 'if seat.is_reserved:' }).click();
-  await a.locator('.controls .btn-next').click(); // step 7
-  await a.locator('.controls .btn-next').click(); // step 8 predict
+  await press(); // step 7
+  await press(); // step 8 predict
+  await a.keyboard.press('ArrowRight');
+  await a.waitForTimeout(300);
+  ok('→ key cannot skip a required prediction', (await a.locator('.controls .count-long').textContent()) === 'Step 8 of 12');
+  await a.locator('.steps-toggle').click();
+  ok('the step list locks steps past the prediction', await a.locator('#steps-list button', { hasText: 'Run the race' }).isDisabled());
+  await a.locator('.steps-toggle').click();
   await a.getByRole('button', { name: /Both are told “Confirmed”/ }).click();
   ok('prediction is recorded', await a.getByText('Prediction saved.').isVisible());
-  await a.locator('.controls .btn-next').click(); // step 9 race
-  for (let i = 0; i < 8; i++) {
-    const b = a.getByRole('button', { name: /^(Start: both press Reserve|Next event ▸)$/ });
-    if (await b.isEnabled()) await b.click();
+  await press(); // step 9 race
+  // Rapid clicks on the race's event button must not skip or duplicate events.
+  await primary.click();
+  await primary.click({ delay: 0 }).catch(() => {});
+  await a.waitForTimeout(200);
+  ok('a double click advances the race by one event only', (await primary.textContent()).includes('Next event (2 of'));
+  for (let i = 0; i < 9; i++) {
+    if (!(await primary.textContent()).match(/Next event|Start:/)) break;
+    await press(1000);
   }
   ok('experiment runs to two confirmations', await a.getByRole('heading', { name: 'Two confirmations, one seat' }).isVisible());
-  await a.locator('.controls .btn-next').click(); // step 10 draft
+  await press(); // step 10 draft
   const draftText = `Both reads saw available before either write (${rand}).`;
   await a.locator('textarea').first().fill(draftText);
   // Draw a stroke on the sketch to verify drawings persist too.
@@ -89,8 +107,8 @@ try {
   await signIn(b, emailA, 'login');
   await waitSynced(b);
   await b.goto(`${base}/`);
-  const cont = b.locator('.continue-card');
-  ok('second browser shows Continue learning', await cont.isVisible());
+  const cont = b.locator('.resume-panel a.btn-primary');
+  ok('second browser shows the unfinished activity as the primary action', (await cont.textContent()).includes('Continue at step 10'));
   await cont.click();
   await b.waitForSelector('textarea');
   ok('second browser resumes the exact step', (await b.locator('.controls .count-short').textContent()) === '10/12');
@@ -148,20 +166,74 @@ try {
   ok('server session is gone after sign-out', apiAfter === 401);
 
   // ---------- Fill one blank: real Python runs in the browser ----------
-  const ctxD = await browser.newContext();
-  const d = await ctxD.newPage();
-  d.on('pageerror', (e) => errors.push(String(e)));
+  // Learner A has passed every gate, so the step list can jump straight to the last step.
+  const d = a;
   await d.goto(`${base}/learn/first-booking`);
-  await d.getByRole('button', { name: '12', exact: true }).click();
+  await d.locator('.steps-toggle').click();
+  await d.locator('#steps-list button', { hasText: 'The seat itself (LLD)' }).click();
   const blank = d.getByLabel('Missing expression');
   await blank.fill('seat.buyer is None');
   await d.getByRole('button', { name: 'Run the checks' }).click();
-  await d.waitForSelector('text=/checks pass|✕/', { timeout: 90000 });
+  await d.waitForSelector('text=/checks pass|Fail:/', { timeout: 90000 });
   ok('a wrong blank fails the Python checks', (await d.getByText(/All [0-9]+ checks pass/).count()) === 0);
   await blank.fill('seat.is_reserved');
   await d.getByRole('button', { name: 'Run the checks' }).click();
   await d.waitForSelector('text=/All [0-9]+ checks pass/', { timeout: 60000 });
   ok('the right blank passes the Python checks in the browser', true);
+  const statusA = await d.evaluate(() => {
+    for (const k of Object.keys(localStorage)) if (k.startsWith('sdm:v1:user:')) return JSON.parse(localStorage.getItem(k)).records['status:first-booking']?.value;
+    return null;
+  });
+  ok('a blank solved on the second try counts as solved with help, not independently', statusA === 'hinted', String(statusA));
+
+  // ---------- Evidence: a retry after a miss never counts as independent; self-ratings never count ----------
+  const ctxF = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const f = await ctxF.newPage();
+  f.on('pageerror', (e) => errors.push(String(e)));
+  const guestRec = (key) => f.evaluate((k) => JSON.parse(localStorage.getItem('sdm:v1:guest') ?? '{"records":{}}').records[k]?.value ?? null, key);
+  await f.goto(`${base}/labs/lab-lru`);
+  await f.locator('.question .choice').first().click();
+  await f.locator('.controls .btn-next').click(); await f.waitForTimeout(600);
+  for (let i = 0; i < 3; i++) { await f.locator('.controls .btn-next').click(); await f.waitForTimeout(800); }
+  ok('LRU lab: the experiment is stepped from the control row', (await f.locator('.op-list li.current').count()) === 1);
+  await f.locator('.controls .btn-next').click(); await f.waitForTimeout(500);
+  await f.locator('.controls .btn-next').click(); await f.waitForTimeout(500);
+  const freshPrompt1 = await f.locator('.question h3').first().textContent();
+  // Evidence rule: the first answer decides. A right answer after a miss counts as solved with help.
+  await f.locator('.question .choice').first().click();
+  await f.waitForTimeout(300);
+  const firstWasWrong = (await f.locator('.question .choice.wrong').count()) > 0;
+  if (firstWasWrong) {
+    const rightText = (await f.locator('.question .choice.right').textContent()).trim();
+    await f.getByRole('button', { name: /Try again/ }).click();
+    await f.locator('.question .choice', { hasText: rightText }).first().click();
+    await f.waitForTimeout(300);
+  }
+  const labStatus = await guestRec('status:lab-lru');
+  ok(firstWasWrong ? 'a right answer after a miss counts as solved with help' : 'a right first answer counts as solved independently', labStatus === (firstWasWrong ? 'hinted' : 'independent'), String(labStatus));
+  ok('LRU lab: after answering, a confidence question is offered separately', await f.getByText('How sure were you before you saw the answer?').isVisible());
+  await f.getByRole('button', { name: 'I guessed' }).click();
+  const selfLab = await guestRec('self:lab-lru');
+  ok('confidence is stored as self-assessment', !!selfLab?.confidence && Object.values(selfLab.confidence).includes('guess'));
+  await f.getByRole('button', { name: 'Another cache state' }).click();
+  await f.waitForTimeout(400);
+  const freshPrompt2 = await f.locator('.question h3').first().textContent();
+  ok('LRU lab: “Another cache state” gives a new, unanswered problem', freshPrompt2 !== freshPrompt1 && (await f.locator('.question .choice:disabled').count()) === 0);
+
+  // Independent case: the reference design is hidden until the learner saves an answer.
+  await f.goto(`${base}/cases/case-notifications`);
+  await f.getByRole('button', { name: /Independent attempt/ }).click();
+  ok('independent case hides the reference design', (await f.locator('section[aria-label="Design diagram"]').count()) === 0 && await f.locator('svg.workspace').isVisible());
+  ok('independent case cannot reveal before answering', await f.getByRole('button', { name: 'Save my answer and open the reference' }).isDisabled());
+  await f.locator('textarea').first().fill('Ticket confirmations must arrive; promos can be dropped; at-least-once with dedup.');
+  await f.getByRole('button', { name: 'Save my answer and open the reference' }).click();
+  ok('after saving, the answer and the reference sit side by side', await f.getByRole('heading', { name: 'Your answer' }).isVisible() && await f.getByRole('heading', { name: 'Reference' }).isVisible());
+  await f.locator('.steps-toggle').click();
+  await f.locator('#steps-list button', { hasText: 'Check yourself' }).click();
+  for (const area of await f.locator('.question [role=radiogroup]').all()) await area.getByRole('radio', { name: 'Strong' }).click();
+  ok('rating every rubric area “Strong” does not mark the case solved', (await guestRec('status:case-notifications')) !== 'independent');
+  ok('rubric ratings are stored as self-assessment', !!(await guestRec('self:case-notifications'))?.ratings);
+  await ctxF.close();
 
   // ---------- Interview workspace persists a diagram across reloads ----------
   const ctxE = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -183,7 +255,7 @@ try {
 
   // ---------- Capstone loads and its surprise step is reachable ----------
   await iv.goto(`${base}/capstone/capstone`);
-  for (let i = 0; i < 2; i++) await iv.locator('.controls .btn-next').click();
+  for (let i = 0; i < 2; i++) { await iv.locator('.controls .btn-next').click(); await iv.waitForTimeout(400); }
   ok('capstone shows the surprise requirement at step 3', await iv.getByText('Surprise requirement').isVisible());
 
   ok('no uncaught page errors', errors.length === 0, errors.slice(0, 3).join(' | '));

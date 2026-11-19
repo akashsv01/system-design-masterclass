@@ -7,9 +7,11 @@
 - [x] Audit of running product (desktop + mobile), brief findings reproduced → `docs/DESIGN_REVIEW.md` Review 4
 - [x] Reference re-study → `docs/DESIGN.md` §1b, decisions D12–D18
 - [x] Fix misleading exercises / broken flows: fan-out independence + correlated case; throughput 2,400/s; LRU lab (graded eviction puzzles, fresh cache states, confidence separate); cases guided vs independent; booking race one primary action; upright layer labels; replica-lag copy choice at 10:00:01 (write 10:00:00, copy 10:00:02)
-- [~] Design system: tokens, self-hosted fonts (Inter / Source Serif 4 / JetBrains Mono), SVG icon set, buttons/segmented/choices states, placeholders, metrics strip. **Still to do:** Home, Topics catalog (decision lines), Practice, Progress, Interview picker
+- [x] Design system: tokens, self-hosted fonts (Inter / Source Serif 4 / JetBrains Mono), SVG icon set, buttons/segmented/choices states, placeholders, metrics strip
+- [x] Screens: Home (first visit: question + teaser + Start from scratch; return: exact step), Topics (search, module chips, 124 unique “You decide” lines in `src/content/decisions.ts`, audited), Practice (one recommendation + reason, useful empty states), Progress (can-do from evidence, notebook, schedule, self-assessment apart), Interview picker
 - [x] One primary action in the control row; `reachable` gating (keys, step list, Next); click lock
-- [~] Evidence model (`src/progress/evidence.ts`): first-attempt outcomes, required checks per topic, revision rounds, self-assessment under `self:`. **Still to do:** Progress page and Practice page using it
+- [x] Evidence model (`src/progress/evidence.ts`): first-attempt outcomes, required checks per topic, revision rounds, self-assessment under `self:`; capstone has 2 graded transfer checks
+- [x] e2e 41/41 (`scripts/e2e.mjs`): adds gating, double-click, LRU fresh states, confidence separate, independent case hides reference, rubric never marks solved, retry → hinted
 - [ ] Curriculum + sources audit
 - [ ] Final verification (tests, e2e, a11y, screenshots, recording)
 - **Decisions in force:** MASTER_PROMPT Amendments 1–4 (Python 3 learner code, visual-first, small required exercises, full curriculum preserved). Lesson rules: `docs/LESSON_GUIDE.md` (step titles ≤ 40 chars, chart notes for units/illustrative data, narrow layouts).

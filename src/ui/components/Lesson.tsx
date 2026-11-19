@@ -12,7 +12,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecord } from '../../progress/ProgressProvider';
+import { useProgress, useRecord } from '../../progress/ProgressProvider';
 import { useMarkStarted } from '../../progress/activity';
 import type { Source } from '../../content/types';
 import { Icon } from './Icon';
@@ -156,8 +156,10 @@ export function ChangeList({ changes }: { changes: Change[] }) {
 export interface PrimaryAction {
   label: string;
   onClick: () => void;
-  /** Minimum time between two accepted clicks (ms). Defaults to 450; lower under reduced motion. */
+  /** Minimum time between two accepted clicks of the same action family (ms), so its animation can play. Defaults to 450. */
   lockMs?: number;
+  /** Actions in one family share the lock (e.g. "Start the race" and "Next event"). Defaults to the label's first word. */
+  family?: string;
 }
 
 export function Controls({
@@ -193,11 +195,26 @@ export function Controls({
   const last = step >= count - 1;
   const lastClick = useRef(0);
   const [open, setOpen] = useState(false);
+  const { store } = useProgress();
   useEffect(() => setOpen(false), [step]);
-  const guarded = (fn: () => void, ms: number) => () => {
+  // Remember the exact step for "Continue" on the home page. Runs after LessonShell has recorded which activity this is.
+  const stepTitle = steps?.[step];
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const cur = store.get<{ id: string; at: number; step?: number; stepTitle?: string; count?: number }>('pref:last-activity');
+      if (cur && (cur.step !== step || cur.stepTitle !== stepTitle || cur.count !== count)) store.set('pref:last-activity', { ...cur, step, count, stepTitle });
+    }, 0);
+    return () => clearTimeout(t);
+  }, [step, count, stepTitle, store]);
+  // Repeating the same action waits for its animation (ms); a different button only needs a double-click guard,
+  // so a deliberate click is never silently ignored.
+  const lastLabel = useRef('');
+  const guarded = (fn: () => void, ms: number, label: string) => () => {
     const now = Date.now();
-    if (now - lastClick.current < (prefersReducedMotion() ? Math.min(ms, 150) : ms)) return;
+    const wait = label === lastLabel.current ? ms : 300;
+    if (now - lastClick.current < (prefersReducedMotion() ? Math.min(wait, 150) : wait)) return;
     lastClick.current = now;
+    lastLabel.current = label;
     fn();
   };
   const reach = reachable ?? count - 1;
@@ -227,14 +244,14 @@ export function Controls({
           )}
         </span>
         {action ? (
-          <button className="btn btn-primary btn-next is-action" onClick={guarded(action.onClick, action.lockMs ?? 450)}>
+          <button className="btn btn-primary btn-next is-action" onClick={guarded(action.onClick, action.lockMs ?? 450, action.family ?? action.label.split(' ')[0])}>
             <span className="next-text"><span className="next-name">{action.label}</span></span>
             <Icon name="play" size={14} />
           </button>
         ) : !last ? (
           <button
             className="btn btn-primary btn-next"
-            onClick={guarded(onNext, 250)}
+            onClick={guarded(onNext, 250, 'next')}
             disabled={nextDisabled}
             title={nextDisabled ? nextHint : undefined}
             aria-describedby={nextDisabled ? 'gate-reason' : undefined}
@@ -393,7 +410,6 @@ export function Question({
               {picked === correct ? 'Right.' : 'Not this one.'}
             </p>
           )}
-          {!correct && isPrediction && <p className="muted small" style={{ marginTop: 0 }}>Prediction saved. You’ll see what actually happens next.</p>}
           {explain(picked!)}
           {correct && saved && saved.attempts.length > 1 && firstRight === false && (
             <p className="muted small">Your first answer was recorded as a miss, so this one counts as solved with help.</p>

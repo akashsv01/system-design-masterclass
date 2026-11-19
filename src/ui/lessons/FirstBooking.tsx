@@ -184,7 +184,7 @@ export default function FirstBooking() {
       : step === 5 && codeClicks < 2
         ? { label: codeClicks === 0 ? 'Run reserve() for Maya' : 'Run reserve() for Leo', onClick: () => setCodeClicks(codeClicks + 1) }
         : step === 8 && raceShown < race.length
-          ? { label: raceShown === 0 ? 'Start: both press Reserve' : `Next event (${raceShown + 1} of ${race.length})`, onClick: () => setRaceShown(Math.min(race.length, raceShown + 1)), lockMs: 900 }
+          ? { label: raceShown === 0 ? 'Start: both press Reserve' : `Next event (${raceShown + 1} of ${race.length})`, onClick: () => setRaceShown(Math.min(race.length, raceShown + 1)), lockMs: 900, family: 'race' }
           : undefined;
   const lastEvent = phase.events[phase.shown - 1];
 

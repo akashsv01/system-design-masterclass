@@ -3,7 +3,8 @@
  *   npx tsx scripts/coverage-report.ts          → writes docs/COVERAGE.md
  *   npx tsx scripts/coverage-report.ts --check  → also exits 1 on any error
  *
- * Checks: missing prerequisites, prerequisite cycles, duplicate ids/titles/routes, orphan content,
+ * Checks: missing prerequisites, prerequisite cycles, duplicate ids/titles/routes, missing or duplicate
+ * catalog decision lines, orphan content,
  * topics marked complete without assessment, broken internal links, invalid answer keys, next-lesson ids,
  * and master-prompt scope terms not covered by any topic.
  */
@@ -15,6 +16,7 @@ import { LABS } from '../src/content/labs';
 import { SCOPE } from './scope-terms';
 import { GOF } from '../src/content/gof';
 import type { Check } from '../src/content/lessonTypes';
+import { DECISIONS } from '../src/content/decisions';
 
 const errors: string[] = [];
 const warnings: string[] = [];
@@ -33,6 +35,16 @@ for (const t of CURRICULUM) {
   if (!MODULES.some((m) => m.id === t.module)) errors.push(`${t.id}: unknown module ${t.module}`);
   for (const p of t.prereqs) if (!ids.has(p)) errors.push(`${t.id}: missing prerequisite "${p}"`);
 }
+
+// Catalog decision lines (brief §3 B7): every topic has one, and no two are the same.
+const decisionSeen = new Map<string, string>();
+for (const t of CURRICULUM) {
+  const d = DECISIONS[t.id];
+  if (!d) errors.push(`${t.id}: no catalog decision line in src/content/decisions.ts`);
+  else if (decisionSeen.has(d.toLowerCase())) errors.push(`${t.id}: decision line duplicates ${decisionSeen.get(d.toLowerCase())}`);
+  else decisionSeen.set(d.toLowerCase(), t.id);
+}
+for (const id of Object.keys(DECISIONS)) if (!ids.has(id)) errors.push(`decisions.ts: "${id}" is not a topic`);
 
 // Cycles
 const state = new Map<string, 0 | 1 | 2>();
