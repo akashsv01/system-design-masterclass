@@ -7,7 +7,7 @@ Four separate kinds of evidence, never merged:
 
 - **Implementation:** 124 of 124 topics have an explanation, worked example, exercise and assessment.
 - **Technical verification:** 124 topics render every step at desktop and phone sizes without errors (`scripts/review-lessons.cjs`); tests, Python checks and simulations are listed in `docs/DESIGN_REVIEW.md`.
-- **Source verification:** 72 of 96 distinct cited sections were read and compared with the lessons; 91 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
+- **Source verification:** 72 of 94 distinct cited sections were read and compared with the lessons; 91 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
 - **Independent editorial review:** 0 topics (only a human reviewer can add one, in `src/content/reviews.json`).
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
@@ -121,10 +121,10 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
 | [Responsibilities and encapsulation](/learn/responsibilities) | verified | generic | bridge-interfaces, hld-vs-lld | Assign responsibilities to classes, hide data behind behaviour, and define interfaces around roles. | 3/4 |
-| [Polymorphism and composition](/learn/polymorphism-composition) | verified | generic | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 3/5 |
+| [Polymorphism and composition](/learn/polymorphism-composition) | verified | generic | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 3/4 |
 | [Cohesion and coupling](/learn/cohesion-coupling) | verified | generic | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 3/4 |
-| [SOLID](/learn/solid) | verified | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 2/3 |
-| [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2/3 |
+| [SOLID](/learn/solid) | verified | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 1/2 |
+| [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 2/2 |
 | [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2/2 |
 | [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 3/3 |
 | [UML diagrams](/learn/uml) | verified | generic | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 0/1 |
@@ -137,7 +137,7 @@ Audit: 0 error(s), 0 warning(s).
 | [Observer (refactoring)](/learn/pattern-observer) | verified | generic | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 1/3 |
 | [State (refactoring)](/learn/pattern-state) | verified | generic | state-machines, gof-reference | Move state-specific behaviour into State objects. | 1/2 |
 | [Decorator (refactoring)](/learn/pattern-decorator) | verified | generic | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 1/2 |
-| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | verified | generic | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 4/6 |
+| [Factory and Builder (refactoring)](/learn/pattern-factory-builder) | verified | generic | gof-reference | Use Factory Method and Builder to make object creation readable and valid. | 4/5 |
 | [Adapter (refactoring)](/learn/pattern-adapter) | verified | generic | gof-reference | Wrap an incompatible interface with an Adapter so the domain code stays unchanged. | 1/2 |
 | [Command (refactoring)](/learn/pattern-command) | verified | generic | gof-reference | Represent operations as Command objects to queue, log and undo them. | 1/2 |
 
