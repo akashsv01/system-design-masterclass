@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "skills": {
+    "huashu-art-motion": {
+      "source": "alchaincyf/huashu-art-motion",
+      "commit": "a97c45018d46e950d56d61981138e08f4e092909",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "daecc7e7ed6d139f72dd798fb7a891988c964c07e4fa20c1856ea8df9e735098",
+      "installMode": "copy"
+    },
+    "motion-design": {
+      "source": "richtabor/agent-skills",
+      "commit": "89eb2e97fdde10396972ad38200a57afffd11226",
+      "sourceType": "github",
+      "skillPath": "skills/motion-design/SKILL.md",
+      "computedHash": "ccc5b4d6b4c574e256c5221f5b92fbfb00da1468e927eb06df23ead3e5f07064",
+      "installMode": "copy"
+    },
+    "reference-to-motion": {
+      "source": "charlie947/motion-graphics-skills",
+      "commit": "229022ebca76972e119e36ada23a1648d51665ab",
+      "sourceType": "github",
+      "skillPath": "skills/reference-to-motion/SKILL.md",
+      "computedHash": "e090335adae1b0233d00fe2e341c19b0a02a18579af7b61765164655de45934f",
+      "installMode": "copy"
+    }
+  }
+}

@@ -18,6 +18,16 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
 - [ ] Journeys in e2e (desktop + 390), a11y, screenshots, docs, push
 
+### Authoring tools (installed 2026-11-20; not site dependencies — nothing added to package.json)
+| Tool | State | Notes |
+|---|---|---|
+| Figma plugin | Installed (`figma@synced` 2.2.211, skills load) | MCP `mcp.figma.com` refused by the environment network policy and needs the owner's Figma sign-in: connect Figma at claude.ai/customize/connectors, then start a new session. |
+| Impeccable 4.10.0 | Skill + 5 agents copied to `.claude/` from the GitHub source (the installer's bundle host impeccable.style is unreachable); engine binary runs; design hook enabled locally (`.claude/settings.local.json`, not committed) | Use `.claude/skills/impeccable/scripts/impeccable detect --json --changed` and `shot`. |
+| motion-design (richtabor/agent-skills) | `.claude/skills/motion-design` | Duration/easing tokens adopted in `styles.css`. |
+| reference-to-motion (charlie947/motion-graphics-skills) | `.claude/skills/reference-to-motion` | Needs a reference recording; none supplied yet. |
+| huashu-art-motion | `.claude/skills/huashu-art-motion` (26 MB, git-ignored; restore with `npx skills experimental_install`) | Used for storyboards (`docs/STORYBOARDS.md`); its renderer needs uv + ffmpeg. |
+Skills installed mid-session load in the next session; this session applies them by reading their SKILL.md files.
+
 ## Workbench progress (2026-11-20) — paused after the outline model (`9cd02ad`)
 - [x] Baseline run, newcomer find-and-return test, captures at 1280/820/390/360, critique #1 (design-critique skill + Fable reviewer; Impeccable not installed)
 - [x] Reference navigation study; two compositions (home, reader) explored and chosen
