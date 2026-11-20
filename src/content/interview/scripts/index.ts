@@ -12,6 +12,7 @@ import { lldBooking } from './lldBooking';
 import { lldElevator } from './lldElevator';
 import { lldExpenseSharing } from './lldExpenseSharing';
 import { lldLibrary } from './lldLibrary';
+import { lldLiveScores } from './lldLiveScores';
 import { lldLru } from './lldLru';
 import { lldNotifications } from './lldNotifications';
 import { lldParkingLot } from './lldParkingLot';
@@ -30,4 +31,4 @@ import { urlShortener } from './urlShortener';
 import { video } from './video';
 
 /** Authored interview scripts by case id. Every published case must have one (audit:content). */
-export const SCRIPTS: Record<string, InterviewScript> = Object.fromEntries([autocomplete, chat, checkout, collabEditor, crawler, feed, fileSync, liveScores, lldBoardGame, lldBooking, lldElevator, lldExpenseSharing, lldLibrary, lldLru, lldNotifications, lldParkingLot, lldRateLimiter, lldScheduler, lldShoppingCart, lldVendingMachine, metrics, notifications, payments, rateLimiter, rideMatching, scheduler, ticketBooking, urlShortener, video].map((s) => [s.caseId, s]));
+export const SCRIPTS: Record<string, InterviewScript> = Object.fromEntries([autocomplete, chat, checkout, collabEditor, crawler, feed, fileSync, liveScores, lldBoardGame, lldBooking, lldElevator, lldExpenseSharing, lldLibrary, lldLiveScores, lldLru, lldNotifications, lldParkingLot, lldRateLimiter, lldScheduler, lldShoppingCart, lldVendingMachine, metrics, notifications, payments, rateLimiter, rideMatching, scheduler, ticketBooking, urlShortener, video].map((s) => [s.caseId, s]));
