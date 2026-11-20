@@ -5,6 +5,9 @@
 > `docs/SPEC_2026-11-18.md`. Where compatible (curriculum breadth, Python 3 learner code, small required exercises,
 > honest evidence and review status, public access, saved work), they still apply.
 >
+> **Active now: the Interview Simulator Brief (2026-11-20)** in `docs/INTERVIEW_BRIEF_2026-11-20.md`, received while
+> this brief was in progress. The Workbench navigator work is paused after the outline model and resumes afterwards.
+>
 > Future sessions: read this, then `docs/RESUME.md`, then continue from the first unmet acceptance criterion.
 
 ---

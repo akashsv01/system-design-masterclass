@@ -7,10 +7,21 @@
 - **Workbench baseline:** `main` @ `ce05e7d` (2026-11-20). Critique #1 and measured find-and-return test:
   `docs/DESIGN_REVIEW.md` Review 6; captures `docs/screens/baseline-2026-11-20/`.
 
-## Workbench progress (2026-11-20)
+## Interview simulator (active, 2026-11-20) — brief in `docs/INTERVIEW_BRIEF_2026-11-20.md`
+Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-booking (HLD) and lld-parking-lot (LLD) at
+1280 and 390 (captures in the session scratchpad, findings in `docs/DESIGN_REVIEW.md` Review 7).
+- [x] Baseline play-through and findings
+- [ ] Engine: script schema, design graph + undo, follow-up rules, sims (trace/failure, timeline, states, data model, queue, roles), tests
+- [ ] Workspace builder (palette, drag, handles, tap “Connect to”, labelled direction, undo/redo, auto-arrange, keyboard list)
+- [ ] Session shell (interviewer brief, clarify/assume, guided vs mock, help ladder, my design vs worked solution, debrief, mobile tabs, resume, v1 record migration)
+- [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
+- [ ] Remaining 29 cases carried through; interview audit in `audit:content`
+- [ ] Journeys in e2e (desktop + 390), a11y, screenshots, docs, push
+
+## Workbench progress (2026-11-20) — paused after the outline model (`9cd02ad`)
 - [x] Baseline run, newcomer find-and-return test, captures at 1280/820/390/360, critique #1 (design-critique skill + Fable reviewer; Impeccable not installed)
-- [ ] Reference navigation study; two compositions (home, reader) explored and chosen
-- [ ] Category → Module → Lesson outline in the manifest; navigator (sidebar, drawer, search, memory, resume); prev/next lesson
+- [x] Reference navigation study; two compositions (home, reader) explored and chosen
+- [~] Category → Module → Lesson outline in the manifest (done, audited); navigator (sidebar, drawer, search, memory, resume); prev/next lesson
 - [ ] Homepage experiment carried into lesson 1; previews; mobile composition
 - [ ] Reader/identity pass; quantitative lesson, lab, independent case; labs/practice/interview/progress; critique #2
 - [ ] Verification (navigation acceptance test, e2e, a11y, widths, themes, motion), docs, push
