@@ -7,7 +7,7 @@ Four separate kinds of evidence, never merged:
 
 - **Implementation:** 124 of 124 topics have an explanation, worked example, exercise and assessment.
 - **Technical verification:** 124 topics render every step at desktop and phone sizes without errors (`scripts/review-lessons.cjs`); tests, Python checks and simulations are listed in `docs/DESIGN_REVIEW.md`.
-- **Source verification:** 72 of 94 distinct cited sections were read and compared with the lessons; 91 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
+- **Source verification:** 85 of 107 distinct cited sections were read and compared with the lessons; 103 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
 - **Independent editorial review:** 0 topics (only a human reviewer can add one, in `src/content/reviews.json`).
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
@@ -18,7 +18,7 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 0/2 |
+| [Your first system](/learn/first-booking) | verified | custom | — | Trace one request through client, server and database, and explain why two overlapping reservations can both succeed. | 2/4 |
 | [HLD and LLD](/learn/hld-vs-lld) | verified | generic | first-booking | Tell apart a high-level design question from a low-level design question about the same feature, and say which artifacts each produces. | 0/2 |
 
 ## Programming bridges
@@ -36,8 +36,8 @@ Audit: 0 error(s), 0 warning(s).
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Inside a request](/learn/inside-a-request) | verified | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 4/5 |
-| [TCP vs UDP](/learn/tcp-udp) | verified | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 2/3 |
+| [Inside a request](/learn/inside-a-request) | verified | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 5/6 |
+| [TCP vs UDP](/learn/tcp-udp) | verified | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 3/4 |
 | [HTTP, REST and RPC](/learn/http-rest-rpc) | verified | generic | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3/3 |
 | [Polling, SSE, WebSockets](/learn/realtime-delivery) | verified | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 3/3 |
 | [Processes and threads](/learn/processes-threads) | verified | generic | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2/2 |
@@ -46,44 +46,44 @@ Audit: 0 error(s), 0 warning(s).
 | [Request tracing](/labs/lab-request-tracing) | verified | lab | inside-a-request, latency | Read a request trace and identify the span that dominates latency, then predict the effect of a fix. | 1/1 |
 | [Throughput and bandwidth](/learn/throughput-bandwidth) | verified | generic | latency | Relate throughput, latency and concurrency (Little’s law), and distinguish throughput from bandwidth. | 1/2 |
 | [Capacity estimation](/learn/capacity-estimation) | verified | generic | throughput-bandwidth | Estimate requests per second, peak load, storage and bandwidth from stated assumptions, with units and arithmetic. | 0/2 |
-| [Availability](/learn/availability) | verified | generic | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 1/2 |
-| [Stateless services and scaling](/learn/stateless-scaling) | verified | generic | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 0/2 |
+| [Availability](/learn/availability) | verified | generic | latency | Convert availability percentages to downtime budgets and compute the availability of serial and redundant components. | 2/3 |
+| [Stateless services and scaling](/learn/stateless-scaling) | verified | generic | capacity-estimation, processes-threads | Explain stateful vs stateless services and when to scale vertically or horizontally. | 1/3 |
 
 ## Data systems
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Access patterns and schemas](/learn/access-patterns) | verified | generic | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 0/1 |
-| [Normalization](/learn/normalization) | verified | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 0/1 |
+| [Access patterns and schemas](/learn/access-patterns) | verified | generic | bridge-sql | List an application’s read and write access patterns and derive a schema from them. | 2/3 |
+| [Normalization](/learn/normalization) | verified | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 1/2 |
 | [Indexes and query plans](/learn/indexes) | verified | generic | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 2/3 |
-| [Data models](/learn/data-models) | verified | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 2/3 |
+| [Data models](/learn/data-models) | verified | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 3/4 |
 | [Storage engines](/learn/storage-engines) | verified | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 3/5 |
 | [Transactions and isolation](/learn/transactions) | verified | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 2/3 |
 | [Locking and MVCC](/learn/locking-mvcc) | verified | generic | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 2/3 |
 | [Concurrent reservations](/labs/concurrent-reservations) | verified | lab | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 1/2 |
-| [Replication lag](/learn/replica-lag) | verified | custom | first-booking | Explain asynchronous replication lag, predict a stale read, and compare read-your-writes strategies by cost. | 0/1 |
-| [Failover](/learn/failover) | verified | generic | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 1/2 |
-| [Stale reads](/labs/lab-stale-reads) | verified | lab | replica-lag | Measure the fraction of stale reads as lag and routing change. | 0/1 |
+| [Replication lag](/learn/replica-lag) | verified | custom | first-booking | Explain asynchronous replication lag, predict a stale read, and compare read-your-writes strategies by cost. | 1/2 |
+| [Failover](/learn/failover) | verified | generic | replica-lag | Walk through leader failover, data loss windows and split brain, and choose sync vs async replicas. | 2/3 |
+| [Stale reads](/labs/lab-stale-reads) | verified | lab | replica-lag | Measure the fraction of stale reads as lag and routing change. | 1/2 |
 | [Caching](/learn/caching) | verified | generic | memory-disk, replica-lag | Choose cache placement (client, CDN, service, database) and a write strategy, and predict hit-rate effects. | 1/2 |
 | [Invalidation and stampedes](/learn/cache-invalidation) | verified | generic | caching | Compare TTLs, explicit invalidation and versioned keys; prevent a cache stampede. | 1/1 |
 | [LRU cache](/learn/lru-cache) | verified | custom | bridge-maps, bridge-linked-lists | Predict LRU evictions, then explain from the worked Python code how a dict plus a doubly linked list make every operation O(1). | 2/2 |
 | [Cache behaviour](/labs/lab-cache) | verified | lab | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1/1 |
 | [LRU operations](/labs/lab-lru) | verified | lab | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0/0 |
-| [Sharding](/learn/sharding) | verified | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 0/1 |
-| [Consistent hashing](/learn/consistent-hashing) | verified | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 2/3 |
+| [Sharding](/learn/sharding) | verified | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 2/3 |
+| [Consistent hashing](/learn/consistent-hashing) | verified | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 4/5 |
 | [Partitioning and hot spots](/labs/lab-hot-spots) | verified | lab | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 0/1 |
 
 ## Distributed systems (HLD)
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Requirements](/learn/requirements) | verified | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 0/2 |
-| [API design](/learn/api-design) | verified | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 1/2 |
-| [Proxies and gateways](/learn/proxies-gateways) | verified | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 1/2 |
+| [Requirements](/learn/requirements) | verified | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 2/4 |
+| [API design](/learn/api-design) | verified | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 3/4 |
+| [Proxies and gateways](/learn/proxies-gateways) | verified | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 3/4 |
 | [Load balancing](/learn/load-balancing) | verified | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2/2 |
-| [CDNs](/learn/cdn) | verified | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 1/2 |
+| [CDNs](/learn/cdn) | verified | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 2/3 |
 | [Overload and load balancing](/labs/lab-load-balancing) | verified | lab | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2/2 |
-| [Timeouts and partial failure](/learn/timeouts) | verified | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 2/4 |
+| [Timeouts and partial failure](/learn/timeouts) | verified | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 4/6 |
 | [Retries, backoff, jitter](/learn/retries) | verified | generic | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2/2 |
 | [Idempotency](/learn/idempotency) | verified | generic | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2/2 |
 | [Payment retries](/labs/lab-payment-retries) | verified | lab | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2/2 |
@@ -91,30 +91,30 @@ Audit: 0 error(s), 0 warning(s).
 | [Consistency models](/learn/consistency-models) | verified | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 1/2 |
 | [CAP and quorums](/learn/cap-quorums) | verified | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 2/3 |
 | [Consensus and Raft](/learn/consensus) | verified | generic | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 3/4 |
-| [Queues and pub/sub](/learn/queues) | verified | generic | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 1/2 |
+| [Queues and pub/sub](/learn/queues) | verified | generic | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 2/3 |
 | [Logs and delivery guarantees](/learn/logs-delivery) | verified | generic | queues, idempotency | Explain partitioned logs, consumer groups, offsets and at-most/at-least/effectively-once delivery. | 0/1 |
 | [Backpressure](/learn/backpressure) | verified | generic | queues, throughput-bandwidth | Compute backlog growth and drain time, and apply backpressure or load shedding. | 3/3 |
 | [Batch and stream](/learn/batch-stream) | verified | generic | logs-delivery | Compare batch and stream processing; use event time, windows and watermarks for late data. | 1/3 |
 | [Queue backlog](/labs/lab-queue-backlog) | verified | lab | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1/1 |
 | [Sagas and outbox](/learn/distributed-transactions) | verified | generic | transactions, queues, idempotency | Compare two-phase commit with sagas, design compensations, and use the outbox pattern to publish reliably. | 1/2 |
-| [CQRS and event sourcing](/learn/cqrs-event-sourcing) | verified | generic | distributed-transactions, logs-delivery | Separate write and read models (CQRS) and derive state from an event log (event sourcing), with costs. | 0/2 |
+| [CQRS and event sourcing](/learn/cqrs-event-sourcing) | verified | generic | distributed-transactions, logs-delivery | Separate write and read models (CQRS) and derive state from an event log (event sourcing), with costs. | 2/4 |
 
 ## Architecture and operations
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Monolith vs microservices](/learn/monolith-microservices) | verified | generic | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 1/2 |
-| [Schema evolution](/learn/schema-evolution) | verified | generic | api-design | Plan backward- and forward-compatible changes with expand/contract migrations. | 0/1 |
-| [Multitenancy](/learn/multitenancy) | verified | generic | sharding | Compare shared, pooled and isolated tenancy models and limit noisy neighbours. | 1/2 |
-| [Multi-region](/learn/multi-region) | verified | generic | failover, cap-quorums | Compare active-passive and active-active multi-region designs by latency, consistency and cost. | 1/2 |
+| [Monolith vs microservices](/learn/monolith-microservices) | verified | generic | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 2/3 |
+| [Schema evolution](/learn/schema-evolution) | verified | generic | api-design | Plan backward- and forward-compatible changes with expand/contract migrations. | 1/2 |
+| [Multitenancy](/learn/multitenancy) | verified | generic | sharding | Compare shared, pooled and isolated tenancy models and limit noisy neighbours. | 2/3 |
+| [Multi-region](/learn/multi-region) | verified | generic | failover, cap-quorums | Compare active-passive and active-active multi-region designs by latency, consistency and cost. | 4/5 |
 | [Authentication and authorization](/learn/authn-authz) | verified | generic | http-rest-rpc | Distinguish authentication from authorization; compare sessions and tokens; outline OAuth 2.0 and OIDC flows. | 3/3 |
 | [Encryption and privacy](/learn/encryption-privacy) | verified | generic | authn-authz | Apply encryption in transit and at rest, hash passwords properly, and minimise personal data. | 1/1 |
 | [Rate limiting](/learn/rate-limiting) | verified | generic | throughput-bandwidth | Trace token bucket and sliding window limiters step by step, compare their behaviour on bursts, and choose where to enforce them. | 1/2 |
 | [Observability](/learn/observability) | verified | generic | latency | Use logs, metrics and traces together to localise a slow request. | 1/1 |
 | [SLIs, SLOs, error budgets](/learn/slos) | verified | generic | availability, observability | Define SLIs and SLOs and spend an error budget on a release decision. | 3/3 |
-| [Deployments and rollback](/learn/deployments) | verified | generic | slos | Compare rolling, blue-green and canary deployments and plan a rollback. | 1/2 |
-| [Backups and disaster recovery](/learn/backups-dr) | verified | generic | failover | Plan backups, restore testing and disaster recovery to meet RPO and RTO targets. | 0/1 |
-| [Cost reasoning](/learn/cost) | verified | generic | capacity-estimation | Estimate the monthly cost of two designs from unit prices and identify the dominant cost driver. | 0/1 |
+| [Deployments and rollback](/learn/deployments) | verified | generic | slos | Compare rolling, blue-green and canary deployments and plan a rollback. | 2/3 |
+| [Backups and disaster recovery](/learn/backups-dr) | verified | generic | failover | Plan backups, restore testing and disaster recovery to meet RPO and RTO targets. | 1/2 |
+| [Cost reasoning](/learn/cost) | verified | generic | capacity-estimation | Estimate the monthly cost of two designs from unit prices and identify the dominant cost driver. | 1/2 |
 
 ## Low-level design (LLD)
 

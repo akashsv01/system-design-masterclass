@@ -255,7 +255,7 @@ export default function ReplicaLag() {
           </table>
         </div>
         <p>
-          Under synchronous replication the user waits 2 s for “Saved”. The stale reads haven’t vanished. They’ve turned into waiting: that is the
+          Under synchronous replication that waits until the follower has applied the write, the user waits 2 s for “Saved”. The stale reads haven’t vanished. They’ve turned into waiting: that is the
           price of guaranteeing that everyone, not only the writer, sees Alex the moment the app says “Saved”.
         </p>
       </More>
