@@ -17,7 +17,9 @@
 - Content verification pass: 3 source batches read against primary texts (papers, specs, ops) → `v()` entries + minimal lesson
   wording fixes; all 31 interview scripts fact-checked (HLD 23 fixes, LLD 9 scripts fixed incl. a states-activity scoring defect).
   Findings: `docs/sources-check/*.md`, merged into `docs/SOURCES_AUDIT.md`. Still unchecked: books and hosts not reachable (41 `s()` entries).
-- Verified: unit 59/59, pytest 73, typecheck, build, audit:content 0/0, e2e 56/56, a11y clean, all 31 cases, nav, journey.
+- Second pass: every reachable cited source read (papers2, web2, author catalogs) and open replacements added for the commercial
+  books (`docs/sources-check/open-*.md`); books stay unchecked; claims backed only by books are listed in SOURCES_AUDIT.md.
+- Verified: unit 59/59, pytest 74, typecheck, build, audit:content 0/0, e2e 56/56, a11y clean, all 31 cases, nav, journey.
 
 ## Interview simulator (active, 2026-11-20) — brief in `docs/INTERVIEW_BRIEF_2026-11-20.md`
 Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-booking (HLD) and lld-parking-lot (LLD) at
