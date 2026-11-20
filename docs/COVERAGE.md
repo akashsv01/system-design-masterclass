@@ -7,7 +7,7 @@ Four separate kinds of evidence, never merged:
 
 - **Implementation:** 124 of 124 topics have an explanation, worked example, exercise and assessment.
 - **Technical verification:** 124 topics render every step at desktop and phone sizes without errors (`scripts/review-lessons.cjs`); tests, Python checks and simulations are listed in `docs/DESIGN_REVIEW.md`.
-- **Source verification:** 50 of 90 distinct cited sections were read and compared with the lessons; 58 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
+- **Source verification:** 66 of 90 distinct cited sections were read and compared with the lessons; 84 topics cite at least one checked source. Books are not accessible from the authoring environment and stay unchecked. Details: `docs/SOURCES_AUDIT.md`.
 - **Independent editorial review:** 0 topics (only a human reviewer can add one, in `src/content/reviews.json`).
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
@@ -39,7 +39,7 @@ Audit: 0 error(s), 0 warning(s).
 | [Inside a request](/learn/inside-a-request) | verified | generic | first-booking | Name the parts of an HTTP request and response (method, path, headers, body, status) and trace DNS → TCP → TLS → HTTP with timings. | 4/5 |
 | [TCP vs UDP](/learn/tcp-udp) | verified | generic | inside-a-request | Compare TCP and UDP guarantees (ordering, delivery, connection setup) and choose one for a given workload. | 2/3 |
 | [HTTP, REST and RPC](/learn/http-rest-rpc) | verified | generic | inside-a-request, bridge-json | Design resource-oriented REST endpoints and an equivalent RPC interface; choose methods and status codes with idempotency in mind. | 3/3 |
-| [Polling, SSE, WebSockets](/learn/realtime-delivery) | verified | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 2/3 |
+| [Polling, SSE, WebSockets](/learn/realtime-delivery) | verified | generic | http-rest-rpc, tcp-udp | Compare polling, long polling, server-sent events and WebSockets by latency, server cost and failure behaviour. | 3/3 |
 | [Processes and threads](/learn/processes-threads) | verified | generic | bridge-threads | Distinguish processes from threads, and concurrency from parallelism, using a request-handling server as the example. | 2/2 |
 | [Memory and disk](/learn/memory-disk) | verified | generic | processes-threads | Order memory, SSD, disk and network by access latency to within an order of magnitude and use it to explain caching and durability. | 1/2 |
 | [Latency and percentiles](/learn/latency) | verified | generic | inside-a-request | Compute and interpret p50/p95/p99 latency from samples and explain why tail latency grows with fan-out. | 1/2 |
@@ -57,8 +57,8 @@ Audit: 0 error(s), 0 warning(s).
 | [Normalization](/learn/normalization) | verified | generic | access-patterns | Normalise a schema to remove update anomalies, then denormalise one read path and state the cost. | 0/1 |
 | [Indexes and query plans](/learn/indexes) | verified | generic | bridge-sql, memory-disk | Read a query plan, add an index that turns a scan into a lookup, and state what the index costs on writes. | 2/3 |
 | [Data models](/learn/data-models) | verified | generic | access-patterns | Match relational, document, key-value, wide-column, graph, search, time-series and object storage to access patterns. | 2/3 |
-| [Storage engines](/learn/storage-engines) | verified | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 2/5 |
-| [Transactions and isolation](/learn/transactions) | verified | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 1/3 |
+| [Storage engines](/learn/storage-engines) | verified | generic | indexes | Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs. | 3/5 |
+| [Transactions and isolation](/learn/transactions) | verified | generic | first-booking, bridge-sql | Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings. | 2/3 |
 | [Locking and MVCC](/learn/locking-mvcc) | verified | generic | transactions | Compare pessimistic locking, optimistic concurrency and MVCC snapshots on the same workload. | 2/3 |
 | [Concurrent reservations](/labs/concurrent-reservations) | verified | lab | first-booking, transactions | Fix the double-booking race with a conditional write and test it under every interleaving. | 1/2 |
 | [Replication lag](/learn/replica-lag) | verified | custom | first-booking | Explain asynchronous replication lag, predict a stale read, and compare read-your-writes strategies by cost. | 0/1 |
@@ -70,7 +70,7 @@ Audit: 0 error(s), 0 warning(s).
 | [Cache behaviour](/labs/lab-cache) | verified | lab | caching, cache-invalidation | Predict hit rate from cache size and access skew, and observe a stampede on expiry. | 1/1 |
 | [LRU operations](/labs/lab-lru) | verified | lab | lru-cache | Predict the final state of an LRU cache after a sequence of operations. | 0/0 |
 | [Sharding](/learn/sharding) | verified | generic | data-models, capacity-estimation | Choose a partition key, predict hot spots, and compare range and hash partitioning. | 0/1 |
-| [Consistent hashing](/learn/consistent-hashing) | verified | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 1/3 |
+| [Consistent hashing](/learn/consistent-hashing) | verified | generic | sharding | Compute key movement under modulo hashing vs consistent hashing with virtual nodes, and plan a rebalance. | 2/3 |
 | [Partitioning and hot spots](/labs/lab-hot-spots) | verified | lab | sharding, consistent-hashing | Choose a partition key and observe load per shard under a celebrity event. | 0/1 |
 
 ## Distributed systems (HLD)
@@ -79,35 +79,35 @@ Audit: 0 error(s), 0 warning(s).
 |---|---|---|---|---|---|
 | [Requirements](/learn/requirements) | verified | generic | hld-vs-lld, capacity-estimation | Turn an ambiguous prompt into functional requirements, non-functional requirements and explicit constraints. | 0/2 |
 | [API design](/learn/api-design) | verified | generic | http-rest-rpc, requirements | Choose an API contract with cursor pagination, errors and a versioning plan, and justify each choice. | 1/2 |
-| [Proxies and gateways](/learn/proxies-gateways) | verified | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 0/2 |
-| [Load balancing](/learn/load-balancing) | verified | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 1/2 |
+| [Proxies and gateways](/learn/proxies-gateways) | verified | generic | api-design, stateless-scaling | Place reverse proxies, API gateways and service discovery in a request path and state each one’s job. | 1/2 |
+| [Load balancing](/learn/load-balancing) | verified | generic | proxies-gateways | Compare round robin, least connections and power-of-two choices, and explain health checks. | 2/2 |
 | [CDNs](/learn/cdn) | verified | generic | inside-a-request, caching | Explain how a CDN serves content from edge locations, and how cache headers control freshness. | 1/2 |
 | [Overload and load balancing](/labs/lab-load-balancing) | verified | lab | load-balancing, throughput-bandwidth | Predict queueing under overload and compare balancing policies on a slow server. | 2/2 |
 | [Timeouts and partial failure](/learn/timeouts) | verified | generic | latency | Pick a timeout from latency percentiles and explain how partial failure cascades without one. | 2/4 |
 | [Retries, backoff, jitter](/learn/retries) | verified | generic | timeouts | Design a retry policy with exponential backoff and jitter, and show how retries amplify load. | 2/2 |
 | [Idempotency](/learn/idempotency) | verified | generic | retries | Make an operation safe to retry with idempotency keys and deduplication storage. | 2/2 |
 | [Payment retries](/labs/lab-payment-retries) | verified | lab | idempotency, retries | Observe duplicate charges without idempotency keys and retry storms without jitter. | 2/2 |
-| [Clocks and ordering](/learn/clocks-ordering) | verified | generic | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 1/3 |
-| [Consistency models](/learn/consistency-models) | verified | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 0/2 |
-| [CAP and quorums](/learn/cap-quorums) | verified | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 1/3 |
-| [Consensus and Raft](/learn/consensus) | verified | generic | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 2/4 |
+| [Clocks and ordering](/learn/clocks-ordering) | verified | generic | realtime-delivery | Explain why wall clocks disagree, and order events with sequence numbers and Lamport clocks. | 2/3 |
+| [Consistency models](/learn/consistency-models) | verified | generic | replica-lag, clocks-ordering | Distinguish linearizability, sequential, causal, read-your-writes and eventual consistency with timelines. | 1/2 |
+| [CAP and quorums](/learn/cap-quorums) | verified | generic | consistency-models | Apply CAP during a partition and reason about quorum overlap (R + W > N) and its assumptions. | 2/3 |
+| [Consensus and Raft](/learn/consensus) | verified | generic | cap-quorums, failover | Explain leader election, terms and log replication in Raft at an intuitive level, and where coordination services fit. | 3/4 |
 | [Queues and pub/sub](/learn/queues) | verified | generic | timeouts | Use queues and pub/sub to decouple producers from consumers, and choose between them. | 1/2 |
 | [Logs and delivery guarantees](/learn/logs-delivery) | verified | generic | queues, idempotency | Explain partitioned logs, consumer groups, offsets and at-most/at-least/effectively-once delivery. | 0/1 |
 | [Backpressure](/learn/backpressure) | verified | generic | queues, throughput-bandwidth | Compute backlog growth and drain time, and apply backpressure or load shedding. | 3/3 |
 | [Batch and stream](/learn/batch-stream) | verified | generic | logs-delivery | Compare batch and stream processing; use event time, windows and watermarks for late data. | 1/3 |
 | [Queue backlog](/labs/lab-queue-backlog) | verified | lab | backpressure | Predict backlog growth and drain time when consumers fall behind. | 1/1 |
-| [Sagas and outbox](/learn/distributed-transactions) | verified | generic | transactions, queues, idempotency | Compare two-phase commit with sagas, design compensations, and use the outbox pattern to publish reliably. | 0/2 |
+| [Sagas and outbox](/learn/distributed-transactions) | verified | generic | transactions, queues, idempotency | Compare two-phase commit with sagas, design compensations, and use the outbox pattern to publish reliably. | 1/2 |
 | [CQRS and event sourcing](/learn/cqrs-event-sourcing) | verified | generic | distributed-transactions, logs-delivery | Separate write and read models (CQRS) and derive state from an event log (event sourcing), with costs. | 0/2 |
 
 ## Architecture and operations
 
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
-| [Monolith vs microservices](/learn/monolith-microservices) | verified | generic | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 0/2 |
+| [Monolith vs microservices](/learn/monolith-microservices) | verified | generic | requirements, queues | Choose between a modular monolith and microservices, and draw service boundaries around data ownership. | 1/2 |
 | [Schema evolution](/learn/schema-evolution) | verified | generic | api-design | Plan backward- and forward-compatible changes with expand/contract migrations. | 0/1 |
 | [Multitenancy](/learn/multitenancy) | verified | generic | sharding | Compare shared, pooled and isolated tenancy models and limit noisy neighbours. | 1/2 |
 | [Multi-region](/learn/multi-region) | verified | generic | failover, cap-quorums | Compare active-passive and active-active multi-region designs by latency, consistency and cost. | 1/2 |
-| [Authentication and authorization](/learn/authn-authz) | verified | generic | http-rest-rpc | Distinguish authentication from authorization; compare sessions and tokens; outline OAuth 2.0 and OIDC flows. | 2/3 |
+| [Authentication and authorization](/learn/authn-authz) | verified | generic | http-rest-rpc | Distinguish authentication from authorization; compare sessions and tokens; outline OAuth 2.0 and OIDC flows. | 3/3 |
 | [Encryption and privacy](/learn/encryption-privacy) | verified | generic | authn-authz | Apply encryption in transit and at rest, hash passwords properly, and minimise personal data. | 1/1 |
 | [Rate limiting](/learn/rate-limiting) | verified | generic | throughput-bandwidth | Trace token bucket and sliding window limiters step by step, compare their behaviour on bursts, and choose where to enforce them. | 1/2 |
 | [Observability](/learn/observability) | verified | generic | latency | Use logs, metrics and traces together to localise a slow request. | 1/1 |
@@ -122,18 +122,18 @@ Audit: 0 error(s), 0 warning(s).
 |---|---|---|---|---|---|
 | [Responsibilities and encapsulation](/learn/responsibilities) | verified | generic | bridge-interfaces, hld-vs-lld | Assign responsibilities to classes, hide data behind behaviour, and define interfaces around roles. | 1/2 |
 | [Polymorphism and composition](/learn/polymorphism-composition) | verified | generic | responsibilities | Use polymorphism through interfaces, and prefer composition over inheritance where behaviour varies. | 1/3 |
-| [Cohesion and coupling](/learn/cohesion-coupling) | verified | generic | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 0/2 |
-| [SOLID](/learn/solid) | verified | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 0/2 |
+| [Cohesion and coupling](/learn/cohesion-coupling) | verified | generic | responsibilities | Measure cohesion and coupling in a class design and refactor toward deep, focused modules. | 1/2 |
+| [SOLID](/learn/solid) | verified | generic | polymorphism-composition, cohesion-coupling | Identify violations of each SOLID principle in code and fix one with a minimal change. | 1/2 |
 | [Contracts and invariants](/learn/contracts-invariants) | verified | generic | responsibilities | State preconditions, postconditions and invariants; enforce them with immutability, validation and errors. | 1/2 |
-| [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 0/2 |
-| [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 1/2 |
+| [Entities, value objects, repositories](/learn/domain-objects) | verified | generic | contracts-invariants | Distinguish entities from value objects, and put persistence behind a repository interface. | 2/2 |
+| [Dependency injection](/learn/dependency-injection) | verified | generic | polymorphism-composition | Explain how passing dependencies in (constructor or function arguments) lets a test swap in a fake. | 2/2 |
 | [UML diagrams](/learn/uml) | verified | generic | responsibilities | Read and draw UML class, sequence and state diagrams for a small design. | 0/1 |
 | [State machines](/learn/state-machines) | verified | generic | uml, contracts-invariants | Model a resource lifecycle as an explicit state machine with guarded transitions. | 0/1 |
-| [Tests and test doubles](/learn/testing) | verified | generic | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 1/3 |
-| [Refactoring](/learn/refactoring-lesson) | verified | generic | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 0/1 |
+| [Tests and test doubles](/learn/testing) | verified | generic | dependency-injection | Read and complete unit tests (arrange/act/assert), inject a fake clock, and choose between fakes, stubs and mocks. | 3/3 |
+| [Refactoring](/learn/refactoring-lesson) | verified | generic | testing, cohesion-coupling | Recognise code smells and choose the small behaviour-preserving refactoring (extract function, replace conditional with polymorphism) that fixes each. | 1/1 |
 | [Races and deadlocks](/learn/concurrency-lld) | verified | generic | bridge-threads, processes-threads | Identify races, protect shared state with locks or atomics, and prevent deadlock with lock ordering. | 3/3 |
 | [Pattern reference](/patterns/gof-reference) | verified | custom | polymorphism-composition | Recognise each Gang of Four pattern by the problem it solves and its cost. | 0/2 |
-| [Strategy (refactoring)](/learn/pattern-strategy) | verified | generic | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 0/2 |
+| [Strategy (refactoring)](/learn/pattern-strategy) | verified | generic | gof-reference, solid | Recognise when a growing conditional should become a Strategy: start with a pricing function passed in, move to a class only when the rule needs state. | 1/2 |
 | [Observer (refactoring)](/learn/pattern-observer) | verified | generic | gof-reference | Decouple event producers from listeners with Observer and discuss ordering and failure. | 0/2 |
 | [State (refactoring)](/learn/pattern-state) | verified | generic | state-machines, gof-reference | Move state-specific behaviour into State objects. | 0/1 |
 | [Decorator (refactoring)](/learn/pattern-decorator) | verified | generic | gof-reference, retries | Wrap an interface with Decorators to add cross-cutting behaviour. | 0/1 |
@@ -146,16 +146,16 @@ Audit: 0 error(s), 0 warning(s).
 | Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |
 |---|---|---|---|---|---|
 | [Design ticket booking (HLD)](/cases/case-ticket-booking) | verified | case | first-booking, transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: ticket booking. | 0/1 |
-| [Seat booking (LLD)](/cases/lld-booking) | verified | case | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 0/2 |
+| [Seat booking (LLD)](/cases/lld-booking) | verified | case | first-booking, state-machines, concurrency-lld | Decide responsibilities, states and invariants for Seat booking (LLD); read the worked Python design and complete small checks against it. | 1/2 |
 | [Design a payment system](/cases/case-payments) | verified | case | idempotency, distributed-transactions | Work from an ambiguous prompt to a defended design: a payment system. | 0/1 |
 | [Design inventory and checkout](/cases/case-checkout) | verified | case | transactions, distributed-transactions | Work from an ambiguous prompt to a defended design: inventory and checkout. | 0/1 |
-| [Shopping cart](/cases/lld-shopping-cart) | verified | case | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 0/2 |
+| [Shopping cart](/cases/lld-shopping-cart) | verified | case | domain-objects, pattern-strategy | Decide responsibilities, states and invariants for Shopping cart; read the worked Python design and complete small checks against it. | 1/2 |
 | [Design a notification system](/cases/case-notifications) | verified | case | queues, retries, idempotency | Work from an ambiguous prompt to a defended design: a notification system. | 0/1 |
-| [Notification service (LLD)](/cases/lld-notifications) | verified | case | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 0/2 |
-| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | verified | case | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 0/1 |
-| [Live score event processor](/cases/lld-live-scores) | verified | case | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 0/2 |
+| [Notification service (LLD)](/cases/lld-notifications) | verified | case | pattern-observer, pattern-strategy | Decide responsibilities, states and invariants for Notification service (LLD); read the worked Python design and complete small checks against it. | 1/2 |
+| [Design live scores with fan rooms (HLD)](/cases/case-live-scores) | verified | case | realtime-delivery, logs-delivery | Work from an ambiguous prompt to a defended design: live scores with fan rooms. | 1/1 |
+| [Live score event processor](/cases/lld-live-scores) | verified | case | clocks-ordering, idempotency, state-machines | Decide responsibilities, states and invariants for Live score event processor; read the worked Python design and complete small checks against it. | 1/2 |
 | [Design a chat system](/cases/case-chat) | verified | case | realtime-delivery, clocks-ordering, logs-delivery | Work from an ambiguous prompt to a defended design: a chat system. | 0/1 |
-| [Design a collaborative editor](/cases/case-collab-editor) | verified | case | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 0/1 |
+| [Design a collaborative editor](/cases/case-collab-editor) | verified | case | clocks-ordering, realtime-delivery | Work from an ambiguous prompt to a defended design: a collaborative editor. | 1/1 |
 | [Design a URL shortener](/cases/case-url-shortener) | verified | case | api-design, sharding, caching | Work from an ambiguous prompt to a defended design: a URL shortener. | 0/1 |
 | [Design a social feed](/cases/case-feed) | verified | case | caching, queues, sharding | Work from an ambiguous prompt to a defended design: a social feed. | 0/1 |
 | [Design search autocomplete](/cases/case-autocomplete) | verified | case | caching, data-models | Work from an ambiguous prompt to a defended design: search autocomplete. | 0/1 |
@@ -163,17 +163,17 @@ Audit: 0 error(s), 0 warning(s).
 | [Design video streaming](/cases/case-video) | verified | case | cdn, batch-stream | Work from an ambiguous prompt to a defended design: video streaming. | 0/1 |
 | [Design ride matching](/cases/case-ride-matching) | verified | case | sharding, realtime-delivery | Work from an ambiguous prompt to a defended design: ride matching. | 0/1 |
 | [Design a distributed rate limiter](/cases/case-rate-limiter) | verified | case | rate-limiting, consistency-models | Work from an ambiguous prompt to a defended design: a distributed rate limiter. | 0/1 |
-| [Rate limiter (LLD)](/cases/lld-rate-limiter) | verified | case | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 0/2 |
-| [Design a distributed job scheduler](/cases/case-scheduler) | verified | case | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 0/1 |
-| [Task scheduler (LLD)](/cases/lld-scheduler) | verified | case | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 0/2 |
+| [Rate limiter (LLD)](/cases/lld-rate-limiter) | verified | case | rate-limiting, concurrency-lld | Decide responsibilities, states and invariants for Rate limiter (LLD); read the worked Python design and complete small checks against it. | 1/2 |
+| [Design a distributed job scheduler](/cases/case-scheduler) | verified | case | consensus, queues | Work from an ambiguous prompt to a defended design: a distributed job scheduler. | 1/1 |
+| [Task scheduler (LLD)](/cases/lld-scheduler) | verified | case | concurrency-lld, testing | Decide responsibilities, states and invariants for Task scheduler (LLD); read the worked Python design and complete small checks against it. | 1/2 |
 | [Design metrics ingestion](/cases/case-metrics) | verified | case | batch-stream, data-models | Work from an ambiguous prompt to a defended design: metrics ingestion. | 0/1 |
 | [Design a web crawler](/cases/case-crawler) | verified | case | queues, rate-limiting | Work from an ambiguous prompt to a defended design: a web crawler. | 0/1 |
-| [Logger](/cases/lld-logger) | verified | case | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 0/2 |
-| [Parking lot](/cases/lld-parking-lot) | verified | case | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 0/2 |
-| [Elevator controller](/cases/lld-elevator) | verified | case | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 0/2 |
-| [Vending machine](/cases/lld-vending-machine) | verified | case | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 0/2 |
-| [Library management](/cases/lld-library) | verified | case | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 0/2 |
-| [Expense sharing](/cases/lld-expense-sharing) | verified | case | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 0/2 |
-| [LRU cache (machine coding)](/cases/lld-lru) | verified | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 0/2 |
-| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | verified | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 0/2 |
+| [Logger](/cases/lld-logger) | verified | case | pattern-decorator, concurrency-lld | Decide responsibilities, states and invariants for Logger; read the worked Python design and complete small checks against it. | 1/2 |
+| [Parking lot](/cases/lld-parking-lot) | verified | case | state-machines, polymorphism-composition | Decide responsibilities, states and invariants for Parking lot; read the worked Python design and complete small checks against it. | 1/2 |
+| [Elevator controller](/cases/lld-elevator) | verified | case | state-machines, concurrency-lld | Decide responsibilities, states and invariants for Elevator controller; read the worked Python design and complete small checks against it. | 1/2 |
+| [Vending machine](/cases/lld-vending-machine) | verified | case | state-machines, pattern-state | Decide responsibilities, states and invariants for Vending machine; read the worked Python design and complete small checks against it. | 1/2 |
+| [Library management](/cases/lld-library) | verified | case | domain-objects | Decide responsibilities, states and invariants for Library management; read the worked Python design and complete small checks against it. | 1/2 |
+| [Expense sharing](/cases/lld-expense-sharing) | verified | case | domain-objects, contracts-invariants | Decide responsibilities, states and invariants for Expense sharing; read the worked Python design and complete small checks against it. | 1/2 |
+| [LRU cache (machine coding)](/cases/lld-lru) | verified | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 1/2 |
+| [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | verified | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 1/2 |
 | [Capstone](/capstone/capstone) | verified | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 0/2 |

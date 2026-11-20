@@ -193,7 +193,7 @@ export const domainObjects: GenericLesson = {
   ],
   worked: { title: 'the three building blocks in Python', blocks: [
     { type: 'code', lang: 'python', code: py('sdm/lld.py').split('# --- Dependency injection')[0].split('# --- Value objects and entities')[1].trim(), caption: 'python/sdm/lld.py — a value object, an entity, a repository protocol, and an in-memory repository for tests' },
-    { type: 'p', text: 'An **aggregate** groups entities that must change together under one root: an Order and its line items are saved and loaded as a unit, and outside code goes through the Order.' },
+    { type: 'p', text: 'An **aggregate** groups entities and value objects that must change together under one root: an Order and its line items are saved and loaded as a unit, and outside code goes through the Order.' },
   ] },
   checks: [{ kind: 'choice', id: 'eq', prompt: 'Two Booking objects have identical fields but ids b91 and b92. Are they the same booking?', choices: [
     { id: 'no', text: 'No: entities are compared by identity.', why: 'Right. Two people can book identical seats on identical terms and still hold two bookings.' },

@@ -29,6 +29,12 @@ def test_money_is_a_value_object():
         Money(500, "EUR").cents = 1           # frozen
 
 
+def test_entity_equality_is_by_id():
+    b91 = Booking("b91", "F12", Money(4500, "EUR"))
+    assert b91 == Booking("b91", "F12", Money(4500, "EUR"), status="paid")   # same booking after a change
+    assert b91 != Booking("b92", "F12", Money(4500, "EUR"))                  # identical fields, different booking
+
+
 def test_checkout_with_fakes():
     repo: BookingRepository = InMemoryBookings()
     repo.save(Booking("b1", "F12", Money(4500, "EUR")))

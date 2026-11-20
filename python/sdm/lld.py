@@ -46,13 +46,19 @@ class Money:
         return Money(self.cents + other.cents, self.currency)
 
 
-@dataclass
+@dataclass(eq=False)
 class Booking:
     """An entity: has an identity that stays the same while its attributes change."""
     booking_id: str
     seat_id: str
     total: Money
     status: str = "pending"
+
+    def __eq__(self, other: object) -> bool:          # compared by identity, not by fields
+        return isinstance(other, Booking) and other.booking_id == self.booking_id
+
+    def __hash__(self) -> int:
+        return hash(self.booking_id)
 
 
 class BookingRepository(Protocol):
