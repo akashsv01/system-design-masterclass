@@ -103,6 +103,35 @@ Practice and Design Lab did not change the view, so these notes again cover only
 | D17 | **Placeholders, not empty stages.** Parts not yet introduced are drawn as dashed outlines with a "?" so the stage never shows one small box in a large empty frame, and nothing moves when the part is introduced. | Brief §4: recompose stages that hold a single small object. |
 | D18 | **A labelled step list** is available under the controls ("Steps" disclosure) instead of a permanent rail, so the arc is visible on request without adding a third panel. | Keeps the calm single column while giving the reference's sense of where you are. |
 
+## 1c. Reference navigation study (2026-11-20)
+
+Reachable. Studied `#/caching/3` at 1280×900 and iPhone 13.
+- **Course tree:** a left sidebar with a two-level outline (numbered section → lesson rows), a progress count per
+  section (“0/11”), and the current lesson highlighted with a filled row. The current lesson's section is expanded
+  on arrival. Expanding another section is in-place and does not navigate (URL unchanged).
+- **Search:** Ctrl+K opens a dialog. Lesson results show the section path (“Replication · 03 · Data & Storage”),
+  a one-line summary and a step count; matching steps appear as a second group.
+- **Phone:** “Open the course menu” slides the same tree in from the left over the page. Escape closes it, and the
+  reading position is kept (scrollY 600 → 600).
+- **Limits observed:** two levels only, so long sections become long lists (11 lessons under Data & Storage). The
+  tree mixes site navigation (Learn, Practice…) into the phone drawer.
+
+Decisions this drives:
+- **D19:** Three levels (Category → Module → Lesson), so no branch shows more than about seven rows at once.
+- **D20:** One outline component everywhere: the catalog page, the desktop sidebar and the phone drawer.
+- **D21:** Search is part of the outline (always at its top). Results show the full path, and choosing one reveals its branch.
+- **D22:** The drawer holds only the course outline plus a “Return to …” entry. Site navigation stays in the header.
+
+## 1d. Compositions explored (2026-11-20)
+
+Static prototypes with the product's fonts and tokens, rendered at 1280×800 and 390×844
+(`docs/screens/compositions/`).
+
+| | A | B | Chosen |
+|---|---|---|---|
+| **Home** | Question and invitation on the left; a compact experiment on the right (two labelled phones, the ticket server, the seat record, three prediction choices). | One full-width “bench” stage under a centred question; the predictions sit below the stage. | **A on desktop, B’s stacking on phones.** A shows what the product teaches, what makes it different and what to do next in one screen. B’s wide stage left three small boxes in a large empty frame, but its vertical order (question → compact experiment → choices → action) is the better phone layout. |
+| **Reader** | Collapsible outline sidebar plus a focused column: question, stage, step explanation and one primary action together. | Thin rail, a full-height stage, and a right “notebook” panel holding the question, explanation and action. | **A.** The outline stays within reach while reading. The column keeps the visual and its explanation together, and the stage widens when the sidebar is closed. B’s stage was sparse at desktop sizes, its 360 px panel cramped prediction questions, and the outline hid behind a rail. A borrows B’s compact “what changed” readout and its event-specific action label. |
+
 ## 2. Decisions for System Design Masterclass
 
 These are my choices. Some follow the reference, some depart from it, and some come from
