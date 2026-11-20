@@ -2,7 +2,18 @@
 
 - **Branch:** `claude/dazzling-bohr-89a9c9` (revamp; based on `claude/gallant-johnson-2xsvdb` @ `5a80971`). After each
   push, verify `git rev-parse HEAD` = `git rev-parse origin/claude/dazzling-bohr-89a9c9`.
-- **Governing brief:** Revamp Brief (2026-11-19) at the top of `docs/MASTER_PROMPT.md`. Earlier spec: `docs/SPEC_2026-11-18.md`.
+- **Governing brief:** Workbench Brief (2026-11-20) in `docs/MASTER_PROMPT.md`. Earlier: `docs/SPEC_2026-11-19.md`
+  (Revamp Brief), `docs/SPEC_2026-11-18.md` (original + Amendments 1–4).
+- **Workbench baseline:** `main` @ `ce05e7d` (2026-11-20). Critique #1 and measured find-and-return test:
+  `docs/DESIGN_REVIEW.md` Review 6; captures `docs/screens/baseline-2026-11-20/`.
+
+## Workbench progress (2026-11-20)
+- [x] Baseline run, newcomer find-and-return test, captures at 1280/820/390/360, critique #1 (design-critique skill + Fable reviewer; Impeccable not installed)
+- [ ] Reference navigation study; two compositions (home, reader) explored and chosen
+- [ ] Category → Module → Lesson outline in the manifest; navigator (sidebar, drawer, search, memory, resume); prev/next lesson
+- [ ] Homepage experiment carried into lesson 1; previews; mobile composition
+- [ ] Reader/identity pass; quantitative lesson, lab, independent case; labs/practice/interview/progress; critique #2
+- [ ] Verification (navigation acceptance test, e2e, a11y, widths, themes, motion), docs, push
 - **Cloud environment:** personal environment `system-design-masterclass` (allows primary-source hosts and the design
   reference; setup script `npm ci`, unproven until a fresh session starts on it). The Default environment still only
   allows the design reference.

@@ -1,227 +1,202 @@
 # Master specification — System Design Masterclass
 
-> **Governing brief: the Revamp Brief (2026-11-19) below.** It supersedes earlier requirements for a fixed-day
-> course, required Java, or heavy coding assignments. The earlier specification and its Amendments 1–4 are kept
-> further down for history; where they are compatible with the Revamp Brief (curriculum breadth, Python 3 learner
-> code, small required exercises, visual-first lessons, public access, honest review status) they still apply.
+> **Governing brief: the Workbench Brief (2026-11-20) below, saved verbatim.** Earlier briefs are kept for history:
+> the Revamp Brief in `docs/SPEC_2026-11-19.md` and the original specification with Amendments 1–4 in
+> `docs/SPEC_2026-11-18.md`. Where compatible (curriculum breadth, Python 3 learner code, small required exercises,
+> honest evidence and review status, public access, saved work), they still apply.
 >
-> Future sessions: read this, then `docs/RESUME.md`, then continue from the first unmet criterion.
+> Future sessions: read this, then `docs/RESUME.md`, then continue from the first unmet acceptance criterion.
 
 ---
 
-## Revamp Brief (2026-11-19) — saved verbatim
+## Workbench Brief (2026-11-20)
 
-Revamp the existing System Design Masterclass in the GitHub repository `akashsv01/system-design-masterclass`.
+Revamp the existing System Design Masterclass in the GitHub repository `akashsv01/system-design-masterclass`. Start from the latest `main` branch, which contains the working application.
 
-You are taking over a working product built in a previous Claude Code session. Your job is to bring it to the standard of a polished educational startup: clear teaching, accurate content, excellent interactive diagrams, thoughtful motion, reliable saved work, and a consistent finish across the entire application. Implement and verify the improvements in the repository.
+Deliver a complete UI and UX redesign with the judgment and finish of a senior product designer and frontend engineer shipping a customer-facing educational product. Implement the redesign across the homepage, course navigation, lesson reader, topic explorer, labs, practice, interviews, progress, and account flows. Run the application, use it as a learner, and refine the result in the browser.
 
-### 1. FIND AND RUN THE EXISTING PRODUCT FIRST
+The product direction is an interactive systems workbench. Someone who knows basic programming should be able to arrive, try an experiment, watch how a system behaves, and make a meaningful prediction within the first minute. From anywhere in the course, they should be able to open the topic navigator, expand a category, jump to another lesson, and return to their saved place.
 
-Inspect Git status, remote branches, recent commits, and the actual application. The previous session pushed work to `claude/gallant-johnson-2xsvdb`. At an earlier point, `main` contained only a README. Either branch may have advanced. Locate the most complete implementation and base your work on it. Preserve existing work, lesson IDs, deep links, and learner progress.
+### 1. TAKE OVER THE EXISTING APPLICATION
 
-Read `CLAUDE.md`, `docs/MASTER_PROMPT.md`, design notes, curriculum and source records, and `docs/RESUME.md` where present. Reconcile this brief with the earlier specification. This brief supersedes earlier requirements for a fixed-day course, required Java, or heavy coding assignments. Preserve the original curriculum breadth and other compatible requirements.
+Fetch the latest `main` and record the baseline commit. Preserve uncommitted work if present. Read the repository instructions, current specification, design notes, curriculum manifest, source records, and resume notes. Run the app before making broad changes.
 
-Run the existing app and use it as a learner before making broad changes. Inspect the UI/UX, frontend design, typography, animation, accessibility, and browser-review skills available in your environment. Apply the relevant ones to the implementation. Make routine product and engineering decisions independently.
+The existing product includes a booking scenario, visual lessons, Python examples, protocol-layer diagrams, quantitative lessons, simulations, a topic catalog, interview cases, practice, and progress tracking. Recent work introduced a question-led homepage, clarified the independence assumption in a latency exercise, and added fresh LRU eviction puzzles. Verify current behavior against the running branch. Older recordings may predate fixes.
 
-### 2. UNDERSTAND THE PRODUCT AND ITS AUDIENCE
+Preserve the full curriculum, stable lesson IDs, deep links, public access, and existing learner data. Make substantial changes to visual composition, interaction design, and navigation wherever they improve the product. If stored progress needs a schema change, migrate it and verify that an existing learner can resume.
 
-The website is for anyone who understands variables, conditions, loops, and small functions but knows nothing about system design, High-Level Design (HLD), or Low-Level Design (LLD). A learner may never have written SQL, drawn an architecture diagram, built a website, or attended a design interview.
+### 2. USE IMPECCABLE, FABLE, AND YOUR AVAILABLE DESIGN SKILLS
 
-Give first-time visitors one prominent action: “Start from scratch.” It should open an actual lesson immediately. Keep “Browse all topics” easy to find. Introduce HLD and LLD through an example before asking beginners to choose related practice.
+Inspect the UI/UX, frontend design, typography, animation, accessibility, responsive design, and browser-review skills available in this environment. Use Impeccable for design critique if installed. Determine which Fable capability is available and use it where it can improve the implementation. If either is unavailable, proceed with the strongest available tools.
 
-Let the curriculum determine its own structure. Organize lessons around prerequisites and demonstrated skills. There is no fixed 30-day or 45-day course, daily time requirement, streak requirement, or calendar-based unlocking. Use roughly 45 days of sustained practice as an internal ambition for depth. A motivated beginner should find enough material, experimentation, and feedback to become substantially stronger. Demonstrated ability determines readiness.
+Use design critique twice. First, inspect the current application and identify what makes it feel generic, crowded, repetitive, or difficult to navigate. Later, critique your own implementation in a running browser and fix what still feels unfinished.
 
-Keep the entire course public. Guests can open every topic, lab, case, solution, and interview mode. They can save locally. Optional accounts let learners save privately and continue across devices. Returning learners should see the exact unfinished activity as their primary action.
+Explore two distinct compositions for the homepage and lesson reader. Evaluate them against first-visit clarity, visual identity, reading comfort, mobile usability, and how naturally a learner moves between topics. Choose the stronger direction independently and implement it. Keep design documentation concise.
 
-### 3. USE THE REFERENCE AND THE EXISTING WALKTHROUGH
+Study `https://designed-to-scale.vercel.app` if accessible. Open actual lessons and step through them. Study how much text appears at once, which diagram elements stay still, how changes are highlighted, where explanations sit, and how learners control the pace. Create original visuals, examples, and interactions. If access is blocked, record the limitation once and continue.
 
-Visual teaching reference: https://designed-to-scale.vercel.app
+### 3. DESIGN FOR A COMPLETE BEGINNER
 
-If accessible, use a JavaScript-capable browser to open actual lessons and step through them. Study how much text appears at each step, what stays still, what changes, where the explanation sits, and how learners control the pace. Record concrete observations in `docs/DESIGN.md`. Earlier sessions encountered proxy restrictions. If access is blocked, record the limitation once and proceed from this brief and the existing product. Create original content, illustrations, animations, and UI.
+Assume learners understand variables, conditions, loops, and small functions. They may never have built a website, used SQL, drawn an architecture diagram, or heard of High-Level Design (HLD) or Low-Level Design (LLD).
 
-The previous walkthrough showed a returning-user homepage, a booking race, Python examples, an exploded protocol-layer view with a flat alternative, latency and throughput lessons, a topic catalog, progress and practice pages, an LRU lab, and paired notification design cases. Reproduce these observations on the current branch before making fixes:
+Give first-time visitors one prominent action: “Start from scratch.” Clicking it should begin a real activity. Keep “Browse all topics” available for people who want to choose their own path. Teach HLD and LLD through an example before asking beginners to choose between them.
 
-- The booking race has a memorable result. Two buyers can receive confirmations while the database contains one buyer’s name. The simulation’s event button and separate lesson navigation sometimes compete for attention.
-- The exploded protocol view communicates layers well. Some rotated labels are difficult to read. Keep the selected layer’s name and explanation upright.
-- The traffic slider makes throughput tangible. Apply that cause-and-effect quality to other labs.
-- A latency exercise asks how frequently at least one of 100 parallel calls will be slow when each is slow 1% of the time. State the independence assumption. Under that assumption the result is 1 − 0.99¹⁰⁰, about 63%. Perfectly correlated delays give a different answer.
-- In the LRU lab, a final screen referred to a “New puzzle” control while the visible responses were “Yes” and “Not yet.” Verify and fix this flow. Give learners a fresh cache state and ask which item is evicted. Record confidence feedback separately from demonstrated skill.
-- The HLD and LLD notification cases contain useful prompts, but a worked architecture can be visible while learners are asked to propose their own. Offer a clear guided walkthrough and an independent attempt with the worked design revealed afterward.
-- Several catalog entries use similar descriptions. Tell learners which decision each activity will help them practice.
-- Earlier mobile captures suggested crowded chart labels, cut-off action text, and possible sticky-header overlap. Verify these in a live mobile viewport before diagnosing their cause.
+Organize the course by prerequisites and demonstrated skills. All content is self-paced and available from the beginning. There is no fixed 30-day or 45-day schedule, daily time requirement, or calendar-based unlocking. Roughly 45 days of sustained practice is an internal ambition for depth. Judge progress by what learners can explain, predict, diagnose, and design independently.
 
-Use these findings to improve the shared experience across the platform.
+Guests can access every lesson, lab, solution, case study, and mock interview. Save guest work locally. Optional accounts provide private backup and cross-device continuation.
 
-### 4. GIVE THE UI A DISTINCTIVE, COHERENT FINISH
+### 4. BUILD A DISTINCTIVE FRONT PAGE
 
-Build on the warm reading surface, question-led headings, and blue action controls already present. Refine typography, spacing, contrast, icons, controls, borders, diagram labels, and selected states as one design system. Use shared components and design tokens where appropriate.
+Give the homepage a composition of its own. Within the first screen, visitors should understand what the product teaches, experience what makes it distinctive, and know what to do next.
 
-Give each screen a clear purpose:
-- Home gives a beginner a compelling first learning moment and a returning learner a precise route back.
-- The lesson reader gives the active visual and its explanation priority.
-- The topic catalog supports both guided progression and direct lookup.
-- Practice recommends a specific exercise and explains why it is useful.
-- Progress shows what the learner can already do and which skill to revisit.
-- The interview workspace gives learners space to think, sketch, and revise.
+The existing question “Two people tap Reserve on the last seat. Who gets it?” is a strong starting point. Follow it with a short invitation that preserves the surprise. Give the learner a compact visual experiment: two buyers, one seat, and a meaningful action or prediction. If they enter the first lesson afterward, carry their action forward instead of repeating the introduction.
 
-Use comfortable reading widths for prose and give diagrams the width their content requires. Default to one main reading column. Use side-by-side panels when comparison is useful, such as comparing two stored values or connecting one highlighted code line to an object changing state. Keep optional code, history, sources, and deeper explanations easy to open.
+Make the illustration understandable before the learner knows any system diagram conventions. Label important components clearly. Use mystery around the outcome rather than around what a dashed box represents.
 
-Make the product feel deliberately edited. Avoid repetitive card grids, decorative badges, generic hero copy, stock AI language, oversized empty stages, and panels that compete for attention. When a large visual contains only a single small object, recompose the stage. When a diagram is genuinely complex, give it room.
+Below the opening, give visitors a few real previews of the product’s range: trace a request, investigate a failure, and defend a design choice. Link each preview to its actual activity. Keep copy concise and specific.
 
-Give every interaction clear hover, focus, pressed, selected, disabled, success, and error behavior where relevant. Preserve scroll position and focus when details expand. Make empty states useful and honest. A learner with nothing due for revision should still see a sensible next activity.
+Compose the mobile homepage separately. Keep the question, visual, and primary action within easy reach. For returning learners, make the exact unfinished activity the primary action, with its title and a clear label such as “Continue at step 4.”
 
-### 5. MAKE MOTION EXPLAIN THE MECHANISM
+### 5. REPLACE LONG-PAGE TOPIC BROWSING WITH AN EXPANDABLE COURSE NAVIGATOR
 
-Storyboard flagship interactions around four questions: What does the learner already know? What event just occurred? Which value or relationship changed? What should they notice?
+This is a core redesign requirement. Finding a topic must not require scrolling through the entire syllabus, returning to the homepage, or remembering where a lesson sits in a long list.
 
-Keep familiar objects in stable positions between steps. Animate the active event, update the affected state, and leave its outcome visible. Synchronize the visual, caption, clock, metrics, and event history from the same underlying state. Let learners step, replay, reset, and experiment with inputs where those controls serve the lesson.
+Build one shared, hierarchical course outline for both the topic explorer and lesson pages. Use the curriculum manifest as its source of truth:
 
-Give each moment one obvious primary action. During a simulation it might read “Send request.” Once the outcome is visible it might become “Compare the results.” Keep Back and Replay available without making them compete. Explain disabled actions beside the learner’s required input. Rapid clicks must not duplicate events, skip required predictions, or put the caption out of sync. Back and replay must restore the correct state.
+Category → Module → Lesson
 
-Choose the appropriate visual:
-- Request paths for communication.
-- Timelines for consistency and concurrency.
-- Queues for backlog and recovery.
-- Changing tables for indexes and stored values.
-- State diagrams for lifecycle rules.
-- Small code/object comparisons for LLD.
-- Layered or 3D views when pulling apart or rotating a structure reveals a useful relationship.
+For example, a learner should be able to select:
 
-Use smooth, restrained transitions. Keep essential text upright and readable. Support keyboard navigation and reduced motion, with equivalent information available in text or a flat view. At mobile widths, rearrange charts and timelines before shrinking their labels. Avoid forcing learners to scroll back and forth between an event and its explanation.
+Data Systems → Caching → Cache invalidation
 
-### 6. TEACH LIKE A PATIENT ENGINEER
+Interaction:
+- On first visit, show a compact set of clearly named top-level categories.
+- Clicking a category expands its modules in place. Clicking a module reveals its lessons. Clicking a lesson opens its existing deep link.
+- Expanding or collapsing a category is a browsing action. It must not navigate away from the current lesson, reset an experiment, or move the reading page.
+- When a lesson opens, automatically expand its ancestors and visibly identify the current lesson. Keep completion status visually distinct from the current selection.
+- Remember the learner’s expanded sections and the outline’s scroll position. Keep every lesson publicly accessible. Use prerequisites as guidance.
+- Keep search in a consistent location. Search across lessons even when their branches are collapsed. Show the full path for each result, open the result directly, and reveal its branch in the outline. Clearing search should restore the previous browsing context where practical.
 
-Begin with a question a beginner can understand. Show the smallest example that makes the problem interesting. Let learners predict an outcome, inspect what happens, and explain why. Introduce the technical term when it gives them a useful name for the mechanism.
+Desktop:
+- Put the outline in a collapsible left sidebar on lesson and topic pages. Keep it within reach while the learner reads.
+- Let the outline scroll independently. Opening a long module must not move the diagram, explanation, or reading position.
+- Give dense diagrams enough width. Let learners collapse the sidebar and reopen it with one clearly labeled control.
+- Keep the active lesson visible when reopening the navigator.
 
-Use the opening booking lesson as an anchor. Two people see the last seat. Follow one reservation from a phone to a program to a stored value and back. Introduce client, server, database, request, and response. Then let the two requests overlap. HLD asks which components communicate and who owns availability. LLD asks which states a seat can enter and how the booking component enforces its rules. Revisit the scenario once learners can reason about concurrency.
+Mobile:
+- Use a consistently placed, clearly labeled “Topics” button that opens the same outline in a drawer.
+- Make expand controls and lesson rows comfortably tappable. Selecting a lesson closes the drawer and opens the selected activity.
+- Opening and dismissing the drawer without choosing a lesson should return the learner to the exact current step and reading position.
+- Reopening the drawer should reveal the current lesson. Support keyboard use, sensible focus handling, Escape to close, and reduced motion.
 
-Use this benchmark for conceptual depth: a profile changes from “Sam” to “Alex” on the primary at 10:00:00. A replica receives it at 10:00:02. At 10:00:01, let the learner choose which copy serves a read and predict the name displayed. Show both values, introduce replica lag, and ask what guaranteeing an immediate read of the user’s own update would cost.
+Inside lessons, retain “Previous lesson” and “Next lesson” for learners following the recommended sequence. Make those controls clearly distinguishable from steps within a simulation. A small breadcrumb can communicate location without duplicating the whole outline.
 
-For substantive lessons:
-- Explain unfamiliar words when first used. Offer short bridges for SQL, JSON, threads, interfaces, maps, and linked lists.
-- Explain what each meaningful box stores or does and what each arrow carries.
-- Show assumptions, units, intermediate calculations, and a changed-input example when teaching quantities.
-- Show a concrete change request before introducing a pattern.
-- Explain at least one trade-off and one condition that changes the answer.
-- Keep deeper mechanics and verified sources close at hand.
-- Finish with a fresh scenario that checks whether the learner can transfer the idea.
+Navigation acceptance test: start halfway through a lesson, open Topics, expand a different category and module, jump to a lesson, then return to the original activity. Verify on desktop and phone that the original step and work are restored. Also test opening a deep link, searching for a lesson in a collapsed branch, and dismissing the mobile drawer without navigating.
 
-Choose the teaching format independently for each topic. Some deserve an animation; others are clearer as a side-by-side comparison, a counterexample, a trace, or a short design decision. Write original, specific prose. Remove generic introductions, repeated instructions, and explanations that simply narrate an obvious button click.
+### 6. ESTABLISH A COHERENT VISUAL IDENTITY
 
-### 7. USE SHORT PYTHON EXAMPLES AND LIGHTWEIGHT EXERCISES
+Treat the current warm palette, serif headlines, and blue controls as a starting point. Choose a deliberate visual direction and carry it through the entire product. Give the homepage, reader, catalog, lab, and interview workspace layouts appropriate to their different jobs.
 
-Python 3 is the language for learner-facing implementation examples. Show concise snippets where code clarifies a mechanism. Keep the website’s implementation stack appropriate to the existing application.
+Use clear type hierarchy, comfortable line lengths, readable numerical labels, consistent spacing, and purposeful color. Keep diagram labels and connections legible in both light and dark themes. Pair meaningful colors with labels, shapes, or icons.
 
-Supply most of the worked code. Required exercises should ask learners to predict an output, identify a relevant line, change one condition, select an outcome, adjust a model, or explain a decision in one or two sentences. Where a larger implementation is instructive, make it optional and provide a tested reference.
+Give complex diagrams room. Recompose sparse stages so a tiny object does not float in a vast empty frame. Avoid giving every paragraph, action, or topic its own bordered card. Use whitespace and proximity to communicate relationships.
 
-Retain the full depth of LLD and machine-coding reasoning. For an LRU cache, learners can demonstrate understanding by predicting the victim after a read changes recency. For a state machine, they can identify an illegal transition and explain the invariant. For a design pattern, they can choose what changes when a new requirement arrives.
+Design the ordinary details carefully: hover, keyboard focus, pressed, selected, disabled, loading, error, and success states; opening and closing the navigator; expanding a snippet; submitting a prediction; and returning to saved work. Preserve focus and reading position when controls change state.
 
-### 8. KEEP CURRICULUM COVERAGE COMPLETE AND AUDITABLE
+### 7. MAKE THE LESSON READER THE SIGNATURE EXPERIENCE
 
-Maintain a structured curriculum manifest, or improve the existing one. Map stable topic IDs to prerequisites, learning objectives, original explanations, worked examples, exercises, assessments, sources, and actual routes. Preserve existing progress when content moves. Check for omissions, duplicates, circular dependencies, orphan lessons, and broken links.
+At every step, a beginner should be able to answer:
+- What question am I investigating?
+- What changed?
+- What can I do next?
 
-A topic is complete when a learner can study its mechanism, inspect a worked example, and attempt an exercise aligned with the objective. Distinguish implementation, technical verification, source verification, and independent editorial review.
+Keep the active question, visual, immediate explanation, and primary action together. Default to a focused reading layout. Use side-by-side views when they help someone compare two values, connect a Python line to an object changing state, or inspect a before-and-after result. Reveal implementation details, event history, sources, and deeper analysis progressively.
 
-Preserve and audit these areas:
-- Foundations and networking: request lifecycle, processes, threads, memory, disk, concurrency, parallelism, DNS, IP, TCP, UDP, TLS, HTTP, REST, RPC, polling, SSE, WebSockets, latency, percentiles, throughput, bandwidth, availability, capacity estimates, peak load, scaling, and bottlenecks.
-- Data systems: access patterns, modeling, schemas, normalization, SQL, indexes, query plans, relational and nonrelational stores, search, graphs, time-series and object storage, B-trees, LSM trees, logs, compaction, transactions, isolation, MVCC, locking, replication, failover, partitioning, sharding, consistent hashing, hot spots, and rebalancing.
-- HLD and distributed systems: requirements, APIs, pagination, versioning, proxies, gateways, service discovery, load balancing, CDNs, caching, invalidation, eviction, stampedes, partial failures, timeouts, retries, backoff, jitter, idempotency, deduplication, ordering, clocks, consistency models, CAP during partitions, quorum assumptions, leader election, consensus and Raft intuition, queues, pub/sub, logs, consumer groups, delivery guarantees, backpressure, streams, batches, event time, watermarks, distributed transactions, sagas, outbox, CQRS, and event sourcing.
-- Architecture and operations: modular monoliths, microservices, boundaries, communication patterns, schema evolution, multitenancy, multi-region trade-offs, authentication, authorization, sessions, OAuth/OIDC concepts, encryption, privacy, rate limiting, observability, SLIs/SLOs, error budgets, deployments, rollback, backups, restore testing, disaster recovery, RPO/RTO, and cost.
-- LLD: responsibilities, abstraction, encapsulation, polymorphism, interfaces, composition, inheritance, cohesion, coupling, SOLID, contracts, invariants, validation, immutability, entities, value objects, repositories, dependency injection, class/sequence/state diagrams, error handling, resource lifecycle, refactoring, testing, synchronization, races, and deadlocks. Cover all 23 Gang of Four patterns in a searchable reference, with practical depth for commonly useful patterns.
+Give each moment one obvious primary action. Prefer event-specific labels such as “Reserve this seat,” “Send the request,” “Delay the replica,” or “Choose the item to evict.” If the learner must make a prediction first, explain that beside the input. Eliminate situations where two equally prominent Next buttons appear to advance different things.
 
-Preserve the case library. HLD cases include URL shortening, rate limiting, notifications, chat, feeds, autocomplete, file synchronization, video delivery, booking, payments, inventory and checkout, ride matching, observability ingestion, scheduling, crawling, collaborative editing, and real-time sports updates. LLD cases include parking, elevators, vending, libraries, expense sharing, logging, notifications, caches, rate limiters, schedulers, reservations, carts, and board games.
+Finish lessons deliberately. Explain the consequence of the learner’s answer. Offer a fresh transfer question when appropriate, then recommend one next lesson and explain why it follows. The topic navigator remains available for anyone who wants a different route.
 
-Keep at least three paired HLD/LLD cases: booking and seat holds, notifications and delivery policies, and live updates with ordering and deduplication. Show which component guarantees each behavior. Include plausible alternatives and a requirement that changes the preferred design.
+### 8. MAKE ANIMATION EXPLAIN CAUSE AND EFFECT
 
-### 9. VERIFY SOURCES AND TECHNICAL ACCURACY
+For each flagship interaction, identify the event, the affected state, and the one thing the learner should notice. Keep unrelated objects stable. Animate the event, update the relevant value, and leave the result visible long enough to inspect.
 
-Use the existing bibliography and compare coverage against major sources:
-- Designing Data-Intensive Applications; Database Internals; Distributed Systems by van Steen and Tanenbaum; MIT distributed systems materials.
-- Computer Networking: A Top-Down Approach; Operating Systems: Three Easy Pieces; relevant IETF RFCs.
-- Fundamentals of Software Architecture; Software Architecture in Practice; Release It!; Google’s Site Reliability Engineering and The Site Reliability Workbook; Amazon Builders’ Library.
-- Design Patterns; Head First Design Patterns; A Philosophy of Software Design; Refactoring; Effective Java for transferable design principles; Domain-Driven Design; Patterns of Enterprise Application Architecture.
-- System Design Interview volumes 1 and 2 and the System Design Primer for interview breadth.
-- Original papers such as Dynamo, Raft, MapReduce, Bigtable, Spanner, and the Google File System. Use official technology documentation and published engineering accounts for implementation-specific claims.
+Use request paths for communication, timelines for ordering, queues for backlog, tables for stored values, state diagrams for lifecycle rules, and synchronized code/object views for LLD. Use 3D or layered views when pulling apart, rotating, or inspecting depth reveals a useful relationship. Keep essential text upright and readable. Offer a flat or reduced-motion equivalent.
 
-Write original material. Cite specific accessible sources near the claims they support. A table of contents can identify a topic; it cannot verify a mechanism or benchmark. If a domain is blocked, record the hostname, affected claim, and verification status internally. Use another accessible primary source where possible. Keep illustrative numbers, simulation assumptions, and documented production behavior distinguishable.
+Drive the diagram, caption, clock, values, metrics, and event history from the same simulation state. Verify deterministic replay, reverse stepping, reset, rapid clicks, and interrupted transitions. Avoid losing a learner’s result when they open the navigator or inspect an explanation.
 
-### 10. MAKE PRACTICE AND PROGRESS MEANINGFUL
+### 9. TEACH WITH ORIGINAL, PRECISE WRITING
 
-Offer guided walkthroughs, independent exercises, and optional timed HLD and LLD mocks. In independent mode, let learners save their own decision or sketch before revealing a reference design. Follow up with a failure or changed requirement and ask what they would revise.
+Start with a familiar question and a small example. Introduce terminology when it helps the learner name something they have observed. Define unfamiliar words inline and offer short prerequisite bridges for topics such as JSON, SQL, threads, interfaces, maps, and linked lists.
 
-Grade objective tasks through observable outcomes. For open-ended design, use transparent rubrics with concrete examples of reasoning. Separate self-assessment from verified performance. “Solved independently” must mean the learner demonstrated the relevant skill without first revealing the answer.
+For example, a user changes their display name from Sam to Alex. The primary database accepts the write at 10:00:00. A replica receives it at 10:00:02. At 10:00:01, let the learner choose which database serves the profile page and predict the name displayed. Show both values. Then introduce replica lag and ask what guaranteeing an immediate read of a user’s own update would cost.
 
-Provide a mistake notebook, spaced review, and fresh exercises based on actual gaps. Close lessons by explaining the consequence of the learner’s decision and recommending one useful next activity. Close the recommended route with an unfamiliar capstone and compare it with the learner’s first saved design.
+Apply that level of clarity throughout:
+- Explain what each important box stores or does and what each arrow carries.
+- For quantitative topics, show units, assumptions, arithmetic, and how changing one input changes the result.
+- For design patterns, begin with working code and a change request that makes the design decision meaningful.
+- State the assumptions behind technical guarantees. Show a counterexample when an assumption changes.
+- Use language that matches the actual simulation. If a shard serves 15% of requests, describe its load accurately.
+- Edit out generic introductions, repetitive instructions, empty praise, and headings that add no information.
 
-### 11. PRESERVE PUBLIC ACCESS AND VERIFY SAVED WORK
+A short comparison, trace, or counterexample can be better than another multi-step animation. Choose the teaching format that makes each concept easiest to understand.
 
-Guest work should survive refreshes in the same browser. Signed-in work should be stored privately on the server and recoverable from another browser or device. Save lesson steps, relevant simulation inputs, notes, diagrams, snippets or drafts, quiz results, and interview attempts.
+### 10. KEEP LEARNER-FACING PYTHON LIGHTWEIGHT
 
-Make save states understandable: saved locally, syncing, synced, pending, or failed. Preserve guest work during sign-in. Handle conflicting drafts deliberately and make retries safe. Enforce ownership server-side. Preserve validated export/import.
+Use Python 3 wherever a code example helps. The application itself can retain its existing implementation stack.
 
-Test a guest creating a draft, refreshing, signing in, retaining the draft, and resuming it from a second browser. Verify another account cannot access it and shared-device sign-out protects private work. If production credentials are unavailable, test the supported local setup and document exactly what remains unverified.
+Provide concise worked snippets. Most required exercises should ask learners to predict an output, identify one line, fill a condition, change one value, select an outcome, or explain a trade-off in one or two sentences. Put longer tested implementations behind optional disclosure.
 
-### 12. EXECUTE AND FINISH THE REVAMP
+Maintain full conceptual depth. A learner can demonstrate LRU understanding by predicting the eviction victim after a read changes recency. They can demonstrate concurrency understanding by identifying a broken invariant in an event trace. Heavy implementation assignments are unnecessary for the core learning path.
 
-Start with a short audit of the running product, then implement the changes. Prioritize misleading exercises, inaccurate explanations, broken journeys, and ambiguous navigation alongside the visual redesign.
+### 11. PRESERVE AND AUDIT COMPREHENSIVE COVERAGE
 
-Improve a representative set first: a beginner lesson, a quantitative lesson, an interactive lab, and an independent design case. Verify the resulting patterns and apply them across the product. Keep the complete curriculum in scope.
+Use the existing curriculum manifest and repository specification as the detailed inventory. Map each substantive topic to its category, module, prerequisites, learning objective, route, worked example, exercise, and assessment. Keep the outline, search results, coverage report, and lesson content synchronized.
 
-Before declaring completion:
-- Walk through first visit, return visit, topic discovery, step-through learning, independent practice, interview, and progress review.
-- Test actual desktop and narrow mobile widths, light and dark themes, keyboard use, and reduced motion.
-- Inspect readable labels, comfortable spacing, clipping, sticky headers, focus behavior, touch targets, page transitions, expanding panels, save feedback, and replay.
-- Capture representative before-and-after screenshots and a short recording of the finished transitions if the environment supports capture. Watch the recording at normal speed and fix issues that static screenshots miss.
-- Verify relevant tests, build, curriculum links, simulations, and short executable examples. Report what was actually run.
+Audit these areas:
+- Foundations and networking: request lifecycles, processes, threads, memory, disk, concurrency, parallelism, DNS, IP, TCP, UDP, TLS, HTTP, REST, RPC, polling, SSE, WebSockets, capacity estimation, latency, percentiles, throughput, bandwidth, availability, scaling, and bottlenecks.
+- Data systems: access patterns, schemas, normalization, indexes, query plans, relational and nonrelational stores, search, graphs, time-series and object storage, B-trees, LSM trees, logs, compaction, transactions, isolation, locking, MVCC, replication, failover, partitioning, consistent hashing, hot spots, and rebalancing.
+- HLD and distributed systems: requirements, APIs, pagination, versioning, proxies, gateways, discovery, load balancing, CDNs, caching, invalidation, eviction, stampedes, partial failures, retries, backoff, jitter, idempotency, deduplication, ordering, clocks, consistency models, CAP during partitions, quorums, leader election, consensus, Raft intuition, queues, pub/sub, logs, consumer groups, delivery guarantees, backpressure, batch and stream processing, event time, watermarks, distributed transactions, sagas, outbox, CQRS, and event sourcing.
+- Architecture and operations: monoliths, microservices, service boundaries, communication patterns, schema evolution, multitenancy, multi-region design, authentication, authorization, sessions, OAuth/OIDC fundamentals, privacy, encryption, rate limiting, observability, SLIs/SLOs, error budgets, deployments, rollback, backups, restore testing, disaster recovery, RPO/RTO, and cost.
+- LLD: responsibilities, interfaces, abstraction, encapsulation, polymorphism, inheritance, composition, cohesion, coupling, SOLID, contracts, invariants, validation, immutability, entities, value objects, repositories, dependency injection, UML class/sequence/state diagrams, resource lifecycle, refactoring, testing, synchronization, races, deadlocks, and a searchable reference for all 23 Gang of Four patterns.
 
-Save this updated brief in `docs/MASTER_PROMPT.md`. Maintain design decisions, coverage, and concise `docs/RESUME.md` notes. After meaningful increments, record verified work, failures, the current branch, and the precise next action. Commit coherent changes and push to the authorized working branch. Distinguish confirmed remote checkpoints from local commits.
+Preserve all existing HLD and LLD cases and the original planned inventory. HLD coverage includes URL shortening, rate limiting, notifications, chat, feeds, autocomplete, file sync, streaming, booking, payments, inventory and checkout, ride matching, metrics ingestion, scheduling, crawling, collaborative editing, and live updates. LLD coverage includes parking, elevators, vending, libraries, expense sharing, logging, notifications, caches, rate limiters, schedulers, reservations, carts, and board games.
 
-On every resumed session, read the durable instructions, inspect actual files and Git history, preserve partial work, and continue at the first unmet criterion. If the cloud host supports automatic continuation after a usage reset, use it. Respect plan limits and keep paid overage disabled. If the host terminates the session, the remote checkpoint should let a new session resume without the previous conversation.
+Keep at least three paired HLD/LLD cases: ticket booking and seat holds; notifications and delivery policies; and live updates with ordering and deduplication. Show which component enforces each guarantee. Include a failure and a requirement that changes the preferred design.
 
-Proceed without asking for routine approvals. Prepare a deployable build; obtain explicit authorization before public deployment or purchases. Finish with the branch and commit, a concise account of the changes, verification evidence, and an honest list of remaining gaps.
+Mark a substantive topic complete only when learners can study the mechanism, inspect a worked example, and attempt an aligned exercise. Track implementation, technical verification, source verification, and independent editorial review separately.
 
-Begin by locating and running the existing implementation. Then make the revamp real in the product.
+### 12. IMPROVE LABS, PRACTICE, INTERVIEWS, AND PROGRESS
 
----
+Labs: make the input, current state, and outcome easy to compare. Give learners a prediction, meaningful control, observable consequence, and fresh problem. Verify that every instruction naming a button or input matches a real, visible control in that state.
 
-## Reconciliation with the earlier specification
+Practice: recommend one useful exercise and explain why. Give first-time learners an immediate action. Introduce revision queues and mistake history when there is relevant activity. Describe what decisions learners will practice.
 
-| Earlier requirement | Status under the Revamp Brief |
-|---|---|
-| Fixed day count / calendar unlocking | Never implemented; remains out. Readiness comes from demonstrated skill. |
-| Java for principal LLD implementations | Superseded (Amendment 1 and the Revamp Brief): Python 3 only for learner code. |
-| Full-class implementations, long machine-coding | Superseded (Amendment 3 and §7 above): small required exercises; larger implementations optional with tested references. |
-| Curriculum breadth, case library, 23 GoF patterns, paired cases | Kept and audited (§8). |
-| Calm single-column reader, stable diagrams, reduced motion, light/dark | Kept and tightened (§4–5). |
-| Accounts, sync, export/import, honest save states | Kept and re-verified (§11). |
-| Honest editorial status (no self-declared "reviewed") | Kept. |
+Interviews: provide guided walkthroughs and independent attempts. In independent mode, save the learner’s decision or sketch before revealing the reference architecture. Introduce a changed requirement or failure and ask what they would revise. Accept multiple defensible designs and use transparent rubrics.
 
----
+Progress: distinguish studied, solved with help, and solved independently. Confidence surveys and self-ratings should remain separate from objectively demonstrated outcomes. End the recommended route with an unfamiliar capstone and compare it with an early saved design using concrete evidence of improvement.
 
-## Earlier specification (2026-11-18, historical)
+### 13. VERIFY SOURCES, ACCOUNTS, AND SAVED WORK
 
-The original request and Amendments 1–4 are preserved verbatim in `docs/SPEC_2026-11-18.md`.
-Key compatible requirements, summarised:
+Maintain the existing source inventory. Use major books, original papers, official documentation, and documented engineering accounts to check scope and accuracy. Preserve references including Designing Data-Intensive Applications, Database Internals, Distributed Systems, Computer Networking: A Top-Down Approach, Operating Systems: Three Easy Pieces, Fundamentals of Software Architecture, Software Architecture in Practice, Release It!, Google’s SRE books, Amazon Builders’ Library, Design Patterns, Head First Design Patterns, A Philosophy of Software Design, Refactoring, Domain-Driven Design, Patterns of Enterprise Application Architecture, and System Design Interview volumes 1 and 2.
 
-- Public, self-paced course; guests can use everything; optional sign-in syncs work across devices.
-- Reference study recorded in `docs/DESIGN.md`, distinguishing observation from decision.
-- Lesson reader: question-led title, short opening, spacious stage, caption under the visual, compact
-  Back / Replay / Step / Next row, deeper material on request. One column by default.
-- Flagship animations storyboarded (`docs/STORYBOARDS.md`); replica-lag lesson as the quality benchmark;
-  LRU taught behaviour-first, then map + linked list.
-- Editorial voice: concrete, original, no filler; terms explained at first use; formulas with assumptions,
-  units, arithmetic and a changed-input example; decisions with benefit, cost and the condition that flips them.
-- First learner journey: one buyer, then two buyers racing for the last seat; HLD (ownership) and LLD (seat
-  states) views; one recommended next lesson; "Continue learning" reopens the unfinished activity.
-- Structured manifest; coverage report; statuses planned / partial / implemented / technically verified /
-  independently reviewed.
-- Labs: request tracing, overload and load balancing, cache behaviour, stale reads, partitioning and hot spots,
-  queue backlog, payment retries, LRU operations, concurrent reservations — each with a prediction, a meaningful
-  control, an observable consequence, a fresh problem, deterministic replay, and labelled units/assumptions.
-- Sources: cite specific accessible chapters, papers or docs only when verified; never invent citations.
-- Interview: workspace, notes, estimates, progressive hints, changing requirements, rubric; "studied" vs
-  "solved with hints" vs "solved independently"; mistake notebook; spaced revision; capstone with a surprise
-  requirement compared to the learner's first design. No paid AI API required.
-- Amendment 1–4: Python 3 is the only learner language; visual-first with 3–15 line snippets; required
-  exercises are predict / pick the line / fill one blank / change a line / choose between designs / explain in
-  one or two sentences; full curriculum preserved.
+Write original lessons. Cite specific material when verified. Keep blocked or unverified claims in the editorial backlog. Distinguish production facts, hypothetical architectures, and simulation assumptions. Essential instruction must be available inside the website.
+
+Preserve guest work across refreshes and signed-in work across devices. Save the unfinished lesson step, experiment inputs, notes, diagrams, drafts, mistakes, and interview attempts. Make save states clear. Preserve guest work during sign-in, handle conflicts without silently overwriting drafts, make retries safe, and enforce ownership on the server. Preserve validated export/import.
+
+Test a guest starting a lesson, switching topics, returning, refreshing, signing in, retaining the draft, and resuming from another browser. Verify account isolation, shared-device sign-out, interrupted saves, and existing-data compatibility. If production credentials are unavailable, verify the supported local flow and document the limitation.
+
+### 14. IMPLEMENT, POLISH, AND RESUME AUTONOMOUSLY
+
+Capture the baseline homepage, course navigation, lesson reader, catalog, practice, and interview screens. Implement the new homepage, expandable navigator, and complete journey to the learner’s first meaningful prediction first. Verify those together because they establish the product’s design and interaction standard.
+
+Apply that standard to a quantitative lesson, an interactive lab, and an independent case. Critique the running results using available design skills, then carry the improvements across the full product without pausing for routine approvals.
+
+Check desktop, tablet, 360px and 390px phone widths, light and dark themes, keyboard use, reduced motion, touch controls, long labels, loading states, empty states, scrolling, drawer behavior, interrupted transitions, and saved drafts. Capture before-and-after screenshots at matching widths and a short recording of key transitions where supported. Watch the recording at normal speed and fix problems apparent in motion.
+
+Run the relevant tests, content audits, and production build. Verify the navigation acceptance test, learner journeys, simulation correctness, source status, short Python examples, and saved progress. Report only checks that actually ran.
+
+Save this specification in `docs/MASTER_PROMPT.md`. Maintain concise design decisions, coverage records, and `docs/RESUME.md`. Commit coherent increments and push to the authorized working branch. Record the latest verified commit, outstanding issues, and precise next action. Clearly distinguish local commits from confirmed remote checkpoints.
+
+On session resume, inspect the current branch, actual files, and durable instructions. Preserve partial work and continue from the first unmet acceptance criterion. Use supported host continuation when available, respect usage limits, and keep paid overage disabled. Prepare a deployable build; obtain explicit authorization before purchases or public deployment.
+
+Finish with the branch and commit, key design changes, verification evidence, and honest remaining gaps. Begin now by opening the latest main, testing how a newcomer currently finds a lesson and returns to it, and redesigning that journey in the actual product.

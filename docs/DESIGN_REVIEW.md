@@ -160,3 +160,30 @@ Automated checks plus the author's own inspection of screenshots and a recording
 - Independent human editorial review (none yet).
 - Production deployment: HTTPS cookies, persistent storage and backups (local setup only).
 - Real devices: all mobile checks used Chromium's iPhone 13 emulation, not Safari on iOS.
+
+## Review 6: Workbench brief, critique #1 of the baseline (2026-11-20, `main` @ `ce05e7d`)
+
+Tools: the `design:design-critique` skill (Impeccable is not installed in this environment or its plugin catalog),
+plus an independent critique by a Fable model reviewer working only from the screenshots in
+`docs/screens/baseline-2026-11-20/` (1280, 820, 390 and 360 px). The two agreed on every major point.
+
+**Newcomer find-and-return test (measured).** Midway through `caching` (step 3), the only route to another lesson is
+the header's Topics link → a separate catalog page **11,723 px tall on desktop, 22,330 px on a phone**; “cache
+invalidation” sits 3,895 / 7,535 px down. Back×2 restores the step (stored) but not the reading position on the phone
+(scrollY 284 → 0). No previous/next lesson, no outline, no “return to where I was”.
+
+| Area | Finding | Severity |
+|---|---|---|
+| Home | On phones the whole first screen is text: no visual, nothing to try. On desktop the teaser looks interactive but isn’t, and relies on a dashed “?” convention. The first prediction is several clicks in. | High |
+| Navigation | No in-lesson navigator; a breadcrumb that doesn’t read as a link; one 124-row catalog page with 12 filter chips (five rows of chips on a phone); no resume entry anywhere outside Home. | High |
+| Reader | Sparse stages (three small boxes in a ~930×400 frame); two right edges (stage 930 px, text 710 px); passive “Watch” steps; translucent sticky bar shows body text through it; the question (title) scrolls away. | High |
+| Lab | Controls, readouts and chart are the strongest screen, but the experiment explanation sits below the chart, values sit far from their sliders, and the page opens mid-panel. | Medium |
+| Practice / Progress / Interview | Newcomers meet rules paragraphs, dashed empty boxes and five identical “Start” rows; export/import outweighs learning on Progress. | Medium |
+| Identity | Pleasant but generic course site; the distinctive asset (components with live mono state) is confined to cards. | Medium |
+| Accessibility | Small mid-grey wayfinding text (breadcrumb, step count, tags); status dots colour-only and two similar blues; 34–36 px chips and row buttons. | Medium |
+
+**Priorities taken into the redesign:** (1) a tappable prediction in the home hero, carried into lesson 1;
+(2) one Category → Module → Lesson navigator (sidebar / drawer) with search and a resume entry; (3) a stage-first
+workbench reader that keeps question, visual, explanation and action together; (4) an opaque, compact step bar;
+(5) accordion catalog with progress counts; (6) useful first-run states for Practice, Progress and Interview;
+(7) status shown by shape and label, larger wayfinding text.
