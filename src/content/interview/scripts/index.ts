@@ -1,4 +1,5 @@
 import type { InterviewScript } from '../types';
+import { chat } from './chat';
 import { checkout } from './checkout';
 import { collabEditor } from './collabEditor';
 import { fileSync } from './fileSync';
@@ -13,4 +14,4 @@ import { urlShortener } from './urlShortener';
 import { video } from './video';
 
 /** Authored interview scripts by case id. Every published case must have one (audit:content). */
-export const SCRIPTS: Record<string, InterviewScript> = Object.fromEntries([checkout, collabEditor, fileSync, liveScores, lldBooking, notifications, payments, rateLimiter, rideMatching, ticketBooking, urlShortener, video].map((s) => [s.caseId, s]));
+export const SCRIPTS: Record<string, InterviewScript> = Object.fromEntries([chat, checkout, collabEditor, fileSync, liveScores, lldBooking, notifications, payments, rateLimiter, rideMatching, ticketBooking, urlShortener, video].map((s) => [s.caseId, s]));
