@@ -235,23 +235,62 @@ try {
   ok('rubric ratings are stored as self-assessment', !!(await guestRec('self:case-notifications'))?.ratings);
   await ctxF.close();
 
-  // ---------- Interview workspace persists a diagram across reloads ----------
-  const ctxE = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  // ---------- Interview simulator journeys (interview brief §10), phone width ----------
+  const ctxE = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
   const iv = await ctxE.newPage();
   iv.on('pageerror', (e) => errors.push(String(e)));
+  const tab = (n) => iv.getByRole('tab', { name: new RegExp(n) }).click();
+  const node = (n) => iv.locator(`g.bld-node[aria-label^="${n},"]`);
+  const logText = async () => (await iv.locator('.log').innerText()).replace(/\s+/g, ' ');
   await iv.goto(`${base}/interview`);
-  await iv.getByRole('button', { name: 'Start' }).first().click();
+  ok('picker says what you will do', await iv.locator('.cc-do', { hasText: /race two buyers/i }).first().waitFor({ timeout: 8000 }).then(() => true, () => false));
+  await iv.getByRole('button', { name: /Guided practice: .*ticket/i }).click();
   await iv.waitForURL(/\/interview\/.+/);
-  await iv.getByPlaceholder(/Add a component/).fill('Booking service');
-  await iv.getByRole('button', { name: 'Add', exact: true }).click();
-  await iv.locator('#iv-notes').fill(`Assume 50k holds/min (${rand})`);
-  await iv.waitForTimeout(300);
+  ok('a guided case opens with the interviewer’s concrete first move', await iv.getByText(/Show me what happens after someone taps Reserve/).first().isVisible());
+  await iv.getByRole('button', { name: 'Start designing' }).click();
+  await tab('Workspace');
+  await iv.getByRole('button', { name: 'Add Ticket app' }).click();
+  await iv.getByRole('button', { name: 'Add Booking service' }).click();
+  await node('Ticket app').click();
+  await iv.getByRole('button', { name: /Connect to/ }).click();
+  await node('Booking service').click();
+  await iv.getByRole('button', { name: 'sends request', exact: true }).click();
+  ok('phone: two parts added and connected by tapping, with a stated meaning', (await iv.locator('g.bld-link .pill', { hasText: 'sends request' }).count()) === 1);
+  const firstFrom = async () => { await iv.locator('.bld-list').evaluate((d) => { d.open = true; }); return (await iv.locator('.bld-arrows li span').first().innerText()).trim(); };
+  await iv.getByRole('button', { name: /Reverse/ }).first().click();
+  ok('phone: the connection can be changed (reversed)', (await firstFrom()) === 'Booking service');
+  await iv.getByRole('button', { name: 'Undo' }).click();
+  ok('phone: undo restores the previous connection', (await firstFrom()) === 'Ticket app');
+  await iv.locator('.bld-list').evaluate((d) => { d.open = false; });
+  await iv.getByRole('button', { name: 'Add Seat store' }).click();
+  await node('Booking service').click();
+  await iv.getByRole('button', { name: /Connect to/ }).click();
+  await node('Seat store').click();
+  await iv.getByRole('button', { name: 'reads and writes', exact: true }).click();
+  await tab('Interviewer');
+  await iv.getByRole('button', { name: 'Discuss my design' }).click();
+  ok('a relevant follow-up names the learner’s own parts, without typing', /Booking service/.test(await logText()));
+  // stuck → full solution → my design → try again
+  await iv.getByRole('button', { name: /I’m stuck/ }).first().click();
+  await iv.getByRole('button', { name: /Full case solution/ }).click();
+  ok('full solution shows a traced request and the trade-off', await iv.getByText('Main trade-off.').isVisible());
+  await iv.getByRole('button', { name: 'Try this step again' }).click();
+  await tab('Workspace');
+  ok('after help, the learner is back on their own design', await iv.getByRole('radio', { name: 'My design' }).getAttribute('aria-checked') === 'true');
+  // reload: same stage, design and decisions
+  await iv.getByRole('button', { name: 'Add Seat store' }).click();
+  await iv.waitForTimeout(400);
   await iv.reload();
-  const boxKept = await iv.locator('svg.workspace text', { hasText: 'Booking service' }).count();
-  const notesKept = (await iv.locator('#iv-notes').inputValue()).includes(rand);
-  ok('interview diagram and notes survive a reload', boxKept === 1 && notesKept);
+  await tab('Workspace');
+  ok('resume: the same stage and editable design after a reload', (await iv.locator('g.bld-node').count()) >= 1 && (await iv.locator('.iv-rail [aria-current="step"]').innerText()).includes('Design'));
   await iv.goto(`${base}/interview`);
-  ok('interview appears in “Your mock interviews”', await iv.getByText('Your mock interviews').isVisible());
+  ok('picker offers an obvious resume', await iv.locator('.resume-card').first().isVisible());
+  // HLD → LLD: a different main activity
+  await iv.getByRole('radio', { name: 'Low-level design' }).click();
+  await iv.getByRole('button', { name: /Mock interview: /i }).first().click();
+  await iv.getByRole('button', { name: 'Start designing' }).click();
+  await tab('Workspace');
+  ok('LLD case: a state machine with a clock, not a service diagram', await iv.getByRole('button', { name: 'Advance the clock' }).isVisible());
 
   // ---------- Capstone loads and its surprise step is reachable ----------
   await iv.goto(`${base}/capstone/capstone`);
