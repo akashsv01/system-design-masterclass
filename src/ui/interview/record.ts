@@ -7,7 +7,7 @@ import { EMPTY_GRAPH, type DesignGraph } from '../../sim/interview/graph';
 import type { InterviewScript } from '../../content/interview/types';
 
 export type HelpLevel = 0 | 1 | 2 | 3 | 4;
-export interface LogEntry { at: number; who: 'interviewer' | 'you'; text: string; rule?: string; verdict?: 'sound' | 'partial' | 'risky' }
+export interface LogEntry { at: number; who: 'interviewer' | 'you'; text: string; rule?: string; verdict?: 'sound' | 'partial' | 'risky'; stage?: number }
 
 export interface SessionV2 {
   v: 2;
@@ -29,6 +29,8 @@ export interface SessionV2 {
   answers: Record<string, string>;
   /** Activity outcomes the interviewer and debrief read, e.g. race: 'one'. */
   results: Record<string, string>;
+  /** The first outcome of each activity, kept so the debrief can show what changed during the attempt. */
+  first: Record<string, string>;
   log: LogEntry[];
   /** Acknowledgements already made (rule ids). */
   acked: string[];
@@ -77,7 +79,7 @@ export function migrate(r: unknown, script?: InterviewScript): SessionV2 | null 
 export function blank(caseId: string, mode: 'guided' | 'mock'): SessionV2 {
   return {
     v: 2, caseId, mode, startedAt: Date.now(), timer: { on: false, minutes: 45 }, stage: 0, reached: 0,
-    design: EMPTY_GRAPH, states: EMPTY_GRAPH, work: {}, answers: {}, results: {}, log: [], acked: [], help: {}, snapshots: {}, notes: '',
+    design: EMPTY_GRAPH, states: EMPTY_GRAPH, work: {}, answers: {}, results: {}, first: {}, log: [], acked: [], help: {}, snapshots: {}, notes: '',
   };
 }
 

@@ -173,7 +173,11 @@ export const lldBooking: InterviewScript = {
     { id: 'roles-good', stage: 'roles', when: { result: 'roles', is: 'pass' }, ack: 'Each job sits with the object that owns its data.', strength: 'You put each responsibility where its data lives (SeatInventory decides, Hold remembers, BookingService coordinates).' },
     { id: 'roles-gap', stage: 'roles', when: { result: 'roles', is: 'gaps' }, gap: { text: 'Some jobs were given to objects that don’t own the data they need.', fix: 'Reassign the cards marked “reconsider” and walk through Ben’s payment again.', stage: 'roles', lesson: 'responsibilities' } },
     { id: 'servers-fixed', stage: 'servers', when: { result: 'servers', is: 'one' }, ack: 'With the check in the shared database, only one server’s buyer wins.', strength: 'You moved the check-and-change to the shared store when one process became ten.' },
-    { id: 'servers-over', stage: 'servers', when: { result: 'servers', is: 'oversold' }, gap: { text: 'Per-process locks let two servers sell F12 twice.', fix: 'Use a conditional write or a row lock in the shared database and rerun.', stage: 'servers', lesson: 'concurrency-lld' } },
+    { id: 'servers-over', stage: 'servers', when: { result: 'servers', is: 'oversold' }, priority: 5, ask: { text: 'Server 3 and server 7 each took their own lock, and both sold F12. Where must the check-and-change live now?', choices: [
+      { id: 'db', label: 'In the database all ten servers share, as one conditional write', reply: 'Yes: only the shared store sees every caller. Switch the write and run the same order again.', verdict: 'sound' },
+      { id: 'sticky', label: 'Route every request for an event to the same server', reply: 'That can work (one owner per event), but you must handle that server failing and moving its events. It is a valid design with more moving parts.', verdict: 'partial' },
+      { id: 'bigger', label: 'Use a bigger lock in each server', reply: 'Any lock that lives inside one process only coordinates that process.', verdict: 'risky' },
+    ] }, gap: { text: 'Per-process locks let two servers sell F12 twice.', fix: 'Use a conditional write or a row lock in the shared database and rerun.', stage: 'servers', lesson: 'concurrency-lld' } },
   ],
   solution: {
     design: {

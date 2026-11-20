@@ -41,7 +41,15 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
   const nav = useNavigate();
   const ref = useRef(s);
   ref.current = s;
-  const update = (f: (x: SessionV2) => SessionV2) => { const next = f(ref.current); if (next !== ref.current) { ref.current = next; save(next); } };
+  const update = (f: (x: SessionV2) => SessionV2) => {
+    const prev = ref.current;
+    let next = f(prev);
+    if (next === prev) return;
+    // Conversation is threaded by stage: stamp new entries with the stage they belong to.
+    if (next.log.length > prev.log.length) next = { ...next, log: next.log.map((e, i) => (i >= prev.log.length && e.stage === undefined ? { ...e, stage: prev.stage } : e)) };
+    ref.current = next;
+    save(next);
+  };
   const designH = useDesignHistory(s.design, (g) => update((x) => ({ ...x, design: g })));
   const statesH = useDesignHistory(s.states, (g) => update((x) => ({ ...x, states: g })));
   const debriefing = s.stage >= script.stages.length;
@@ -55,6 +63,7 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
   const [diffIx, setDiffIx] = useState(0);
   const [walkIx, setWalkIx] = useState(0);
   const [pending, setPending] = useState<{ kind: 'rule'; id: string } | { kind: 'label'; linkId: string } | null>(null);
+  const [earlier, setEarlier] = useState(false);
   const [now, setNow] = useState(Date.now());
   useEffect(() => { if (!s.timer.on) return; const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, [s.timer.on]);
   useEffect(() => { document.title = `${topicById(script.caseId)?.short ?? script.brief.interviewer.name} · Interview · System Design Masterclass`; }, [script]);
@@ -234,8 +243,10 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
           {panel === 'talk' ? (
             <div className="talk">
               <ol className="log" aria-live="polite">
-                {s.log.slice(-8).map((m, i) => <li key={i} className={`msg ${m.who} ${m.verdict ?? ''}`}>{m.who === 'interviewer' && <span className="who">{script.brief.interviewer.name}</span>}<Rich text={m.text} /></li>)}
+                {(earlier ? s.log : s.log.filter((m) => (m.stage ?? 0) === s.stage)).slice(earlier ? -40 : -10).map((m, i) => <li key={i} className={`msg ${m.who} ${m.verdict ?? ''}`}>{m.who === 'interviewer' && <span className="who">{script.brief.interviewer.name}</span>}<Rich text={m.text} /></li>)}
+                {!s.log.some((m) => (m.stage ?? 0) === s.stage) && !earlier && <li className="msg interviewer"><span className="who">{script.brief.interviewer.name}</span>{guided ? stage.intro : 'Go ahead. I’ll follow up on what you decide.'}</li>}
               </ol>
+              {s.log.some((m) => (m.stage ?? 0) !== s.stage) && <button className="btn-link small" onClick={() => setEarlier(!earlier)}>{earlier ? 'Show this stage only' : 'Show earlier conversation'}</button>}
               {pendingRule?.ask && (
                 <div className="ask-now">
                   <div className="choice-col">{pendingRule.ask.choices?.map((c) => <button key={c.id} className="choice" onClick={() => answer(c.id)}>{fill(c.label, s.design)}</button>)}</div>
@@ -414,12 +425,22 @@ function Debrief({ script, s, go, update, store, nav }: { script: InterviewScrip
   const { strengths, gaps } = debrief(script.rules, ctx);
   const assisted = script.stages.filter((st) => (s.help[st.id] ?? 0) >= 3);
   const stageIx = (id: string) => script.stages.findIndex((st) => st.id === id);
-  const gap = gaps[0];
+  const BAD = /^(oversold|stuck|fail|gaps|error|broken)$|:unbounded$/;
+  const keyStage = (k: string) => (k.startsWith('trace:') ? 'design' : k.split(':')[0]);
+  // What changed during the attempt: first outcome was poor, the latest is not.
+  const learned = Object.entries(s.first ?? {}).filter(([k, v]) => BAD.test(v) && s.results[k] && !BAD.test(s.results[k])).map(([k]) => stageIx(keyStage(k))).filter((i) => i >= 0);
+  // Questions the interviewer asked that the learner left open.
+  const open = [...new Map(s.log.filter((e) => e.rule && script.rules.find((r) => r.id === e.rule)?.ask && !s.answers[e.rule]).map((e) => [e.rule!, e])).values()];
+  const openRule = open.length ? script.rules.find((r) => r.id === open[0].rule) : undefined;
+  const gapRule = gaps[0];
   const strong = strengths[0];
-  const hardest = gap ? stageIx(gap.gap!.stage) : assisted[0] ? stageIx(assisted[0].id) : -1;
+  const gapText = gapRule ? gapRule.gap!.text : openRule ? `You left a question open: “${fill(openRule.ask!.text, s.design)}”` : assisted.length ? `You used the solution for “${assisted[0].title}”.` : null;
+  const fixText = gapRule ? gapRule.gap!.fix : openRule ? 'Go back and answer it: say which choice you’d defend and why.' : assisted.length ? `Try “${assisted[0].title}” again without help.` : 'Run it as a mock interview: no coaching until the debrief.';
+  const hardest = gapRule ? stageIx(gapRule.gap!.stage) : openRule ? open[0].stage ?? stageIx(openRule.stage ?? '') : assisted[0] ? stageIx(assisted[0].id) : learned[0] ?? -1;
   const changeIx = script.stages.findIndex((st) => st.change?.alternate);
   const other = Object.values(SCRIPTS).filter((x) => x.caseId !== script.caseId && x.skills.some((k) => script.skills.includes(k))).sort((a, b) => Number(a.track === script.track) - Number(b.track === script.track))[0];
-  const lessons = [...new Set([gap?.gap?.lesson, ...assisted.flatMap((st) => st.lessons ?? [])].filter(Boolean) as string[])].slice(0, 3);
+  const lessons = [...new Set([gapRule?.gap?.lesson, ...assisted.flatMap((st) => st.lessons ?? []), ...(hardest >= 0 ? script.stages[hardest].lessons?.slice(0, 1) ?? [] : [])].filter(Boolean) as string[])].slice(0, 3);
+  const nameOf = (id: string) => topicById(id)?.short ?? topicById(id)?.title ?? id;
   const rubric = CASES[script.caseId]?.rubric ?? [];
   const [scores, setScores] = useState<Record<string, number>>(s.scores ?? {});
   useEffect(() => { if (!s.finishedAt) { update((x) => ({ ...x, finishedAt: Date.now() })); raiseStatus(store, script.caseId, 'studied'); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -434,15 +455,22 @@ function Debrief({ script, s, go, update, store, nav }: { script: InterviewScrip
       <h2 className="iv-q">Debrief</h2>
       <div className="db-grid">
         <section className="db-card ok"><h3><Icon name="check" size={16} /> Strongest decision</h3><p>{strong ? fill(strong.strength!, s.design) : 'You worked through every stage. Discuss your design at each stage to get more specific feedback.'}</p>{strong?.stage && <button className="btn-link" onClick={() => go(stageIx(strong.stage!))}>See it in “{script.stages[stageIx(strong.stage!)]?.title}”</button>}</section>
-        <section className="db-card warn"><h3><Icon name="alert" size={16} /> Most consequential gap</h3><p>{gap ? gap.gap!.text : assisted.length ? `You used the solution for “${assisted[0].title}”.` : 'No gaps found in what you built and answered.'}</p>{hardest >= 0 && <button className="btn-link" onClick={() => go(hardest)}>Go back to “{script.stages[hardest].title}”</button>}</section>
-        <section className="db-card accent"><h3><Icon name="target" size={16} /> One concrete improvement</h3><p>{gap ? gap.gap!.fix : assisted.length ? `Try “${assisted[0].title}” again without help.` : 'Replay the changed condition with a different twist.'}</p>{hardest >= 0 && <button className="btn btn-small" onClick={() => go(hardest)}>Apply it and replay</button>}</section>
+        <section className="db-card warn"><h3><Icon name="alert" size={16} /> Most consequential gap</h3><p>{gapText ?? 'Nothing left open in what you built and answered.'}</p>{hardest >= 0 && gapText && <button className="btn-link" onClick={() => go(hardest)}>Go back to “{script.stages[hardest].title}”</button>}</section>
+        <section className="db-card accent"><h3><Icon name="target" size={16} /> One concrete improvement</h3><p>{fixText}</p>{hardest >= 0 && <button className="btn btn-small" onClick={() => go(hardest)}>Apply it and replay</button>}</section>
       </div>
+      {learned.length > 0 && <p className="db-growth"><Icon name="replay" size={15} /> During your attempt you changed your design and the outcome changed with it: {[...new Set(learned)].map((i) => `“${script.stages[i].title}”`).join(', ')}.</p>}
+      {s.design.comps.length > 0 && (
+        <details className="more" open>
+          <summary>Your final design</summary>
+          <div className="more-body"><Builder graph={s.design} palette={script.palette} verbs={script.verbs} mode={script.track === 'lld' ? 'classes' : 'architecture'} readOnly label="Your final design" /></div>
+        </details>
+      )}
       {lessons.length > 0 && <p className="db-lessons"><strong>Revisit:</strong> {lessons.map((l, i) => { const t = topicById(l); return t ? <span key={l}>{i > 0 && ' · '}<Link to={t.route}>{t.short ?? t.title}</Link></span> : null; })}</p>}
       <h3>Next</h3>
       <ul className="db-next">
         {hardest >= 0 && <li><button className="btn" onClick={() => go(hardest)}><Icon name="replay" size={15} /> Retry “{script.stages[hardest].title}”</button></li>}
         {changeIx >= 0 && <li><button className="btn" onClick={() => startNew(script.caseId, true)}><Icon name="alert" size={15} /> {script.stages[changeIx].change!.alternate!.label}</button></li>}
-        {other && <li><button className="btn" onClick={() => startNew(other.caseId)}><Icon name="arrow-right" size={15} /> Same skill, new setting: {topicById(other.caseId)?.short ?? other.caseId}</button></li>}
+        {other && <li><button className="btn" onClick={() => startNew(other.caseId)}><Icon name="arrow-right" size={15} /> Same skill, new setting: {nameOf(other.caseId)}</button></li>}
       </ul>
       {assisted.length > 0 && <p className="muted small">Assisted stages (private): {assisted.map((st) => st.title).join(', ')}. They stay in your progress until you complete them on your own.</p>}
       {rubric.length > 0 && (

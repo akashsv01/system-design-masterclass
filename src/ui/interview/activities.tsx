@@ -32,7 +32,7 @@ export function useWork<T extends Record<string, unknown>>(p: ActProps, init: T)
   const w = { ...init, ...(p.s.work[p.stage.id] as Partial<T> | undefined) } as T;
   return [w, (patch) => p.update((s) => ({ ...s, work: { ...s.work, [p.stage.id]: { ...(s.work[p.stage.id] ?? {}), ...patch } } }))];
 }
-export const setResult = (p: ActProps, key: string, value: string) => p.update((s) => (s.results[key] === value ? s : { ...s, results: { ...s.results, [key]: value } }));
+export const setResult = (p: ActProps, key: string, value: string) => p.update((s) => (s.results[key] === value ? s : { ...s, results: { ...s.results, [key]: value }, first: s.first?.[key] ? s.first : { ...(s.first ?? {}), [key]: value } }));
 
 function Controls({ pl, labels }: { pl: ReturnType<typeof usePlayer>; labels?: { play?: string } }) {
   return (
@@ -69,7 +69,7 @@ export function ClarifyActivity(p: ActProps & { a: A<'clarify'>; onNext: () => v
   const ask = (id: string) => {
     const q = p.a.questions.find((x) => x.id === id)!;
     if (p.s.answers[`asked:${id}`]) return;
-    p.update((s) => ({ ...s, answers: { ...s.answers, [`asked:${id}`]: '1' }, log: [...s.log, { at: Date.now(), who: 'you', text: q.q }, { at: Date.now(), who: 'interviewer', text: q.a }] }));
+    p.update((s) => ({ ...s, answers: { ...s.answers, [`asked:${id}`]: '1' }, log: [...s.log, { at: Date.now(), who: 'you', text: q.q, stage: s.stage }, { at: Date.now(), who: 'interviewer', text: q.a, stage: s.stage }] }));
   };
   const askOwn = () => {
     const words = own.toLowerCase().split(/\W+/).filter((w) => w.length > 3);
@@ -77,9 +77,9 @@ export function ClarifyActivity(p: ActProps & { a: A<'clarify'>; onNext: () => v
     const text = own.trim();
     setOwn('');
     if (best && best.n >= 1) {
-      p.update((s) => ({ ...s, answers: { ...s.answers, [`asked:${best.q.id}`]: '1' }, log: [...s.log, { at: Date.now(), who: 'you', text }, { at: Date.now(), who: 'interviewer', text: best.q.a }] }));
+      p.update((s) => ({ ...s, answers: { ...s.answers, [`asked:${best.q.id}`]: '1' }, log: [...s.log, { at: Date.now(), who: 'you', text, stage: s.stage }, { at: Date.now(), who: 'interviewer', text: best.q.a, stage: s.stage }] }));
     } else {
-      p.update((s) => ({ ...s, log: [...s.log, { at: Date.now(), who: 'you', text }, { at: Date.now(), who: 'interviewer', text: 'The brief doesn’t settle that. Make a reasonable assumption, say it out loud, and carry it through.' }] }));
+      p.update((s) => ({ ...s, log: [...s.log, { at: Date.now(), who: 'you', text, stage: s.stage }, { at: Date.now(), who: 'interviewer', stage: s.stage, text: 'The brief doesn’t settle that. Make a reasonable assumption, say it out loud, and carry it through.' }] }));
     }
   };
   return (
