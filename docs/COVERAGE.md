@@ -12,7 +12,7 @@ Four separate kinds of evidence, never merged:
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
 
-Audit: 0 error(s), 1 warning(s).
+Audit: 0 error(s), 0 warning(s).
 
 ## Start here
 
@@ -177,7 +177,3 @@ Audit: 0 error(s), 1 warning(s).
 | [LRU cache (machine coding)](/cases/lld-lru) | verified | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 0/2 |
 | [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | verified | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 0/2 |
 | [Capstone](/capstone/capstone) | verified | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 0/2 |
-
-## Audit warnings
-
-- interview: lld-logger has no interview script yet

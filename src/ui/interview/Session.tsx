@@ -96,7 +96,8 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
       lines.push({ at: Date.now(), who: 'interviewer', text: guided ? 'Nothing more from me on this stage. Move on when you’re ready, or keep improving it.' : 'Okay. Carry on when you’re ready.' });
     }
     if (lines.length) update((y) => ({ ...y, log: [...y.log, ...lines], acked: ack ? [...y.acked, ack.id] : y.acked }));
-    if (lines.length) setPanel('talk');
+    // Only an explicit “Discuss my design” switches panels; automatic follow-ups wait in the conversation.
+    if (lines.length && !quietIfNothing) setPanel('talk');
   };
   // The interviewer follows up on decisions as they happen (activity outcomes); design edits wait for “Discuss” in mock mode.
   const resultsKey = JSON.stringify(s.results);

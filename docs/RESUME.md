@@ -17,13 +17,14 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 - [x] Session shell (brief drawer/tab, clarify/assume, guided vs mock, help ladder, my design vs worked solution with adopt, debrief, phone tabs, v1 record migration)
 - [x] Verified in a browser at 1280 and iPhone 13: connect service→database, trace, insert a cache, replay — animation stops at the cache and the interviewer’s follow-ups name the learner’s parts (scratchpad `iv1.cjs`)
 - [x] LLD exemplar play-through (states stuck→fixed, roles, ten servers, debrief grounded in the attempt)
-- [~] Scripts: 12/31 committed (ticket, lld-booking, notifications, live-scores, url-shortener, rate-limiter, file-sync, video, payments, checkout + 2 exemplars). Agents resumed one batch at a time (B chat/collab/feed/autocomplete, D ride/scheduler/metrics/crawler, E1 parking/elevator/vending/library; then E2, F1, F2). Register with scratchpad genindex.py or edit scripts/index.ts.
+- [x] Scripts: 31/31 published cases have audited interview scripts (audit:content 0 errors, 0 warnings); every case played through to its debrief in a browser with the help ladder at each stage, no page errors (scratchpad all.cjs). Earlier note: 12/31 committed (ticket, lld-booking, notifications, live-scores, url-shortener, rate-limiter, file-sync, video, payments, checkout + 2 exemplars). Agents resumed one batch at a time (B chat/collab/feed/autocomplete, D ride/scheduler/metrics/crawler, E1 parking/elevator/vending/library; then E2, F1, F2). Register with scratchpad genindex.py or edit scripts/index.ts.
 - [x] Home hero race; navigator; Impeccable detector clean; a11y clean; e2e 50/50; continuous beginner journey passes at 1280 + iPhone 13 (scratchpad journey.cjs)
 - [ ] (old note) Remaining 29 scripts: authoring agents hit the account usage limit (Fable, then Sonnet); resume them or author directly. Shared brief: scratchpad authoring-brief.md (copy in docs/INTERVIEW_AUTHORING.md)
 - [ ] (was) LLD exemplar play-through (states/roles/ten servers); then e2e journeys replacing the old interview e2e check (it still targets the removed text-box workspace)
 - [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
-- [ ] Journeys in e2e (desktop + 390), a11y, screenshots, docs, push
+- [x] Journeys in e2e (phone width; desktop journeys in scratchpad iv1/iv2/nav/journey scripts), a11y clean, docs (DESIGN §1e D23–D31), pushed
+- Remaining for a later pass: Hallmark/Unslop install needs the owner’s approval; human editorial review of the 29 agent-authored scripts (authored by Sonnet subagents after Fable ran out of credits, audited structurally and played through, not reviewed line by line); critique #2 screenshots of the reader at all widths
 
 ### Authoring tools (installed 2026-11-20; not site dependencies — nothing added to package.json)
 | Tool | State | Notes |
