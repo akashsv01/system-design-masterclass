@@ -66,11 +66,10 @@ export function ShortAnswer({ lessonId, spec }: { lessonId: string; spec: ShortA
         <SaveStatus savedAt={st.savedAt} />
         {long && <span>· That’s more than two sentences’ worth. Try saying it shorter.</span>}
       </p>
-      {st.hint && spec.hint && <div className="callout"><strong>Hint</strong><Rich text={spec.hint} /></div>}
-      {!st.model ? (
+            {!st.model ? (
         <div className="toolbar" style={{ marginTop: 8, marginBottom: 0 }}>
           <button className="btn btn-primary btn-small" disabled={!st.text.trim()} onClick={() => set({ model: true })}>Compare with a model answer</button>
-          {spec.hint && !st.hint && <button className="btn btn-small btn-quiet" onClick={() => set({ hint: true })}>Show a hint</button>}
+          {spec.hint && <HintToggle text={spec.hint} used={st.hint} onUse={() => set({ hint: true })} />}
         </div>
       ) : (
         <>
@@ -188,9 +187,8 @@ export function LinePick({ lessonId, spec, kickerText = 'Spot it' }: { lessonId:
         onPick={pick}
         marks={show && pickedLine ? { [pickedLine]: correct ? 'right' : 'wrong', ...(correct ? {} : {}) } : {}}
       />
-      {!show && spec.hint && (st?.hint ? <div className="callout"><strong>Hint</strong><Rich text={spec.hint} /></div> : (
-        <button className="btn btn-small btn-quiet" onClick={() => setSt({ attempts: st?.attempts ?? [], hint: true })}>Show a hint</button>
-      ))}
+      {!show && spec.hint && (<HintToggle text={spec.hint} used={!!st?.hint} onUse={() => setSt({ attempts: st?.attempts ?? [], hint: true })} />
+      )}
       {show && (
         <div className="feedback" role="status">
           {correct ? <p><strong>Yes — line {pickedLine}.</strong> <Rich text={spec.explain} /></p> : (
@@ -274,11 +272,10 @@ export function FillBlank({ lessonId, spec }: { lessonId: string; spec: FillBlan
       </div>
       <div className="toolbar" style={{ marginTop: 10, marginBottom: 0 }}>
         <button className="btn btn-primary btn-small" onClick={run} disabled={running || !st.value.trim()}>{running ? 'Running Python…' : 'Run the checks'}</button>
-        {spec.hint && !st.hint && <button className="btn btn-small btn-quiet" onClick={() => setSt({ ...st, hint: true })}>Show a hint</button>}
+        {spec.hint && <HintToggle text={spec.hint} used={st.hint} onUse={() => setSt({ ...st, hint: true })} />}
         {!st.revealed && st.tries > 0 && !st.passed && <button className="btn btn-small btn-quiet" onClick={() => setSt({ ...st, revealed: true })}>Show the answer</button>}
       </div>
       {running && st.tries === 0 && <p className="muted" style={{ fontSize: 14 }}>The first run loads Python into your browser (about 12 MB, then cached). Nothing is sent to a server.</p>}
-      {st.hint && spec.hint && <div className="callout"><strong>Hint</strong><Rich text={spec.hint} /></div>}
       {res && (
         <div className={`notice ${st.passed ? '' : 'warn'}`} style={{ marginTop: 10 }} role="status">
           {res.error && <p style={{ margin: 0 }}>{res.error}</p>}
@@ -299,5 +296,16 @@ export function FillBlank({ lessonId, spec }: { lessonId: string; spec: FillBlan
       {st.revealed && <div className="callout"><strong>Answer</strong><code>{spec.answer}</code> — <Rich text={spec.explain} /></div>}
       {st.savedAt && <p className="save-note"><SaveStatus savedAt={st.savedAt} /></p>}
     </section>
+  );
+}
+
+/** A hint the learner can open and close again. Opening it the first time is recorded (it counts as help). */
+function HintToggle({ text, used, onUse }: { text: string; used: boolean; onUse: () => void }) {
+  const [open, setOpen] = useState(used);
+  return (
+    <div className="hint-toggle">
+      <button className="btn btn-small btn-quiet" aria-expanded={open} onClick={() => { if (!used) onUse(); setOpen(!open); }}>{open ? 'Hide hint' : used ? 'Show the hint again' : 'Show a hint'}</button>
+      {open && <div className="callout"><strong>Hint</strong><Rich text={text} /></div>}
+    </div>
   );
 }

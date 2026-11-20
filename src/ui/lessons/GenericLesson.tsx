@@ -92,7 +92,8 @@ export default function GenericLesson({ id }: { id: string }) {
         count={count}
         onBack={back}
         onNext={next}
-        onReplay={step < practiceStep ? replay : undefined}
+        // Replay only where something moves (a token travelling an arrow); elsewhere it would do nothing visible.
+        onReplay={step < practiceStep && lesson.visual.kind === 'diagram' && (lesson.steps[step]?.view?.tokens ?? []).some((t) => t.at === undefined) ? replay : undefined}
         nextLabel={step + 1 < practiceStep ? lesson.steps[step + 1].title : step + 1 === practiceStep ? 'Check yourself' : undefined}
         nextDisabled={!predictAnswered}
         nextHint={!predictAnswered ? 'Answer the question above to continue' : undefined}

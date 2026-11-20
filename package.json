@@ -11,7 +11,7 @@
     "dev:web": "vite",
     "dev:api": "tsx watch server/index.ts",
     "build": "tsc -b && vite build",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "tsx scripts/start.ts",
     "test": "vitest run",
     "typecheck": "tsc -b",
     "coverage:report": "tsx scripts/coverage-report.ts",

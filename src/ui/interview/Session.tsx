@@ -124,7 +124,7 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
   const openHelp = (lvl: HelpLevel) => {
     setPanel('help'); setHelpLevel(lvl); setTab('interviewer');
     update((x) => ((x.help[stage.id] ?? 0) >= lvl ? x : { ...x, help: { ...x.help, [stage.id]: lvl } }));
-    if (lvl === 4 && hasCanvas(stage)) setView('solution');
+    
   };
   const retry = () => {
     const snap = s.snapshots[stage.id];
@@ -139,7 +139,7 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
   const solutionMarks: Record<string, Mark> = {};
   const walkFocus = panel === 'help' && helpLevel === 2 ? stage.help.walkthrough[walkIx]?.focus : undefined;
   if (walkFocus) walkFocus.forEach((id) => { solutionMarks[id] = { tone: 'focus', tag: `Step ${walkIx + 1}` }; });
-  else if (diffs[diffIx]) solutionMarks[diffs[diffIx].id] = { tone: 'focus', tag: `Difference ${diffIx + 1} of ${diffs.length}` };
+  else if (diffs.length) { const i = Math.min(diffIx, diffs.length - 1); solutionMarks[diffs[i].id] = { tone: 'focus', tag: diffs[i].alt ? 'Different part' : 'Missing from yours' }; }
   const adopt = (id: string) => {
     const next = adoptPart(script, s.design, id);
     if (next !== s.design) designH.commit(next);
@@ -200,7 +200,7 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
         <h2 id="iv-q" className="iv-q">{s.stage === 0 && s.log.length === 0 ? script.brief.firstMove : stage.question}</h2>
         <div className="iv-help-row">
           <button className="btn btn-small" onClick={() => openHelp(1)}><Icon name="spark" size={15} /> I’m stuck</button>
-          <button className="btn btn-small" onClick={() => openHelp(3)}><Icon name="eye" size={15} /> Show solution</button>
+          <button className="btn btn-small" onClick={() => { openHelp(3); if (hasCanvas(stage)) { setView('solution'); setTab('workspace'); } }}><Icon name="eye" size={15} /> Show solution</button>
           <button className="btn btn-small btn-quiet mobile-only" onClick={() => setTab('brief')}><Icon name="book" size={15} /> Brief</button>
         </div>
       </section>
@@ -215,19 +215,26 @@ function Running({ script, s, save }: { script: InterviewScript; s: SessionV2; s
         <section id="pane-workspace" className="pane pane-workspace" aria-label="Workspace">
           {hasCanvas(stage) && (
             <div className="view-switch">
-              <div className="segmented" role="radiogroup" aria-label="Which design">
-                <button role="radio" aria-checked={view === 'mine'} onClick={() => setView('mine')}>My design</button>
-                <button role="radio" aria-checked={view === 'solution'} onClick={() => setView('solution')}>Worked solution</button>
+              <div className="segmented" role="radiogroup" aria-label="Which design to show">
+                <button role="radio" aria-checked={view === 'mine'} onClick={() => setView('mine')}>Your design</button>
+                <button role="radio" aria-checked={view === 'solution'} onClick={() => { setView('solution'); setDiffIx(0); }}>Reference design</button>
               </div>
-              {view === 'solution' && stage.activity.kind === 'build' && diffs.length > 0 && !walkFocus && (
-                <div className="diff" aria-live="polite">
-                  <span className="pill accent">{diffs[diffIx]?.alt ? 'Both valid' : `Difference ${diffIx + 1} of ${diffs.length}`}</span>
-                  <span>{diffs[diffIx]?.text}</span>
-                  {!diffs[diffIx]?.alt && <button className="btn btn-small" onClick={() => adopt(diffs[diffIx].id)}>Add to my design</button>}
-                  {diffs.length > 1 && <button className="btn btn-small btn-quiet" onClick={() => setDiffIx((diffIx + 1) % diffs.length)}>Next difference</button>}
-                </div>
+              {view === 'solution' && (
+                <p className="view-note">One sound answer to this case, for comparison. Your design stays as you left it.</p>
               )}
-              {view === 'solution' && stage.activity.kind === 'build' && diffs.length === 0 && <span className="ok-line small"><Icon name="check" size={14} /> Your design covers every part of the worked solution.</span>}
+              {view === 'solution' && stage.activity.kind === 'build' && diffs.length > 0 && !walkFocus && (() => {
+                const i = Math.min(diffIx, diffs.length - 1);
+                const d = diffs[i];
+                return (
+                  <div className="diff" aria-live="polite">
+                    <span className="pill accent">{d.alt ? 'Different part, same job' : `Missing from yours · ${i + 1} of ${diffs.length}`}</span>
+                    <span>{d.text}</span>
+                    {!d.alt && <button className="btn btn-small" onClick={() => adopt(d.id)}>Add it to my design</button>}
+                    {diffs.length > 1 && <button className="btn btn-small btn-quiet" onClick={() => setDiffIx((i + 1) % diffs.length)}>Next</button>}
+                  </div>
+                );
+              })()}
+              {view === 'solution' && stage.activity.kind === 'build' && diffs.length === 0 && <span className="ok-line small"><Icon name="check" size={14} /> Your design has every part the reference has.</span>}
             </div>
           )}
           <ActivityFor p={actProps} view={view} solutionMarks={solutionMarks} next={() => go(s.stage + 1)} />
@@ -303,57 +310,76 @@ function FreeAnswer({ placeholder, onSend }: { placeholder: string; onSend: (t: 
 
 // ── Help: hint → walkthrough → stage solution → full case solution ─────────────────────────────────
 
-function HelpPanel({ script, stage, level, setLevel, walkIx, setWalkIx, onRetry, onContinue, showSolutionView }: { script: InterviewScript; stage: Stage; level: HelpLevel; setLevel: (l: HelpLevel) => void; walkIx: number; setWalkIx: (i: number) => void; onRetry: () => void; onContinue: () => void; showSolutionView: () => void }) {
+function HelpPanel({ script, stage, level, setLevel, walkIx, setWalkIx, onRetry, onContinue }: { script: InterviewScript; stage: Stage; level: HelpLevel; setLevel: (l: HelpLevel) => void; walkIx: number; setWalkIx: (i: number) => void; onRetry: () => void; onContinue: () => void; showSolutionView?: () => void }) {
   const h = stage.help;
-  const ladder: [HelpLevel, string, string][] = [[1, 'Hint', 'A question that points at the key decision'], [2, 'Walkthrough', 'The sequence, one step at a time'], [3, 'Stage solution', 'A worked answer to this question'], [4, 'Full case solution', 'The whole design, a traced request, the trade-off']];
+  const [full, setFull] = useState(false);
+  const steps: [HelpLevel, string][] = [[1, 'Hint'], [2, 'Walkthrough'], [3, 'Answer']];
   return (
     <div className="help">
-      <ol className="ladder">
-        {ladder.map(([l, name, sub]) => (
-          <li key={l}><button aria-pressed={level === l} onClick={() => setLevel(l)}><strong>{name}</strong><span className="muted small">{sub}</span></button></li>
-        ))}
-      </ol>
+      <p className="help-lede">Take as much help as you need, from a nudge to the full answer.</p>
+      <div className="segmented help-levels" role="tablist" aria-label="How much help">
+        {steps.map(([l, name]) => <button key={l} role="tab" aria-selected={level === l} onClick={() => setLevel(l)}>{name}</button>)}
+      </div>
       <div className="help-body" aria-live="polite">
-        {level === 1 && <p className="hint-q"><Icon name="spark" size={16} /> <Rich text={h.hint} /></p>}
+        {level === 1 && <p className="hint-q"><Rich text={h.hint} /></p>}
         {level === 2 && (
           <div className="walk">
             <ol className="walk-steps">{h.walkthrough.map((w, i) => <li key={i} className={i === walkIx ? 'now' : i < walkIx ? 'done' : ''} aria-current={i === walkIx ? 'step' : undefined}>{i <= walkIx ? <Rich text={w.text} /> : <span className="muted">Step {i + 1}</span>}</li>)}</ol>
             <div className="player">
               <button className="btn btn-small btn-quiet" disabled={walkIx === 0} onClick={() => setWalkIx(walkIx - 1)}><Icon name="arrow-left" size={14} /> Back</button>
-              <button className="btn btn-small btn-primary" disabled={walkIx >= h.walkthrough.length - 1} onClick={() => setWalkIx(walkIx + 1)}>Next step <Icon name="arrow-right" size={14} /></button>
+              <button className="btn btn-small" disabled={walkIx >= h.walkthrough.length - 1} onClick={() => setWalkIx(walkIx + 1)}>Next step <Icon name="arrow-right" size={14} /></button>
             </div>
           </div>
         )}
-        {level === 3 && <div><Blocks blocks={h.solution} /><p className="why"><strong>Why this satisfies the brief:</strong> <Rich text={h.why} /></p></div>}
-        {level === 4 && <FullSolution script={script} onShow={showSolutionView} />}
+        {level >= 3 && <div><Blocks blocks={h.solution} /><p className="why"><strong>Why this works:</strong> <Rich text={h.why} /></p></div>}
       </div>
-      {level > 0 && (
-        <div className="after-help">
-          <button className="btn btn-small" onClick={onRetry}><Icon name="replay" size={14} /> Try this step again</button>
-          <button className="btn btn-small btn-primary" onClick={onContinue}>Continue with this design</button>
-        </div>
-      )}
-      <p className="muted small">Help you use is recorded privately in your progress so you can come back and try the stage on your own.</p>
+      <button className="btn-link help-full" onClick={() => { setLevel(4); setFull(true); }}>See the full solution for this case</button>
+      <div className="after-help">
+        <button className="btn btn-primary" onClick={onContinue}>Back to my design</button>
+        <button className="btn-link small" onClick={onRetry}>Start this step over</button>
+      </div>
+      {full && <FullSolution script={script} onClose={() => setFull(false)} />}
     </div>
   );
 }
 
-function FullSolution({ script, onShow }: { script: InterviewScript; onShow: () => void }) {
+/** The whole case at once, in its own full-width panel: the design, one request traced through it, the trade-off. */
+function FullSolution({ script, onClose }: { script: InterviewScript; onClose: () => void }) {
   const sol = script.solution;
   const pl = usePlayer(sol.trace.steps.length, 'full');
   const step = pl.started ? sol.trace.steps[pl.beat] : undefined;
   const marks: Record<string, Mark> = {};
   sol.trace.steps.slice(0, pl.started ? pl.beat + 1 : 0).forEach((st, i) => { marks[st.to] = { tone: i === pl.beat ? 'active' : 'ok' }; });
   const mode = sol.design.comps.some((c) => c.kind === 'class' || c.kind === 'enum' || c.kind === 'iface') ? 'classes' : 'architecture';
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const html = document.documentElement; const prev = html.style.overflow; html.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); html.style.overflow = prev; };
+  }, [onClose]);
   return (
-    <div className="full-sol">
-      <Builder graph={sol.design} palette={script.palette} verbs={script.verbs} mode={mode} readOnly label="Worked solution" marks={marks} token={step ? { from: step.from, to: step.to, t: pl.t, label: '', tone: 'request' } : null} />
-      <h4>{sol.trace.title}</h4>
-      <div className="player-row">{!pl.started ? <button className="btn btn-small btn-primary" onClick={pl.play}><Icon name="play" size={14} /> Trace it</button> : <><button className="btn btn-small" onClick={pl.playing ? pl.pause : pl.play}>{pl.playing ? 'Pause' : pl.done ? 'Replay' : 'Continue'}</button><button className="btn btn-small btn-quiet" onClick={pl.back}>Step back</button><button className="btn btn-small btn-quiet" onClick={pl.step} disabled={pl.done}>Step</button></>}</div>
-      <ol className="walk-steps">{sol.trace.steps.map((st, i) => <li key={i} className={pl.started && i === pl.beat ? 'now' : pl.started && i < pl.beat ? 'done' : ''}><Rich text={st.text} /></li>)}</ol>
-      <p><strong>Main trade-off.</strong> <Rich text={sol.tradeoff} /></p>
-      <p><strong>When another approach makes sense.</strong> <Rich text={sol.otherApproach} /></p>
-      <button className="btn btn-small btn-quiet" onClick={onShow}>Compare with my design in the workspace</button>
+    <div className="full-root">
+      <div className="drawer-scrim" onClick={onClose} aria-hidden="true" />
+      <div className="full-sol" role="dialog" aria-modal="true" aria-labelledby="full-title" ref={ref} tabIndex={-1}>
+        <div className="full-head">
+          <h2 id="full-title">Full solution</h2>
+          <button className="btn btn-small" onClick={onClose}>Close</button>
+        </div>
+        <div className="full-grid">
+          <Builder graph={sol.design} palette={script.palette} verbs={script.verbs} mode={mode} readOnly label="Reference design" marks={marks} token={step ? { from: step.from, to: step.to, t: pl.t, label: '', tone: 'request' } : null} />
+          <div className="full-text">
+            <h3>{sol.trace.title}</h3>
+            <div className="player-row">
+              {!pl.started ? <button className="btn btn-small btn-primary" onClick={pl.play}><Icon name="play" size={14} /> Play it</button> : <><button className="btn btn-small" onClick={pl.playing ? pl.pause : pl.play}>{pl.playing ? 'Pause' : pl.done ? 'Play again' : 'Continue'}</button><button className="btn btn-small btn-quiet" onClick={pl.step} disabled={pl.done}>Next step</button></>}
+            </div>
+            <ol className="walk-steps">{sol.trace.steps.map((st, i) => <li key={i} className={pl.started && i === pl.beat ? 'now' : pl.started && i < pl.beat ? 'done' : ''}><Rich text={st.text} /></li>)}</ol>
+            <h3>The main trade-off</h3><p><Rich text={sol.tradeoff} /></p>
+            <h3>When another approach fits better</h3><p><Rich text={sol.otherApproach} /></p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
