@@ -234,7 +234,7 @@ export const dependencyInjection: GenericLesson = {
       ], correct: 'expired' } },
   ],
   worked: { title: 'the test, in full', blocks: [
-    { type: 'code', lang: 'python', code: 'def test_expired_hold_is_not_charged():\n    repo = InMemoryBookings()\n    repo.save(Booking("b2", "F13", Money(4500, "EUR")))\n    charges = []\n    checkout = Checkout(\n        charge=lambda cents: charges.append(cents) or True,   # fake: records, always succeeds\n        clock=lambda: 300.0,                                 # fake: time stands still\n        bookings=repo,\n    )\n    assert checkout.pay("b2", hold_expires_at=200.0) == "hold expired"\n    assert charges == []', caption: 'Adapted from python/tests/test_lld.py — runs in milliseconds' },
+    { type: 'code', lang: 'python', code: 'def test_expired_hold_is_not_charged():\n    repo = InMemoryBookings()\n    repo.save(Booking("b2", "F13", Money(4500, "EUR")))\n    charges = []\n    checkout = Checkout(\n        charge=lambda cents: charges.append(cents) or True,   # spy: records, always succeeds\n        clock=lambda: 300.0,                                 # stub: time stands still\n        bookings=repo,\n    )\n    assert checkout.pay("b2", hold_expires_at=200.0) == "hold expired"\n    assert charges == []', caption: 'Adapted from python/tests/test_lld.py — runs in milliseconds' },
     { type: 'p', text: 'In Python, injection is usually just constructor or function arguments, with no framework required. Default arguments can supply production dependencies for convenience: `clock=time.time`.' },
   ] },
   checks: [{ kind: 'choice', id: 'q', prompt: 'Which version of a function is easiest to test?', choices: [
