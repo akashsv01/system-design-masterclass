@@ -56,7 +56,7 @@ export const fileSync: InterviewScript = {
         assumptions: [
           { id: 'chunking', q: 'How do you send a changed file?', options: [
             { id: 'whole', label: 'Upload the whole file every time', consequence: 'A one-word edit to a 1 GB file uploads 1 GB. Simple, but slow and costly for large files.' },
-            { id: 'chunks', label: 'Cut it into chunks named by hash; upload only the chunks the server lacks', consequence: 'A small edit uploads one or two chunks. You now need a list of chunk hashes per version.' },
+            { id: 'chunks', label: 'Cut it into chunks named by hash; upload only the chunks the server lacks', consequence: 'An edit that changes a small part uploads only the chunks it touches. You now need a list of chunk hashes per version.' },
           ] },
           { id: 'conflict', q: 'When two offline edits collide, what is the rule?', options: [
             { id: 'newest', label: 'The newest save wins', consequence: 'Simple, but the older edit disappears with no warning.' },
@@ -99,7 +99,7 @@ export const fileSync: InterviewScript = {
         ],
         solution: [
           { type: 'p', text: '**Two paths, kept apart.** Bytes go laptop → Upload service → Chunk storage. The version list goes through the Commit queue to Metadata service and the Metadata database. The notifier carries only news; the phone then asks for the chunk list and fetches chunks it lacks.' },
-          { type: 'code', lang: 'http', code: 'POST /v1/files/report.docx/versions\n{ "parent": 5, "chunks": ["a41f…", "9c02…", "77be…"] }\n→ 201 {version: 6} | 409 {current: 6}   (parent is no longer the latest)' },
+          { type: 'code', lang: 'http', code: 'POST /v1/files/report.docx/versions\n{ "parent": 5, "chunks": ["a41f…", "9c02…", "77be…"] }\n→ 202 {commit_id}   (queued; commits are applied in order)\nWhen applied: version 6 is created, or 409 {current: 6} if the parent is no longer the latest' },
         ],
         why: 'Keeping bytes and metadata apart means big uploads never block the small, ordered decision about versions, and the order “chunks first, then version” stops a version naming a missing chunk.',
       },

@@ -22,7 +22,7 @@ export const crawler: InterviewScript = {
     terms: [
       { term: 'frontier', meaning: 'the list of URLs still to be fetched, grouped by site, with the earliest time each site may be visited again' },
       { term: 'politeness', meaning: 'limiting how often we hit one site so we never overload it' },
-      { term: 'robots.txt', meaning: 'a file on each site saying which pages crawlers may visit and how fast' },
+      { term: 'robots.txt', meaning: 'a file on each site saying which pages crawlers may visit, and sometimes how slowly to go' },
       { term: 'crawler trap', meaning: 'a site structure that generates endless new URLs, such as a calendar with a “next month” link forever' },
     ],
     firstMove: 'A URL is waiting to be fetched. Show me how it goes from the list of URLs to a stored page, and which part makes sure we are not hammering that venue.',
@@ -123,8 +123,8 @@ export const crawler: InterviewScript = {
         hint: 'A fetcher stuck on a slow site is a fetcher that cannot serve a healthy one. How do you stop one site from holding all of them?',
         walkthrough: [
           { text: 'Normally 50 fetchers at 1 second each handle about 50 URLs a second across many sites, more than the 40 arriving.', focus: ['fetcher'] },
-          { text: 'While one site takes 6 seconds, every fetcher stuck on it handles one URL per 6 seconds, so capacity falls to around 8 a second.', focus: ['fetcher', 'sites'] },
-          { text: 'A per-site timeout plus a pause keeps that site from tying up more than a few fetchers.', focus: ['politeness', 'fetcher'] },
+          { text: 'With no cap per site, many fetchers take that site’s URLs in order. Each handles one URL per 6 seconds, so capacity falls to around 8 a second.', focus: ['fetcher', 'sites'] },
+          { text: 'The one-fetcher-per-site rule, a per-site timeout and a pause keep that site from tying up more than one fetcher.', focus: ['politeness', 'fetcher'] },
           { text: 'The slow site’s URLs wait in its own queue in the frontier; other sites keep their full rate.', focus: ['frontier', 'politeness'] },
         ],
         solution: [

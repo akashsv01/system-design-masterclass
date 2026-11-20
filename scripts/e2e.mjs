@@ -272,11 +272,12 @@ try {
   ok('a relevant follow-up names the learner’s own parts, without typing', /Booking service/.test(await logText()));
   // stuck → full solution → my design → try again
   await iv.getByRole('button', { name: /I’m stuck/ }).first().click();
-  await iv.getByRole('button', { name: /Full case solution/ }).click();
-  ok('full solution shows a traced request and the trade-off', await iv.getByText('Main trade-off.').isVisible());
-  await iv.getByRole('button', { name: 'Try this step again' }).click();
+  await iv.getByRole('button', { name: /See the full solution/ }).click();
+  ok('full solution shows a traced request and the trade-off', await iv.getByRole('dialog', { name: 'Full solution' }).getByText('The main trade-off').isVisible());
+  await iv.getByRole('dialog', { name: 'Full solution' }).getByRole('button', { name: 'Close' }).click();
+  await iv.getByRole('button', { name: 'Back to my design' }).click();
   await tab('Workspace');
-  ok('after help, the learner is back on their own design', await iv.getByRole('radio', { name: 'My design' }).getAttribute('aria-checked') === 'true');
+  ok('after help, the learner is back on their own design', await iv.getByRole('radio', { name: 'Your design' }).getAttribute('aria-checked') === 'true');
   // reload: same stage, design and decisions
   await iv.getByRole('button', { name: 'Add Seat store' }).click();
   await iv.waitForTimeout(400);
@@ -291,6 +292,51 @@ try {
   await iv.getByRole('button', { name: 'Start designing' }).click();
   await tab('Workspace');
   ok('LLD case: a state machine with a clock, not a service diagram', await iv.getByRole('button', { name: 'Advance the clock' }).isVisible());
+
+  // ---------- Owner review fixes: hints close again, Replay only where something moves, the solution area ----------
+  const ctxG = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const g = await ctxG.newPage();
+  g.on('pageerror', (e) => errors.push(String(e)));
+  await g.goto(`${base}/learn/latency`);
+  await g.locator('.controls').waitFor();
+  ok('Replay is hidden on a step where nothing moves', (await g.getByRole('button', { name: 'Replay this step' }).count()) === 0);
+  await g.goto(`${base}/learn/first-booking`);
+  await g.locator('.controls').waitFor();
+  let replayWorked = false;
+  for (let i = 0; i < 6 && !replayWorked; i++) {
+    const r = g.getByRole('button', { name: 'Replay this step' });
+    if (await r.count()) {
+      const before = await g.locator('.lesson .token').count();
+      await r.click(); await g.waitForTimeout(150);
+      replayWorked = before > 0 && (await g.locator('.lesson .token').count()) > 0;
+      break;
+    }
+    const act = g.locator('.controls .btn-primary:not(.btn-next)'); if (await act.count() && await act.isEnabled()) { await act.click(); await g.waitForTimeout(500); continue; }
+    const n = g.locator('.controls .btn-next'); if (await n.isEnabled()) { await n.click(); await g.waitForTimeout(400); } else break;
+  }
+  ok('Replay appears where a request travels, and replays it', replayWorked);
+  await g.evaluate(() => { const k = 'sdm:v1:guest'; const d = JSON.parse(localStorage.getItem(k) || '{"records":{},"cursor":0,"pending":null}'); d.records['step:hld-vs-lld'] = { value: 5, updatedAt: Date.now(), rev: 0, dirty: true }; localStorage.setItem(k, JSON.stringify(d)); });
+  await g.goto(`${base}/learn/hld-vs-lld`);
+  await g.locator('.controls').waitFor();
+  const hintBtn = g.getByRole('button', { name: 'Show a hint' }).first();
+  await hintBtn.click();
+  const shown = await g.locator('.hint-toggle .callout').first().isVisible();
+  await g.getByRole('button', { name: 'Hide hint' }).first().click();
+  ok('a hint can be shown and hidden again', shown && (await g.locator('.hint-toggle .callout').count()) === 0 && (await g.getByRole('button', { name: 'Show the hint again' }).count()) > 0);
+  await g.goto(`${base}/interview`);
+  await g.getByRole('button', { name: /Guided practice: .*ticket/i }).click();
+  await g.getByRole('button', { name: 'Start designing' }).click();
+  await g.getByRole('button', { name: 'Add Ticket app' }).click();
+  await g.keyboard.press('Escape');
+  await g.getByRole('button', { name: /Show solution/ }).first().click();
+  ok('“Show solution” shows the reference design and what your design is missing', (await g.getByRole('radio', { name: 'Reference design' }).getAttribute('aria-checked')) === 'true' && /Missing from yours · 1 of \d+/.test(await g.locator('.diff .pill').innerText()));
+  await g.getByRole('button', { name: /See the full solution/ }).click();
+  ok('the full solution opens in its own panel', await g.getByRole('dialog', { name: 'Full solution' }).isVisible());
+  await g.getByRole('button', { name: 'Play it' }).click(); await g.waitForTimeout(800);
+  await g.getByRole('button', { name: 'Close' }).click();
+  await g.getByRole('button', { name: 'Back to my design' }).click();
+  ok('“Back to my design” returns to the learner’s own design', (await g.getByRole('radio', { name: 'Your design' }).getAttribute('aria-checked')) === 'true' && (await g.locator('g.bld-node').count()) === 1);
+  await ctxG.close();
 
   // ---------- Capstone loads and its surprise step is reachable ----------
   await iv.goto(`${base}/capstone/capstone`);

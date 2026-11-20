@@ -90,7 +90,7 @@ export const insideARequest: GenericLesson = {
   ],
   exercise: { id: 'reuse', prompt: 'Why do browsers and apps keep connections open between requests?', checklist: ['Names the setup cost (TCP and TLS round trips).', 'Says reuse pays that cost once instead of per request.'], model: 'Opening a connection costs a TCP and a TLS round trip before any data moves. Keeping it open pays that cost once, so later requests need only their own round trip.' },
   deeper: [
-    { type: 'p', text: 'HTTP/2 sends many requests over one connection at once. HTTP/3 runs over QUIC on UDP, merging the transport and TLS handshakes into one round trip and avoiding TCP’s head-of-line blocking. Where a client has talked to the server before, it can sometimes send data in its very first flight (0-RTT), with replay caveats.' },
+    { type: 'p', text: 'HTTP/2 sends many requests over one connection at once. HTTP/3 runs over QUIC on UDP, which builds TLS 1.3 into the transport handshake and avoids TCP’s head-of-line blocking. Where a client has talked to the server before, it can sometimes send data in its very first flight (0-RTT), with replay caveats.' },
   ],
   next: { id: 'latency', reason: 'You can now add up one request’s time. Next: what happens across thousands of requests, and why the average hides the slowest ones.' },
 };

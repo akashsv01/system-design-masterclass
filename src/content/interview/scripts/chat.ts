@@ -188,7 +188,7 @@ export const chat: InterviewScript = {
     // Data
     { id: 'key-good', stage: 'data', when: { result: 'data:q1', is: 'one-partition' }, ack: 'Opening a conversation reads one partition, already sorted.', strength: 'You keyed messages so the most common read touches one partition.' },
     { id: 'key-bad', stage: 'data', when: { result: 'data:q1', is: ['scatter', 'index'] }, priority: 8, ask: { text: 'Opening a conversation now has to ask more than one place. How often does that happen?', choices: [
-      { id: 'always', label: 'Every time anyone opens any chat', reply: 'Then it is the wrong key. The hottest read should read one partition. Try conversation id.', verdict: 'risky' },
+      { id: 'always', label: 'Every time anyone opens any chat', reply: 'Then it is the wrong key. The hottest read should read one partition. Try conversation id.', verdict: 'sound' },
       { id: 'rare', label: 'Rarely', reply: 'It is the opposite: opening a chat is the most common action in the app.', verdict: 'risky' },
     ] }, gap: { text: 'The most common read, opening a conversation, was not keyed.', fix: 'Partition messages on conversation id and sort by sequence.', stage: 'data', lesson: 'access-patterns' } },
     { id: 'sender-scatter', stage: 'data', when: { result: 'data:q2', is: 'scatter' }, priority: 6, ask: { text: '“Everything this user sent” now asks all 16 partitions. When is that acceptable?', choices: [

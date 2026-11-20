@@ -30,7 +30,7 @@ export const lldElevator: InterviewScript = {
     { type: 'elevator', kind: 'class', name: 'Elevator', blurb: 'One car: its floor, direction, pending stops and state.' },
     { type: 'dispatcher', kind: 'class', name: 'Dispatcher', blurb: 'Decides which car answers a hall call when there is more than one.' },
     { type: 'hallcall', kind: 'class', name: 'HallCall', blurb: 'A request from a hallway: floor and wanted direction.' },
-    { type: 'direction', kind: 'enum', name: 'Direction', blurb: 'Up, down or idle.' },
+    { type: 'direction', kind: 'enum', name: 'Direction', blurb: 'Up or down.' },
     { type: 'carstate', kind: 'enum', name: 'CarState', blurb: 'Idle, moving up, moving down, doors open.' },
     { type: 'policy', kind: 'iface', name: 'StopPolicy', blurb: 'A rule for picking the next stop, such as SCAN. Swappable.' },
   ],
@@ -117,7 +117,7 @@ export const lldElevator: InterviewScript = {
         walk: { title: 'Ana presses 5 inside the car at floor 0', steps: [
           { prompt: 'Who reports the button press?', owner: 'panel', call: 'car.request(5)' },
           { prompt: 'Who checks 5 is a real floor and adds it?', owner: 'elevator', call: 'if not 0 <= floor < self.floors: raise ValueError' },
-          { prompt: 'Who chooses which stop is next?', owner: 'policy', call: 'ahead = [f for f in stops if (f - floor) * direction >= 0]' },
+          { prompt: 'Who chooses which stop is next in version 1?', owner: 'elevator', call: 'ahead = [f for f in stops if (f - floor) * direction >= 0]' },
         ] },
       },
       help: {

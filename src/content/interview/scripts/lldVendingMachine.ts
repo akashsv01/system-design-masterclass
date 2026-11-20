@@ -76,7 +76,8 @@ export const lldVendingMachine: InterviewScript = {
           { at: 1, event: 'select', label: 'Minute 1: Sam selects a chocolate bar', expect: 'dispensing' },
           { at: 2, event: 'done', label: 'Minute 2: the bar drops and change is returned', expect: 'idle' },
           { at: 3, event: 'insert', label: 'Minute 3: Lee inserts coins and walks away', expect: 'has_money' },
-          { at: 8, event: 'select', label: 'Minute 8: someone presses select, with nothing inserted since', expect: 'idle' },
+          { at: 8, event: 'select', label: 'Minute 8: someone presses select, with nothing inserted since (refused)' },
+          { at: 9, event: 'insert', label: 'Minute 9: Mia inserts coins', expect: 'has_money' },
         ],
         starter: st([['idle', 'Idle', 90, 220], ['has_money', 'Has money', 320, 220]], [['idle', 'has_money', 'insert']]),
       },
@@ -87,6 +88,7 @@ export const lldVendingMachine: InterviewScript = {
           { text: 'Minute 1: Has money → Dispensing on “select”; minute 2: Dispensing → Idle on “done”.', focus: ['mstate'] },
           { text: 'Minute 3: Lee inserts. Two minutes later the timer fires: Has money → Idle, refunding.', focus: ['machine'] },
           { text: 'Minute 8: a select in Idle has no arrow, so it is refused (“insert money first”).', focus: ['mstate'] },
+          { text: 'Minute 9: Mia inserts: Idle → Has money. Had Lee’s money still been there, the machine would be busy and refuse her.', focus: ['mstate'] },
         ],
         solution: [
           { type: 'table', head: ['From', 'Event', 'To'], rows: [['Idle', 'insert', 'Has money'], ['Has money', 'insert', 'Has money'], ['Has money', 'select', 'Dispensing'], ['Has money', 'cancel / timeout', 'Idle (refund)'], ['Dispensing', 'done', 'Idle']] },
@@ -153,7 +155,8 @@ export const lldVendingMachine: InterviewScript = {
           { at: 3, event: 'tap', label: 'Minute 3: Raj taps a card', expect: 'awaiting_bank' },
           { at: 3.5, event: 'declined', label: 'Minute 3.5: the bank declines', expect: 'idle' },
           { at: 5, event: 'tap', label: 'Minute 5: Eli taps a card', expect: 'awaiting_bank' },
-          { at: 9, event: 'approved', label: 'Minute 9: the bank approves, far too late', expect: 'idle' },
+          { at: 9, event: 'approved', label: 'Minute 9: the bank approves Eli’s payment, far too late (refused)' },
+          { at: 10, event: 'tap', label: 'Minute 10: Zoe taps a card', expect: 'awaiting_bank' },
         ],
         starter: st([['idle', 'Idle', 90, 220], ['awaiting_bank', 'Awaiting bank', 320, 220]], [['idle', 'awaiting_bank', 'tap']]),
       },
@@ -162,7 +165,7 @@ export const lldVendingMachine: InterviewScript = {
         walkthrough: [
           { text: 'Tap moves Idle → Awaiting bank.', focus: ['mstate', 'machine'] },
           { text: 'Approved leads to Dispensing; declined leads back to Idle with nothing dispensed.', focus: ['mstate'] },
-          { text: 'A timeout returns to Idle, so a late approval at minute 9 is refused and must be reversed.', focus: ['pay', 'machine'] },
+          { text: 'A timeout returns to Idle, so a late approval at minute 9 is refused and must be reversed; Zoe’s tap at minute 10 then starts a fresh wait.', focus: ['pay', 'machine'] },
         ],
         solution: [{ type: 'table', head: ['From', 'Event', 'To'], rows: [['Idle', 'tap card', 'Awaiting bank'], ['Awaiting bank', 'bank approves', 'Dispensing'], ['Awaiting bank', 'bank declines / timeout', 'Idle'], ['Dispensing', 'done', 'Idle']] }, { type: 'p', text: 'A late approval is refused in Idle. The card payment object must then cancel that authorisation so the customer is not charged.' }],
         why: 'A bank can say no or say nothing, so waiting needs its own state and a way out.',
@@ -171,7 +174,7 @@ export const lldVendingMachine: InterviewScript = {
     },
   ],
   rules: [
-    { id: 'vm-timeout-missing', stage: 'states', when: { result: 'states', is: 'stuck' }, priority: 6, ask: { text: 'At minute 8 your machine still holds Lee’s money, so the next person can spend it. What should have happened after two minutes?', choices: [
+    { id: 'vm-timeout-missing', stage: 'states', when: { result: 'states', is: 'stuck' }, priority: 6, ask: { text: 'At minute 8 your machine still held Lee’s money, so the next person could spend it, and Mia’s coins at minute 9 were refused. What should have happened after two minutes?', choices: [
       { id: 'timeout', label: 'Has money → Idle on a timed “timeout”, refunding', reply: 'Yes. Draw the arrow and replay.', verdict: 'sound' },
       { id: 'keep', label: 'Keep the balance; the next customer will use it', reply: 'That gives one customer another’s money and breaks conservation.', verdict: 'risky' },
       { id: 'check', label: 'Refund when the next call arrives and notices it is old', reply: 'It can work (check on each call) but the money sits until someone touches the machine.', verdict: 'partial' },

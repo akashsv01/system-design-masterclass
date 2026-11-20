@@ -120,23 +120,23 @@ export const lldShoppingCart: InterviewScript = {
     },
     {
       id: 'tabs', title: 'Two tabs', intro: 'The interviewer changes one condition. Predict, run it, revise.',
-      question: 'One unit of a product is left. The phone and the laptop both add it to the same cart. Can both succeed?',
-      change: { announce: 'New condition: the same cart is open on a phone and a laptop. Both tap “add” for the last unit of a limited item at the same moment.', rule: RULES.timeline },
+      question: 'The phone and the laptop have the same cart open. Each adds a different item and saves at the same moment. Can both items be kept?',
+      change: { announce: 'New condition: the same cart is open on a phone and a laptop. The phone adds shoes and the laptop adds a lamp, and both tap “add” at the same moment.', rule: RULES.timeline },
       activity: {
-        kind: 'timeline', names: ['Phone tab', 'Laptop tab'], resource: 'Last unit (units left)', initial: 1,
-        read: 'loads the cart and sees 1 left', write: 'saves the cart with the unit added',
+        kind: 'timeline', names: ['Phone tab', 'Laptop tab'], resource: 'Saves allowed on the cart version both tabs loaded', initial: 1,
+        read: 'loads the cart at version 1', write: 'saves the cart with its new item',
         start: [{ actor: 0, kind: 'read' }, { actor: 1, kind: 'read' }, { actor: 0, kind: 'write' }, { actor: 1, kind: 'write' }],
         guards: [
-          { id: 'plain', label: 'Save whatever the tab holds', detail: 'Each tab saves the cart it loaded. The second save never checks what changed in between.', code: 'cart = repo.load(cart_id)\ncart.add(sku, unit)\nrepo.save(cart)' },
+          { id: 'plain', label: 'Save whatever the tab holds', detail: 'Each tab saves the cart it loaded plus its own item. The second save never checks what changed in between, so it overwrites the first.', code: 'cart = repo.load(cart_id)\ncart.add(sku, unit)\nrepo.save(cart)' },
           { id: 'conditional', label: 'Version check on save', detail: 'The cart has a version. A save succeeds only if the stored version is still the one the tab read.', code: "UPDATE carts SET data=:d, version=version+1\nWHERE id=:id AND version=:read_version" },
           { id: 'lock', label: 'Lock the cart while a tab edits', detail: 'The second tab waits until the first has saved.', code: 'SELECT * FROM carts WHERE id=:id FOR UPDATE' },
         ],
-        predict: { q: 'Both tabs saved without any check. How many tabs get the last unit?', choices: [{ id: 'one', label: 'One' }, { id: 'both', label: 'Both' }, { id: 'none', label: 'Neither' }] },
+        predict: { q: 'Both tabs saved without any check. How many of the two saves does the store accept?', choices: [{ id: 'one', label: 'One' }, { id: 'both', label: 'Both' }, { id: 'none', label: 'Neither' }] },
       },
       help: {
         hint: 'When the laptop saves, does it know the phone already changed the cart?',
-        walkthrough: [{ text: 'Both tabs read “1 left” before either saves.' }, { text: 'A plain save trusts that old read, so both write and the unit is sold twice.' }, { text: 'A version check makes the second save fail; that tab reloads and sees 0 left.' }],
-        solution: [{ type: 'p', text: 'Without a check, both tabs win. Add a version to the cart and save with “only if the version is unchanged”. The refused tab reloads and shows “sold out”.' }],
+        walkthrough: [{ text: 'Both tabs load the cart at version 1 before either saves.' }, { text: 'A plain save trusts that old copy, so both saves are accepted and the second overwrites the first: one item is silently lost.' }, { text: 'A version check makes the second save fail; that tab reloads, sees the first item, adds its own and saves again.' }],
+        solution: [{ type: 'p', text: 'Without a check, both saves are accepted and the later one overwrites the earlier, so one item is lost. Add a version to the cart and save with “only if the version is unchanged”. The refused tab reloads, merges its change and saves again.' }],
         why: 'Two readers each saw a true value; only the store, at write time, can tell whether it is still true.',
       },
       lessons: ['concurrency-lld', 'concurrent-reservations', 'locking-mvcc'],
@@ -170,12 +170,12 @@ export const lldShoppingCart: InterviewScript = {
       { id: 'no', label: 'No. That rule lives in add(), and I would test it', reply: 'Right. A class diagram shows structure, not behaviour. The merge rule needs a method and a test.', verdict: 'sound' },
       { id: 'yes', label: 'Yes, “has many” means that', reply: '“Has many” only says a cart holds several lines. Merging is behaviour in add().', verdict: 'risky' },
     ] } },
-    { id: 'tabs-fixed', stage: 'tabs', when: { result: 'tabs', is: 'one' }, ack: 'With the check at save time, only one tab got the last unit.', strength: 'You moved the check to the moment of saving (a version check), so two tabs cannot both take the last unit.' },
-    { id: 'tabs-over', stage: 'tabs', when: { result: 'tabs', is: 'oversold' }, priority: 5, ask: { text: 'Both tabs got the last unit. What should the second save do?', choices: [
+    { id: 'tabs-fixed', stage: 'tabs', when: { result: 'tabs', is: 'one' }, ack: 'With the check at save time, only one tab’s save was accepted on that version.', strength: 'You moved the check to the moment of saving (a version check), so one tab cannot silently overwrite the other’s change.' },
+    { id: 'tabs-over', stage: 'tabs', when: { result: 'tabs', is: 'oversold' }, priority: 5, ask: { text: 'Both tabs saved from the same version and one item was lost. What should the second save do?', choices: [
       { id: 'version', label: 'Be refused because the cart changed since it was read; the tab reloads', reply: 'Yes. Switch to the version check and run the same order again.', verdict: 'sound' },
       { id: 'lock', label: 'Wait for a lock on the cart while the first tab saves', reply: 'That works but holds the cart while a shopper thinks. Keep the lock for a short write, not for a page open.', verdict: 'partial' },
-      { id: 'disable', label: 'Disable the button once someone reads 1 left', reply: 'The other tab never learns that. The store must decide at write time.', verdict: 'risky' },
-    ] }, gap: { text: 'Two tabs both took the last unit because saves were not checked.', fix: 'Add a version to the cart and save only if the version is unchanged.', stage: 'tabs', lesson: 'concurrency-lld' } },
+      { id: 'disable', label: 'Disable the add button in the other tab while one tab is editing', reply: 'The other tab never learns that. The store must decide at write time.', verdict: 'risky' },
+    ] }, gap: { text: 'Two tabs saved from the same version, so one overwrote the other.', fix: 'Add a version to the cart and save only if the version is unchanged.', stage: 'tabs', lesson: 'concurrency-lld' } },
   ],
   solution: {
     design: cls([

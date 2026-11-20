@@ -103,15 +103,15 @@ export const indexes: GenericLesson = {
     { kicker: 'Predict', title: 'Reading the query plan', body: ['`EXPLAIN` shows how the database plans to run a query. Before the index it says *Seq Scan* (read everything). After, *Index Scan* (jump to matching rows).'], chart: { series: [{ name: 'index', points: [1, 25, 50, 75, 100].map((x) => [x, Math.log2(x * 1e6)] as [number, number]), tone: 'ok' }] },
       predict: { id: 'write', prompt: 'You add indexes on 6 columns of the bookings table. What happens to inserting a booking?', choices: [
         { id: 'slower', text: 'It gets slower: every insert also updates 6 indexes.', why: 'Right. Indexes speed up reads they match and slow down every write. Add the ones your access patterns need.' },
-        { id: 'same', text: 'Nothing changes. Indexes only affect reads.', why: 'Every index is a structure that has to be updated on each insert, update and delete.' },
+        { id: 'same', text: 'Nothing changes. Indexes only affect reads.', why: 'Every index is a structure that has to be kept in sync with the table as rows are inserted, updated and deleted.' },
         { id: 'faster', text: 'It gets faster.', why: 'Indexes add write work. They never remove it.' },
       ], correct: 'slower' } },
     { kicker: 'Try it', title: 'Grow the table', body: ['Drag the table size. The scan grows in a straight line. The index barely moves.'] },
   ],
   worked: { title: 'an index that matches the access pattern', blocks: [
     { type: 'code', lang: 'sql', code: "-- Hot query: free seats for one event\nSELECT id FROM seats WHERE event_id = 9031 AND status = 'free';\n\n-- An index whose leading column matches the equality filter\nCREATE INDEX seats_event_status ON seats (event_id, status);" },
-    { type: 'code', lang: 'text', code: "Before:  Seq Scan on seats  (rows examined: 4,000,000)\n           Filter: event_id = 9031 AND status = 'free'\nAfter:   Index Scan using seats_event_status on seats  (rows examined: 1,214)\n           Index Cond: event_id = 9031 AND status = 'free'", caption: 'Illustrative EXPLAIN output (simplified; exact format differs by database). Read the plan type and the rows examined.' },
-    { type: 'p', text: 'Column order matters: an index on `(event_id, status)` helps queries filtering by `event_id` alone, but not queries filtering only by `status`, just as a phone book sorted by surname then first name can’t find everyone named “Maya” quickly.' },
+    { type: 'code', lang: 'text', code: "Before:  Seq Scan on seats  (rows examined: 4,000,000)\n           Filter: event_id = 9031 AND status = 'free'\nAfter:   Index Scan using seats_event_status on seats  (rows examined: 1,214)\n           Index Cond: event_id = 9031 AND status = 'free'", caption: 'Illustrative, simplified plan. PostgreSQL’s real EXPLAIN shows cost and estimated row counts rather than “rows examined”, and the format differs by database. Read the plan type.' },
+    { type: 'p', text: 'Column order matters: an index on `(event_id, status)` helps queries filtering by `event_id` alone, but is much less effective for queries filtering only by `status` (the database typically has to read most of the index), just as a phone book sorted by surname then first name can’t find everyone named “Maya” quickly.' },
   ] },
   checks: [
     { kind: 'choice', id: 'order', prompt: 'You have an index on `(event_id, status)`. Which query can use it well?', choices: [
@@ -176,7 +176,7 @@ export const storageEngines: GenericLesson = {
     ],
   },
   steps: [
-    { kicker: 'Idea', title: 'Write it to a log first', body: ['Before changing anything, the database appends the change to a **write-ahead log (WAL)** on disk. Appending to the end of a file is fast, and once it’s there, a crash can’t lose it: on restart the database replays the log.'], stack: { ghost: ['mem', 'l0', 'l1'], focus: 'wal', tones: { wal: 'active' } }, code: { code: LSM_PUT, highlight: [2], caption: 'python/sdm/lsm.py — step 1: append to the log' } },
+    { kicker: 'Idea', title: 'Write it to a log first', body: ['Before changing anything, the database appends the change to a **write-ahead log (WAL)** on disk. Appending to the end of a file is fast, and once it has been flushed to disk, a crash can’t lose it: on restart the database replays the log.'], stack: { ghost: ['mem', 'l0', 'l1'], focus: 'wal', tones: { wal: 'active' } }, code: { code: LSM_PUT, highlight: [2], caption: 'python/sdm/lsm.py — step 1: append to the log' } },
     { kicker: 'Watch', title: 'Keep recent writes in memory', body: ['The write also goes into a sorted in-memory table, the **memtable**, so reads see it immediately. The WAL is for durability. The memtable is for speed.'], stack: { ghost: ['l0', 'l1'], focus: 'mem', tones: { wal: 'ok', mem: 'active' } }, changes: [{ kind: 'add', text: 'Memtable: F12 = held' }] },
     { kicker: 'Watch', title: 'Flush full memtables as sorted runs', body: ['When the memtable fills, it’s written to disk as an immutable **sorted run** (an SSTable), and the log can be trimmed. Over time several runs pile up, newest on top. This design is a **log-structured merge tree (LSM tree)**.'], stack: { focus: 'l1', separation: 0.8, tones: { l1: 'active' } } },
     { kicker: 'Predict', title: 'Reading means checking newest first', body: ['F12 appears in two runs: “free” in the older one, “held” in the newer one.'], stack: { separation: 0.8, tones: { l1: 'ok', l0: 'fail' } }, code: { code: LSM_GET, highlight: [4, 5], caption: 'python/sdm/lsm.py — search newest to oldest' },

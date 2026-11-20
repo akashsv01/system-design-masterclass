@@ -17,7 +17,7 @@ export const lldBoardGame: InterviewScript = {
     intro: 'We are building tic-tac-toe, and the next game on the roadmap is Connect Four. I want an engine where the second game is a configuration, not a rewrite.',
     users: 'Two players on separate phones, and the game code that receives their moves.',
     needs: ['Start a game when the second player joins', 'Take turns placing pieces', 'Detect a win or a full board', 'Let a player resign'],
-    mustHold: ['Players alternate: nobody moves twice in a row', 'A move on a taken cell, a full column or a finished game is refused', 'A game has exactly one outcome: won, drawn or resigned'],
+    mustHold: ['Players alternate: nobody moves twice in a row', 'A move on a taken cell, a full column or a finished game is refused', 'A game has exactly one outcome: won (including by resignation) or drawn'],
     constraints: ['Tic-tac-toe is 3×3, three in a row; Connect Four is 6×7, four in a row, pieces fall to the lowest free row', 'Two players per game, moves arrive from two phones', 'Moves are checked on the server, not trusted from the phone'],
     outOfScope: ['Matchmaking and ratings', 'A computer opponent', 'Drawing the board'],
     terms: [
@@ -44,7 +44,7 @@ export const lldBoardGame: InterviewScript = {
         { id: 'draw', q: 'When is a game drawn?', a: 'When the board is full and nobody has a winning line.' },
         { id: 'resign', q: 'Can a player resign?', a: 'Yes, at any time while the game is being played. The other player wins.' },
         { id: 'illegal', q: 'What happens on an illegal move?', a: 'It is refused with a reason (cell taken, column full, not your turn, game over). The turn does not pass.' },
-        { id: 'concurrent', q: 'Can both players submit a move at the same moment?', a: 'Yes. Moves arrive from two phones and only the player whose turn it is may move.' },
+        { id: 'concurrent', q: 'Can both players submit a move at the same moment?', a: 'Yes, and one player can also send two moves at once, such as a double tap. Only the player whose turn it is may move, and only once.' },
       ], assumptions: [
         { id: 'first', q: 'Who moves first?', options: [
           { id: 'creator', label: 'The player who created the game', consequence: 'Simple and predictable. The second player always moves second.' },
@@ -119,8 +119,8 @@ export const lldBoardGame: InterviewScript = {
           { id: 'vary', text: 'Say how many in a row win and whether pieces fall', owner: 'rules', alt: ['board'], why: 'Keeping these settings together is what makes Connect Four a new configuration, not a new class.' },
         ],
         walk: { title: 'Ana places the third X: a winning move', steps: [
-          { prompt: 'Who receives “Ana plays column 2” and checks it is Ana’s turn and the game is still being played?', owner: 'game', call: 'game.play(player="ana", col=2)' },
-          { prompt: 'Who places the piece and finds where it lands?', owner: 'board', call: 'board.place("X", col=2)' },
+          { prompt: 'Who receives “Ana plays row 0, column 2” and checks it is Ana’s turn and the game is still being played?', owner: 'game', call: 'game.play(player="ana", row=0, col=2)' },
+          { prompt: 'Who places the piece and finds where it lands?', owner: 'board', call: 'board.place("X", col=2, row=0)' },
           { prompt: 'Who knows how many in a row are needed?', owner: 'rules', call: 'rules.win_length  # 3' },
           { prompt: 'Who checks that the piece completes a line?', owner: 'board', call: 'board.wins(row, col)' },
           { prompt: 'Who moves the game from Playing to Won?', owner: 'game', call: 'self.state = GameState.WON' },
@@ -143,15 +143,15 @@ export const lldBoardGame: InterviewScript = {
     },
     {
       id: 'same-turn', title: 'Same turn', intro: 'The interviewer changes one condition. Predict, run it, revise.',
-      question: 'It is Ana’s turn. Ana’s phone sends a move and Ben’s phone sends a move at the same moment. Can both be accepted?',
-      change: { announce: 'New condition: both phones are fast and both submit a move within a few milliseconds. The server handles them on two threads.', rule: RULES.timeline, alternate: { announce: 'Second twist: Ana’s phone loses signal after sending, and retries the same move three seconds later.', label: 'A retried move' } },
+      question: 'It is Ana’s turn. Her phone sends two moves for different cells at the same moment, from a double tap. Can both be accepted?',
+      change: { announce: 'New condition: Ana taps twice and her phone sends two moves within a few milliseconds. The server handles them on two threads.', rule: RULES.timeline, alternate: { announce: 'Second twist: Ana’s phone loses signal after sending, and retries the same move three seconds later.', label: 'A retried move' } },
       activity: {
-        kind: 'timeline', names: ['Ana (her turn)', 'Ben (not his turn)'], resource: 'Moves allowed this turn', initial: 1,
+        kind: 'timeline', names: ['Ana (first tap)', 'Ana (second tap)'], resource: 'Moves allowed this turn', initial: 1,
         read: 'checks whose turn it is', write: 'places the piece and passes the turn',
         start: [{ actor: 0, kind: 'read' }, { actor: 1, kind: 'read' }, { actor: 0, kind: 'write' }, { actor: 1, kind: 'write' }],
         guards: [
-          { id: 'plain', label: 'Check the turn, then place the piece', detail: 'Both requests read “it is a move for this turn” before either has passed the turn, so both are accepted.', code: 'if self.turn == player:\n    self.board.place(...)\n    self.turn = other' },
-          { id: 'conditional', label: 'Conditional write with a move number', detail: 'The move says “I am move 12”. The store accepts only if the game is still at move 11, so the second request finds 12 already taken.', code: 'UPDATE games SET move_no = 12 ... WHERE id = :g AND move_no = 11' },
+          { id: 'plain', label: 'Check the turn, then place the piece', detail: 'Both requests read “it is Ana’s turn” before either has passed the turn, so both are accepted.', code: 'if self.turn == player:\n    self.board.place(...)\n    self.turn = other' },
+          { id: 'conditional', label: 'Conditional write with a move number', detail: 'Each move says “I am move 12”. The store accepts only if the game is still at move 11, so the second request finds 12 already taken.', code: 'UPDATE games SET move_no = 12 ... WHERE id = :g AND move_no = 11' },
           { id: 'lock', label: 'Lock the game while a move is processed', detail: 'The second request waits, then sees it is no longer its turn.', code: 'with game.lock:\n    ...  # check turn, place, pass turn' },
         ],
         predict: { q: 'With check-then-place, how many of the two moves are accepted?', choices: [{ id: 'one', label: 'One' }, { id: 'both', label: 'Both' }, { id: 'none', label: 'Neither' }] },
@@ -160,7 +160,7 @@ export const lldBoardGame: InterviewScript = {
         hint: 'Is “is it my turn” still true by the time the piece is placed?',
         walkthrough: [
           { text: 'Each thread checks the turn at the same moment, and in each check the answer is “yes, for this turn”.' },
-          { text: 'Both place a piece, so one player has moved twice, or the pieces land in a cell already used.' },
+          { text: 'Both place a piece, so Ana has moved twice in a row and the turn order is broken.' },
           { text: 'Check and place must be one step: a lock on the game, or a conditional write that names the move number it expects.' },
         ],
         solution: [{ type: 'p', text: 'Not safely. Make the turn check and the placement one atomic step: a lock inside one server, or a move number in the shared store so only the move that matches the current count is accepted. A move number also makes a retried move harmless: it is refused as already played.' }],

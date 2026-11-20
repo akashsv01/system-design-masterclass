@@ -183,7 +183,7 @@ export const batchStream: GenericLesson = {
     { t: 90, lane: 'wm', label: 'watermark 20:01:05 → close 20:00 window', tone: 'ok' },
   ] },
   steps: [
-    { kicker: 'Idea', title: 'Batch: compute later over everything', body: ['**Batch processing** runs over a complete, bounded dataset, say last night’s sales, and produces a result: revenue per venue. It’s simple and repeatable: rerun it and get the same answer. Its results are hours old.'], timeline: { upTo: 0 } },
+    { kicker: 'Idea', title: 'Batch: compute later over everything', body: ['**Batch processing** runs over a complete, bounded dataset, say last night’s sales, and produces a result: revenue per venue. It’s simple and repeatable: rerun it and, if its logic is deterministic, get the same answer. Its results are hours old.'], timeline: { upTo: 0 } },
     { kicker: 'Idea', title: 'Stream: compute continuously', body: ['**Stream processing** updates results as events arrive: sales per minute, live. The data never “ends”, so you group events into **windows** (each minute) and must decide when a window is done.'], timeline: { upTo: 1 } },
     { kicker: 'Watch', title: 'Event time vs arrival time', body: ['Sale B happened at 20:00:58 (**event time**) but arrived at 20:01:20 (**processing time**). Counting by arrival would put it in the wrong minute. Correct counts group by event time, carried inside the event.'], timeline: { upTo: 2 }, changes: [{ kind: 'add', text: 'Sale B: event 20:00:58, arrived 20:01:20' }] },
     { kicker: 'Predict', title: 'When is the 20:00 minute final?', body: ['A **watermark** is the processor’s estimate that “events older than T have probably all arrived”. It trails real time by an allowed lateness.'], timeline: { upTo: 4 },

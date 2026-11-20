@@ -196,7 +196,7 @@ export const notifications: InterviewScript = {
     ] }, strength: 'You bounded the delay when the provider slowed, and chose which messages could wait or be dropped.' },
     { id: 'breaker-alt', stage: 'capacity', when: { result: 'capacity', is: 'breaker:bounded' }, priority: 4, ask: { text: 'The breaker stopped calls to the slow provider. A breaker alone fails fast. What should happen to the messages it turns away?', choices: [
       { id: 'park', label: 'Keep them in the queue (or a retry queue) and try again when the breaker closes', reply: 'Yes. Critical messages are held, not dropped.', verdict: 'sound' },
-      { id: 'second', label: 'Send critical ones through a second provider', reply: 'A good option for tickets, if you have a second contract. Make sure the idempotency key still prevents duplicates across providers.', verdict: 'sound' },
+      { id: 'second', label: 'Send critical ones through a second provider', reply: 'A good option for tickets, if you have a second contract. One provider cannot recognise another’s idempotency key, so your own delivery log must still stop a message going out twice.', verdict: 'sound' },
       { id: 'drop', label: 'Drop them', reply: 'Fine for a promo; for a ticket, that is a lost message.', verdict: 'risky' },
     ] } },
     // Outage stage

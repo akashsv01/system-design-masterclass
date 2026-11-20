@@ -188,7 +188,7 @@ export const metrics: InterviewScript = {
     { id: 'alerts-log', stage: 'design', when: { link: [{ type: 'stream' }, { type: 'alerts' }], labels: ['delivers to'] }, ack: '{type:alerts} reads fresh points from {kind:stream}, independent of storage.' },
     { id: 'rollups', stage: 'design', when: { has: { type: 'rollup' } }, ack: 'You added {type:rollup}: long ranges can read summaries instead of raw points.', strength: 'Rollups keep year-long dashboard queries fast.' },
     { id: 'no-rollup', stage: 'design', when: { all: [{ has: { type: 'tsdb' } }, { lacks: { type: 'rollup' } }] }, priority: 7, ask: { text: 'A dashboard asks for one metric’s daily average over a year. What does {type:tsdb} read?', choices: [
-      { id: 'rollup', label: 'Pre-computed hourly summaries, a few thousand rows', reply: 'Yes: that is a rollup. Add a job that builds them in the background.', verdict: 'sound' },
+      { id: 'rollup', label: 'Pre-computed hourly summaries, about 8,760 rows', reply: 'Yes: that is a rollup. Add a job that builds them in the background.', verdict: 'sound' },
       { id: 'raw', label: 'Every raw point for the year', reply: 'A year of one metric on one host is about 3 million points. Scanning that for every chart is too slow.', verdict: 'risky' },
       { id: 'cache', label: 'Cache the answer after the first time', reply: 'It helps the second viewer but not the first, and every new range misses. Pre-compute instead.', verdict: 'partial' },
     ] }, gap: { text: 'Long-range queries would have scanned raw points.', fix: 'Add a rollup job that writes per-minute and per-hour summaries, and query the coarsest that fits.', stage: 'design', lesson: 'data-models' } },
@@ -260,7 +260,7 @@ export const metrics: InterviewScript = {
       { from: 'buffer', to: 'writer', text: 'The writer reads the same batch and groups points by metric and one-minute bucket.' },
       { from: 'writer', to: 'tsdb', text: 'One write per partition appends the points, sorted by time bucket.' },
       { from: 'dash', to: 'query', text: 'An engineer opens “checkout latency, last hour”; the query asks for step = 1 minute.' },
-      { from: 'query', to: 'tsdb', text: 'One partition (metric = checkout latency), already in time order: 60 rows.' },
+      { from: 'query', to: 'tsdb', text: 'One partition (metric = checkout latency), already in time order: 60 one-minute rows for the series being charted.' },
     ] },
     tradeoff: 'Keying by metric and time makes the common dashboard query cheap and keeps writes append-friendly, but queries by host need an extra index or a scatter across partitions.',
     otherApproach: 'For a small fleet, a single time-series database with built-in rollups and no separate log is simpler. Add the buffer when bursts or independent consumers (alerts, analytics) appear.',

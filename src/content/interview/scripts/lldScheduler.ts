@@ -118,7 +118,7 @@ export const lldScheduler: InterviewScript = {
         ],
         walk: { title: 'A task due at 10:00 runs', steps: [
           { prompt: 'Who tells us it is 10:00?', owner: 'clock', call: 'clock() → 600.0' },
-          { prompt: 'Who finds the earliest due task and claims it?', owner: 'scheduler', call: 'scheduler.take_due(now)' },
+          { prompt: 'Who finds the earliest due task and claims it?', owner: 'scheduler', call: 'heappop(self._heap)  # earliest (due, seq) first, once due <= now' },
           { prompt: 'Who executes the function and catches errors?', owner: 'worker', call: 'worker.run(task)' },
           { prompt: 'Who records the attempt and the next due time if it failed?', owner: 'task', call: 'task.attempts += 1' },
         ] },

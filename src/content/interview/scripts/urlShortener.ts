@@ -54,7 +54,7 @@ export const urlShortener: InterviewScript = {
         ],
         assumptions: [
           { id: 'status', q: 'Which redirect status do you return?', options: [
-            { id: '301', label: '301, permanent', consequence: 'Browsers cache it forever: fewer requests, but you cannot switch the link off or count opens.' },
+            { id: '301', label: '301, permanent', consequence: 'Browsers may cache it indefinitely: fewer requests, but you cannot reliably switch the link off or count opens.' },
             { id: '302', label: '302, temporary', consequence: 'Every open reaches you or your cache, so you can disable links and count opens, at the cost of more requests.' },
           ] },
           { id: 'codes', q: 'How are codes made?', options: [
@@ -193,7 +193,7 @@ export const urlShortener: InterviewScript = {
     { id: 'clicks-queue', stage: 'design', when: { link: [{ type: 'redirect' }, 'queue'] }, ack: 'Opens publish click events to {kind:queue}, so counting never slows a redirect.', strength: 'You moved click counting off the redirect path with {kind:queue}.' },
     { id: 'invalidate', stage: 'design', when: { has: 'cache' }, priority: 5, ask: { text: 'Trust and safety switches off a phishing link. How does {kind:cache} stop serving it?', choices: [
       { id: 'purge', label: 'Disable it in the store, then purge it from the cache and the edge; keep copies short-lived as a safety net', reply: 'Yes: explicit purge for speed, short lifetimes for anything missed. That meets the one-minute target.', verdict: 'sound' },
-      { id: 'ttl', label: 'Rely on a 60-second lifetime alone', reply: 'Also acceptable for a one-minute target, and simpler. Purge makes it faster still.', verdict: 'sound' },
+      { id: 'ttl', label: 'Rely on a 60-second lifetime alone', reply: 'Acceptable for “about a minute” if every copy, at the edge and in the cache, expires within it. Lifetimes add up across layers, so keep each short. A purge makes it faster still.', verdict: 'sound' },
       { id: 'never', label: 'Cached links never change, so nothing', reply: 'They change when disabled. A phishing link served for a day is a serious failure.', verdict: 'risky' },
     ] }, strength: 'You planned how a cached link is switched off, not just how it is served.' },
     { id: 'counter-alt', stage: 'design', when: { answer: 'assume:codes', is: 'counter' }, priority: 4, ask: { text: 'You chose counter-based codes. 50 Create servers each need numbers. How do they get them without handing out the same one twice?', choices: [
@@ -215,7 +215,7 @@ export const urlShortener: InterviewScript = {
     // Viral stage
     { id: 'wait-unbounded', stage: 'viral', when: { result: 'viral', is: 'wait:unbounded' }, priority: 6, ask: { text: 'Waiting meant the delay grew for every link, not just the viral one. What should have protected the others?', choices: [
       { id: 'cache', label: 'A cached answer for the hot code, so the database is not asked', reply: 'Yes. One key is absorbed by a copy, and the others keep their capacity.', verdict: 'sound' },
-      { id: 'workers', label: 'More workers on the database path', reply: 'More workers send more queries to a slow database, which makes it slower.', verdict: 'risky' },
+      { id: 'workers', label: 'More workers on the database path', reply: 'More workers send more queries to a database that is already struggling, which can make it slower.', verdict: 'risky' },
     ] }, gap: { text: 'Waiting with no limit let a viral link slow every other link.', fix: 'Answer hot codes from the CDN and cache, and shed or break on what still needs the database.', stage: 'viral', lesson: 'backpressure' } },
     { id: 'retry-storm', stage: 'viral', when: { result: 'viral', is: 'retry:unbounded' }, priority: 7, ask: { text: 'Retrying made the queue grow faster. Why?', choices: [
       { id: 'copies', label: 'Each retry adds a request while the original is still waiting', reply: 'Yes. Retries add load exactly when the system is least able to take it. Use backoff, a cap and a breaker.', verdict: 'sound' },

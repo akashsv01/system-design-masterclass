@@ -110,7 +110,7 @@ export const rateLimiter: InterviewScript = {
         start: [{ actor: 0, kind: 'read' }, { actor: 1, kind: 'read' }, { actor: 0, kind: 'write' }, { actor: 1, kind: 'write' }],
         guards: [
           { id: 'plain', label: 'Read, then write', detail: 'Read the count; if it is below the limit, write count + 1. Two separate steps.', code: 'count = GET key\nif count < limit:\n    SET key count+1   # allowed' },
-          { id: 'conditional', label: 'Atomic increment', detail: 'One step that adds one only if the count is still below the limit, and says whether it did.', code: '-- Redis Lua, runs as one step\nlocal n = redis.call("GET", key)\nif n < limit then redis.call("INCR", key); return 1 end\nreturn 0' },
+          { id: 'conditional', label: 'Atomic increment', detail: 'One step that adds one only if the count is still below the limit, and says whether it did.', code: '-- Redis Lua, runs as one step\nlocal n = tonumber(redis.call("GET", key) or "0")\nif n < limit then redis.call("INCR", key); return 1 end\nreturn 0' },
           { id: 'lock', label: 'Lock the counter', detail: 'The first reader locks the counter; the second waits until the first has written.', code: 'lock(key)\ncount = GET key; …; SET key count+1\nunlock(key)' },
         ],
         predict: { q: 'With “read, then write” and this order, how many of the two are allowed?', choices: [{ id: 'one', label: 'Only one of them' }, { id: 'both', label: 'Both, though only one was left' }, { id: 'none', label: 'Neither' }] },
@@ -164,8 +164,8 @@ export const rateLimiter: InterviewScript = {
       { id: 'inside', label: 'Inside each API server', reply: 'It works for one server. With many, each server counts only the requests it sees, and the checks cost API capacity.', verdict: 'partial' },
       { id: 'none', label: 'Nowhere; the servers are fast', reply: 'One looping customer can still use every server. Limit at the front.', verdict: 'risky' },
     ] }, gap: { text: 'Requests reached the API with no limit check in front.', fix: 'Check the limit at the gateway, before any API server does work.', stage: 'design', lesson: 'proxies-gateways' } },
-    { id: 'local-only', stage: 'design', when: { all: [{ has: { type: 'local' } }, { lacks: { type: 'store' } }] }, priority: 8, ack: 'You count in each gateway’s own memory: a valid alternative to a shared store.', ask: { text: 'With only local buckets, a customer’s 200,000 requests are spread over 50 gateways. If each gateway allows 100 a second, how much can the customer send?', choices: [
-      { id: 'divide', label: 'Give each gateway limit ÷ 50, accepting uneven spread', reply: 'Good: this is how local-only works. It is inaccurate when traffic is uneven, but the brief allows 10%.', verdict: 'sound' },
+    { id: 'local-only', stage: 'design', when: { all: [{ has: { type: 'local' } }, { lacks: { type: 'store' } }] }, priority: 8, ack: 'You count in each gateway’s own memory: a valid alternative to a shared store.', ask: { text: 'With only local buckets, a customer’s requests are spread over 50 gateways. If each gateway allows 100 a second, how much can the customer send?', choices: [
+      { id: 'divide', label: 'Give each gateway limit ÷ 50, accepting uneven spread', reply: 'Good: this is how local-only works. It is inaccurate when a key’s traffic is uneven across gateways, so check that load is spread evenly; the brief allows about 10%.', verdict: 'sound' },
       { id: 'times', label: 'Up to 50 × 100 = 5,000 a second', reply: 'Yes, that is the risk if each gateway uses the full limit. Divide the limit, or sync usage.', verdict: 'partial' },
       { id: 'fine', label: 'It is fine, the API will cope', reply: 'The point of the limit is that it does not have to cope. Share the limit between gateways.', verdict: 'risky' },
     ] }, strength: 'You weighed local counting against a shared store and what it does to accuracy.' },
@@ -178,7 +178,7 @@ export const rateLimiter: InterviewScript = {
     { id: 'config-link', stage: 'design', when: { link: [{ type: 'config' }, { type: 'gateway' }] }, ack: '{type:config} supplies limits to {type:gateway}, so a limit can change without a deploy.', strength: 'You kept limits in config, so a customer’s limit changes without a redeploy.' },
     { id: 'no-config', stage: 'design', when: { all: [{ has: { type: 'store' } }, { lacks: { type: 'config' } }] }, coach: 'Where does each customer’s limit come from? Consider adding Limit config.', priority: 2 },
     { id: 'hop-cost', stage: 'design', when: { result: 'trace:check', is: 'ok' }, priority: 5, ask: { text: 'Every request now makes a call to {type:store}. At 200,000 requests a second and a 2 ms budget, what is the cost?', choices: [
-      { id: 'fast', label: 'One short in-datacenter call is well under a millisecond, but the store must take 200,000 operations a second', reply: 'Right. Size and shard the store by key, and give the call a tight timeout.', verdict: 'sound' },
+      { id: 'fast', label: 'One short in-datacenter call costs about a millisecond or less, but the store must take 200,000 operations a second', reply: 'Right. Size and shard the store by key, and give the call a tight timeout.', verdict: 'sound' },
       { id: 'free', label: 'None, it is just a counter', reply: 'It is a network hop on every request. Budget for it, and for the store’s capacity.', verdict: 'risky' },
     ] } },
     // Race stage

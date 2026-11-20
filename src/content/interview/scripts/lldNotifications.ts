@@ -29,7 +29,7 @@ export const lldNotifications: InterviewScript = {
   },
   palette: [
     { type: 'notifier', kind: 'class', name: 'Notifier', blurb: 'Takes a notification and sends it through each of the user’s channels.' },
-    { type: 'channel', kind: 'iface', name: 'Channel', blurb: 'One method: send(user, message). Raises if the provider fails.' },
+    { type: 'channel', kind: 'iface', name: 'Channel', blurb: 'One call, send(user, message), which raises if the provider fails. The tested code uses a plain function for each channel.' },
     { type: 'email', kind: 'class', name: 'EmailChannel', blurb: 'A Channel that talks to the email provider.' },
     { type: 'push', kind: 'class', name: 'PushChannel', blurb: 'A Channel that talks to the push provider.' },
     { type: 'prefs', kind: 'class', name: 'Preferences', blurb: 'Which channels each user wants.' },

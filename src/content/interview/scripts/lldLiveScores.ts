@@ -80,7 +80,7 @@ export const lldLiveScores: InterviewScript = {
           { at: 60, event: 'restart', label: '16:00 second half starts', expect: 'live' },
           { at: 70, event: 'correction', label: '16:10 the Reds goal is disallowed after review', expect: 'live' },
           { at: 105, event: 'full-time', label: '16:45 full time', expect: 'finished' },
-          { at: 110, event: 'goal', label: '16:50 a late goal event arrives', expect: 'finished' },
+          { at: 110, event: 'goal', label: '16:50 a late goal event arrives (refused)' },
         ],
         starter: st([['scheduled', 'Scheduled', 70, 220], ['live', 'Live', 270, 220]], [['scheduled', 'live', 'kick-off']]),
       },
@@ -119,7 +119,7 @@ export const lldLiveScores: InterviewScript = {
         walk: { title: 'A goal is scored, then disallowed', steps: [
           { prompt: 'Who receives “goal g1” (seq 4)?', owner: 'processor', call: 'processor.receive({"id": "e4", "seq": 4, "type": "goal", "goal_id": "g1", "team": "home"})' },
           { prompt: 'Who records that g1 stands and derives 1–0?', owner: 'match', call: 'match.goals["g1"] = "home"  # score 1-0' },
-          { prompt: 'Who receives “goal_disallowed g1” (seq 7) and decides it can be applied?', owner: 'processor', call: 'processor.receive({"seq": 7, "type": "goal_disallowed", "goal_id": "g1"})' },
+          { prompt: 'Who receives “goal_disallowed g1” (seq 5) and decides it can be applied?', owner: 'processor', call: 'processor.receive({"seq": 5, "type": "goal_disallowed", "goal_id": "g1"})' },
           { prompt: 'Whose data changes so the score goes back to 0–0?', owner: 'match', call: 'match.goals.pop("g1")  # score 0-0' },
         ] },
       },
@@ -145,17 +145,17 @@ export const lldLiveScores: InterviewScript = {
       activity: {
         kind: 'timeline', names: ['Worker A (seq 4: goal)', 'Worker B (seq 5: disallowed)'], resource: 'Match record, version 3 (updates it will accept)', initial: 1,
         read: 'reads the match at version 3', write: 'saves its change as version 4',
-        start: [{ actor: 0, kind: 'read' }, { actor: 1, kind: 'read' }, { actor: 1, kind: 'write' }, { actor: 0, kind: 'write' }],
+        start: [{ actor: 0, kind: 'read' }, { actor: 1, kind: 'read' }, { actor: 0, kind: 'write' }, { actor: 1, kind: 'write' }],
         guards: [
           { id: 'plain', label: 'Save the match as the worker computed it', detail: 'Each worker writes what it computed from version 3. The later save overwrites the earlier one.', code: 'match = store.load(match_id)\nmatch.apply(event)\nstore.save(match)' },
           { id: 'conditional', label: 'Sequence check: save only if last_seq is still what was read', detail: 'Seq 5 may only be saved when the stored last_seq is 4; otherwise it is refused and goes back to the buffer.', code: "UPDATE matches SET data=:d, last_seq=:seq\nWHERE id=:id AND last_seq=:seq - 1" },
           { id: 'lock', label: 'Lock the match while an update is applied', detail: 'The second worker waits for the first to save.', code: 'SELECT * FROM matches WHERE id=:id FOR UPDATE' },
         ],
-        predict: { q: 'Seq 5 saves first, then seq 4 saves, both without a check. What does the stored match show?', choices: [{ id: 'both', label: 'Both applied in the right order' }, { id: 'overwrite', label: 'One update overwrites the other' }, { id: 'refused', label: 'The second save is refused' }] },
+        predict: { q: 'Both workers save from version 3 without a check. What does the stored match show?', choices: [{ id: 'both', label: 'Both applied in the right order' }, { id: 'overwrite', label: 'One update overwrites the other' }, { id: 'refused', label: 'The second save is refused' }] },
       },
       help: {
         hint: 'What does seq 5 need to be true about the stored match before it may be applied?',
-        walkthrough: [{ text: 'Both workers computed from version 3, so neither saw the other.' }, { text: 'A plain save lets the last writer win, so a goal can reappear or a correction be lost.' }, { text: 'A sequence check makes seq 5 wait until the stored last_seq is 4.' }],
+        walkthrough: [{ text: 'Both workers computed from version 3, so neither saw the other.' }, { text: 'A plain save lets the last writer win, so the goal or the correction can be silently lost.' }, { text: 'A sequence check makes seq 5 wait until the stored last_seq is 4.' }],
         solution: [{ type: 'p', text: 'Use a conditional write on last_seq: seq n is saved only if the stored last_seq is n−1. A refused update goes back to the buffer and is applied after the one it waits for.' }],
         why: 'Ordering has to be enforced where the match is saved, because that is the only place that sees both updates.',
       },

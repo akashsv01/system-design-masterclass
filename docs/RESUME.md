@@ -7,6 +7,18 @@
 - **Workbench baseline:** `main` @ `ce05e7d` (2026-11-20). Critique #1 and measured find-and-return test:
   `docs/DESIGN_REVIEW.md` Review 6; captures `docs/screens/baseline-2026-11-20/`.
 
+## Owner review fixes (2026-11-20, after running locally on Windows)
+- `npm start` is cross-platform (`scripts/start.ts` sets NODE_ENV); the old `NODE_ENV=production …` failed in PowerShell/cmd.
+- Interview solution simplified: workspace toggle “Your design / Reference design” with a “Missing from yours · i of n” walker; Help panel is one
+  Hint | Walkthrough | Answer control plus “See the full solution for this case” (a modal dialog, portalled so the header never covers it);
+  after help, “Back to my design”. Every stage of all 31 cases opens a non-empty full solution (scratchpad all.cjs).
+- Hints in lesson exercises toggle (Show a hint / Hide hint / Show the hint again); the first open still counts as help.
+- Replay in lessons shows only while a request token is on the diagram, and restarts it.
+- Content verification pass: 3 source batches read against primary texts (papers, specs, ops) → `v()` entries + minimal lesson
+  wording fixes; all 31 interview scripts fact-checked (HLD 23 fixes, LLD 9 scripts fixed incl. a states-activity scoring defect).
+  Findings: `docs/sources-check/*.md`, merged into `docs/SOURCES_AUDIT.md`. Still unchecked: books and hosts not reachable (41 `s()` entries).
+- Verified: unit 59/59, pytest 73, typecheck, build, audit:content 0/0, e2e 56/56, a11y clean, all 31 cases, nav, journey.
+
 ## Interview simulator (active, 2026-11-20) — brief in `docs/INTERVIEW_BRIEF_2026-11-20.md`
 Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-booking (HLD) and lld-parking-lot (LLD) at
 1280 and 390 (captures in the session scratchpad, findings in `docs/DESIGN_REVIEW.md` Review 7).

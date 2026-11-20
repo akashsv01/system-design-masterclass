@@ -5,6 +5,7 @@
  * interviewer are tabs that stay mounted, so each keeps its state.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import type { InterviewScript, Stage } from '../../content/interview/types';
 import { acks as findAcks, coachLines, debrief, fill, nextQuestion, type Ctx } from '../../sim/interview/rules';
@@ -359,7 +360,7 @@ function FullSolution({ script, onClose }: { script: InterviewScript; onClose: (
     const html = document.documentElement; const prev = html.style.overflow; html.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); html.style.overflow = prev; };
   }, [onClose]);
-  return (
+  return createPortal(
     <div className="full-root">
       <div className="drawer-scrim" onClick={onClose} aria-hidden="true" />
       <div className="full-sol" role="dialog" aria-modal="true" aria-labelledby="full-title" ref={ref} tabIndex={-1}>
@@ -380,7 +381,8 @@ function FullSolution({ script, onClose }: { script: InterviewScript; onClose: (
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

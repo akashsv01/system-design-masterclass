@@ -134,7 +134,7 @@ export const scheduler: InterviewScript = {
         walkthrough: [
           { text: '09:00 Worker A takes the job: Scheduled → Running, with a lease that lasts five minutes.' },
           { text: '09:01 Worker A crashes. Nothing happens at 09:01; the job just sits in Running with a lease that stops being renewed.' },
-          { text: '09:05 the lease runs out. Only an arrow you draw can move it: Running → Scheduled on “lease expires”.' },
+          { text: '09:05 the lease runs out (this exercise counts five minutes from the claim). Only an arrow you draw can move it: Running → Scheduled on “lease expires”.' },
           { text: '09:07 Worker B takes the job and finishes at 09:09. A late “finish” from Worker A at 09:12 finds the job already Done and is refused.' },
         ],
         solution: [

@@ -22,7 +22,7 @@ export const collabEditor: InterviewScript = {
     terms: [
       { term: 'operation', meaning: 'one small edit, such as “insert x at position 5”, sent instead of the whole document' },
       { term: 'conflict', meaning: 'two people changing the same thing from the same starting point' },
-      { term: 'version', meaning: 'a counter on a paragraph that goes up with each accepted edit' },
+      { term: 'version', meaning: 'a counter on a paragraph, or on the whole document, that goes up with each accepted edit' },
       { term: 'snapshot', meaning: 'a saved copy of the whole document at one point in its history' },
     ],
     firstMove: 'Ana and Ben are editing the same document. Ana types a sentence. Show me the parts that carry her edit to Ben’s screen, then trace it.',
@@ -228,7 +228,7 @@ export const collabEditor: InterviewScript = {
       { from: 'session', to: 'oplog', text: 'The session checks the base version (rebasing if Ben edited meanwhile), appends it as version 42 and acknowledges Ana.' },
       { from: 'session', to: 'presence', text: 'Cursor movements go to the short-lived store, not the log.' },
       { from: 'oplog', to: 'snapper', text: 'Every few hundred versions the snapshot worker reads the log.' },
-      { from: 'snapper', to: 'snaps', text: 'It writes a snapshot, so reopening loads it plus a few operations. Meanwhile the session broadcast version 42 to Ben and the other 49 editors.' },
+      { from: 'snapper', to: 'snaps', text: 'It writes a snapshot, so reopening loads it plus a few operations. Meanwhile the session broadcast version 42 to Ben and the other editors.' },
     ] },
     tradeoff: 'One session server per document gives a single order and a simple merge, but that server is a point to replace on failure; the log makes replacing it safe.',
     otherApproach: 'If offline editing or peer-to-peer sync matters more than central control, use a CRDT document: each character has a stable id, edits merge in any order, and there is no central transform.',

@@ -204,6 +204,18 @@ export function Controls({
   reachable?: number;
   onJump?: (n: number) => void;
 }) {
+  // Replay restarts the request tokens travelling the diagram; offer it only while there is one to replay.
+  const [motion, setMotion] = useState(false);
+  useEffect(() => {
+    const root = document.querySelector('.lesson');
+    if (!root) return;
+    const check = () => setMotion(!!root.querySelector('.token'));
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(root, { subtree: true, childList: true });
+    return () => mo.disconnect();
+  }, []);
+
   const last = step >= count - 1;
   const lastClick = useRef(0);
   const [open, setOpen] = useState(false);
@@ -236,7 +248,7 @@ export function Controls({
         <button className="btn" onClick={onBack} disabled={step === 0} aria-label="Previous step">
           <Icon name="arrow-left" /> <span className="replay-label">Back</span>
         </button>
-        {onReplay && (
+        {onReplay && motion && (
           <button className="btn btn-quiet" onClick={onReplay} aria-label="Replay this step" title="Replay this step (R)">
             <Icon name="replay" /> <span className="replay-label">Replay</span>
           </button>

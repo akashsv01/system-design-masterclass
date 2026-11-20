@@ -242,7 +242,7 @@ export const rideMatching: InterviewScript = {
       rider: 'Sends Request and shows the driver once someone accepts.',
       matcher: 'Picks a candidate and makes the offer. One per city partition, so contention stays local.',
       trips: 'Source of truth for “is this driver free?”. Changed only by conditional writes.',
-      push: 'Delivers the offer to the driver’s phone and keeps the ten-second clock out of the matcher.',
+      push: 'Delivers the offer to the driver’s phone. The ten-second expiry is enforced in the trip store, never by the phone.',
       driver: 'Reports a position every 4 seconds and answers offers.',
       loc: 'Files each ping under a map cell and ignores stale ones. It never decides who is free.',
       geo: 'In-memory cells of drivers, overwritten on every ping. Fast, approximate, rebuilt after a restart.',

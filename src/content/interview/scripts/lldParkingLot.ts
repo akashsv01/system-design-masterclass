@@ -199,7 +199,7 @@ export const lldParkingLot: InterviewScript = {
     },
     why: {
       gate: 'Where cars arrive. It asks the lot to park and prints the ticket; it decides nothing.',
-      lot: 'Owns all spots and tickets. park() picks the smallest fit, rejects a repeat plate and changes state under one lock.',
+      lot: 'Owns all spots and tickets. park() picks the smallest fit, rejects a repeat plate and changes state in one step; the lock around it is added in the two-gates stage (the tested code is the single-threaded core).',
       spot: 'One space: id, size and the vehicle in it.',
       size: 'Small, medium, large. Comparing by value makes “fits” a one-line check.',
       ticket: 'Plate to spot, so leave() is one lookup. A dictionary in the lot is enough for version 1.',
@@ -207,7 +207,7 @@ export const lldParkingLot: InterviewScript = {
     alternatives: { ticket: { types: ['spot'], tradeoff: 'Storing the plate only in the spot removes a structure, but leaving and the repeat-plate check then scan every spot.' } },
     trace: { title: 'A medium car arrives at gate A', steps: [
       { from: 'gate', to: 'lot', text: 'park("KX-81", Size.MEDIUM) — the gate asks the lot.' },
-      { from: 'lot', to: 'spot', text: 'Under the lock: keep spots that are free and fit, take the smallest (M2), set its vehicle.' },
+      { from: 'lot', to: 'spot', text: 'Inside one locked step: keep spots that are free and fit, take the smallest (M2), set its vehicle.' },
       { from: 'spot', to: 'size', text: 'Fit check: spot.size.value >= MEDIUM.value.' },
       { from: 'lot', to: 'ticket', text: 'tickets["KX-81"] = M2; the gate prints the ticket.' },
     ] },

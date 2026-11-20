@@ -171,7 +171,7 @@ const RAW_TOPICS: RawTopic[] = [
     ['relational', 'document', 'key-value', 'wide-column', 'graph', 'search', 'time-series', 'object storage'], ['ddia2', 'bigtable', 'dynamo'], 'Data models'),
   T('storage-engines', 'How does a database survive a power cut mid-write?', 'data', 'lesson', ['indexes'],
     'Explain B-trees, LSM trees, write-ahead logs and compaction, and compare their read/write costs.',
-    ['B-trees', 'LSM trees', 'write-ahead logs', 'compaction'], ['ddia3', 'dbInternals', 'lsm', 'pgWal'], 'Storage engines'),
+    ['B-trees', 'LSM trees', 'write-ahead logs', 'compaction'], ['ddia3', 'dbInternals', 'lsm', 'bigtable', 'pgWal'], 'Storage engines'),
   T('transactions', 'Why did the bank balance go negative?', 'data', 'lesson', ['first-booking', 'bridge-sql'],
     'Define atomicity and isolation, and identify dirty reads, lost updates, write skew and phantoms in interleavings.',
     ['transactions', 'isolation anomalies'], ['ddia7', 'critique', 'pgIso'], 'Transactions and isolation'),

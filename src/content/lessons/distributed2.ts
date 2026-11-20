@@ -262,7 +262,7 @@ export const capQuorums: GenericLesson = {
   ],
   worked: { title: 'quorum arithmetic', blocks: [
     { type: 'table', head: ['N', 'W', 'R', 'R + W > N?', 'Survives'], rows: [['3', '2', '2', 'yes', '1 replica down for reads and writes'], ['3', '3', '1', 'yes', 'reads with 2 down; writes need all 3'], ['3', '1', '1', 'no', 'fast, but reads can miss the latest write'], ['5', '3', '3', 'yes', '2 replicas down']] },
-    { type: 'p', text: 'When there is no partition, the real everyday trade-off is between **latency and consistency**: waiting for more replicas is safer and slower. Dynamo-style stores let you tune R and W per request.' },
+    { type: 'p', text: 'When there is no partition, the real everyday trade-off is between **latency and consistency**: waiting for more replicas is safer and slower. Dynamo-style stores let each application tune N, R and W (the Dynamo paper’s common setting is 3, 2, 2).' },
   ] },
   checks: [
     { kind: 'choice', id: 'q1', prompt: 'N = 5, W = 2, R = 2. Is a read guaranteed to see the latest successful write?', choices: [
