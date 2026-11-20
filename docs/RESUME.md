@@ -33,7 +33,7 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 | Impeccable 4.10.0 | Skill + 5 agents copied to `.claude/` from the GitHub source (the installer's bundle host impeccable.style is unreachable); engine binary runs; design hook enabled locally (`.claude/settings.local.json`, not committed) | Use `.claude/skills/impeccable/scripts/impeccable detect --json --changed` and `shot`. |
 | motion-design (richtabor/agent-skills) | `.claude/skills/motion-design` | Duration/easing tokens adopted in `styles.css`. |
 | reference-to-motion (charlie947/motion-graphics-skills) | `.claude/skills/reference-to-motion` | Needs a reference recording; none supplied yet. |
-| Hallmark (Nutlope/hallmark), Unslop (SalvatoreCampagnese/unslop-skill) | Not installed: the session's permission classifier blocked the install (not in the user's earlier explicit list). Guidance read as reference text. Install with `npx skills add Nutlope/hallmark -a claude-code -y --copy` and `npx skills add SalvatoreCampagnese/unslop-skill -a claude-code -y --copy` once approved. | |
+| Hallmark (Nutlope/hallmark), Unslop (SalvatoreCampagnese/unslop-skill) | Installed at project level (`.claude/skills/hallmark`, `.claude/skills/unslop`) after the owner approved | Hallmark: `/hallmark redesign <path>`; Unslop: audit UI and prose for AI tells. |
 | huashu-art-motion | `.claude/skills/huashu-art-motion` (26 MB, git-ignored; restore with `npx skills experimental_install`) | Used for storyboards (`docs/STORYBOARDS.md`); its renderer needs uv + ffmpeg. |
 Skills installed mid-session load in the next session; this session applies them by reading their SKILL.md files.
 

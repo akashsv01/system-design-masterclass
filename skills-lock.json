@@ -1,6 +1,14 @@
 {
   "version": 2,
   "skills": {
+    "hallmark": {
+      "source": "Nutlope/hallmark",
+      "commit": "04977e15f3dfd6ee4b74c887dac3eb52665d6c92",
+      "sourceType": "github",
+      "skillPath": "skills/hallmark/SKILL.md",
+      "computedHash": "e5d4ee5cf0af2dcc81a23ef49b587fbfd71236ff9f9df9da12d3bf347e26e572",
+      "installMode": "copy"
+    },
     "huashu-art-motion": {
       "source": "alchaincyf/huashu-art-motion",
       "commit": "a97c45018d46e950d56d61981138e08f4e092909",
@@ -23,6 +31,14 @@
       "sourceType": "github",
       "skillPath": "skills/reference-to-motion/SKILL.md",
       "computedHash": "e090335adae1b0233d00fe2e341c19b0a02a18579af7b61765164655de45934f",
+      "installMode": "copy"
+    },
+    "unslop": {
+      "source": "SalvatoreCampagnese/unslop-skill",
+      "commit": "d16fe29e08bd285d611f7a40138e36bdbe809b68",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "4ee40eee498ba0a57b411a801d4f10e000fa704f6e6f7f88e081d4485a7fa2d2",
       "installMode": "copy"
     }
   }
