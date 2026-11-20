@@ -197,3 +197,23 @@ scrolling becomes instant; all information remains in text (captions, change lis
 6. **Case in two modes** (31 cases): guided walkthrough with the reference design drawn stage by stage, or an
    independent attempt where the learner sketches and writes first and each stage’s reference opens only after saving.
    Paired cases end with “who guarantees what” at both zoom levels.
+
+## §1e Interview simulator and navigator decisions (2026-11-20)
+Sources: Interview Simulator Brief, project-wide design and motion instructions, Figma file `vFFT0KMZsMwxiMMlqS1IyQ`,
+Impeccable detector, Unslop/Hallmark guidance (read as reference; not installed — see RESUME).
+- **D23 One graph, two orientations.** The learner's design is stored in a 640×440 virtual space and drawn left→right on
+  desktop and top→bottom on phones, so labels never shrink below 13–14 px.
+- **D24 Selection actions float.** On desktop the actions for a selected part/arrow float beside it (no layout shift);
+  phones use a sticky bottom sheet (Figma phone frame). Every action also exists in the “Parts and connections” list.
+- **D25 Bare arrows are questions.** An arrow without a meaning is drawn dashed with “?” and the interviewer asks for its
+  meaning first; nothing is graded from an assumption the diagram cannot show.
+- **D26 One simulation state drives each teaching animation** (`usePlayer`: play, pause, step, back, replay; discrete
+  steps under reduced motion). Results feed authored interviewer rules (`src/sim/interview/rules.ts`).
+- **D27 Help is a ladder** (hint → walkthrough → stage solution → full solution), recorded privately; “Try this step
+  again” restores the stage snapshot; “My design / Worked solution” compares one difference at a time with “Add to my design”.
+- **D28 Debrief is grounded in the attempt**: first outcomes are kept (`first`), so it can show what changed during the
+  attempt, open questions and assisted stages, not only the final state.
+- **D29 Navigator**: one component for Topics page, sidebar (≥1100 px) and drawer; expanding never moves the pressed row;
+  scroll positions saved on leave (click/Back), not on every scroll, because the browser clamps scroll during unmount.
+- **D30 No side-tab stripes** (Impeccable `side-tab`): emphasis uses full borders, tints or explicit labels.
+- **D31 Home hero has one protagonist**: the two-buyer race, labelled, predict-then-run; the prediction is lesson 1's.

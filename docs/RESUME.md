@@ -17,7 +17,9 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 - [x] Session shell (brief drawer/tab, clarify/assume, guided vs mock, help ladder, my design vs worked solution with adopt, debrief, phone tabs, v1 record migration)
 - [x] Verified in a browser at 1280 and iPhone 13: connect service→database, trace, insert a cache, replay — animation stops at the cache and the interviewer’s follow-ups name the learner’s parts (scratchpad `iv1.cjs`)
 - [x] LLD exemplar play-through (states stuck→fixed, roles, ten servers, debrief grounded in the attempt)
-- [ ] Remaining 29 scripts: authoring agents hit the account usage limit (Fable, then Sonnet); resume them or author directly. Shared brief: scratchpad authoring-brief.md (copy in docs/INTERVIEW_AUTHORING.md)
+- [~] Scripts: 12/31 committed (ticket, lld-booking, notifications, live-scores, url-shortener, rate-limiter, file-sync, video, payments, checkout + 2 exemplars). Agents resumed one batch at a time (B chat/collab/feed/autocomplete, D ride/scheduler/metrics/crawler, E1 parking/elevator/vending/library; then E2, F1, F2). Register with scratchpad genindex.py or edit scripts/index.ts.
+- [x] Home hero race; navigator; Impeccable detector clean; a11y clean; e2e 50/50; continuous beginner journey passes at 1280 + iPhone 13 (scratchpad journey.cjs)
+- [ ] (old note) Remaining 29 scripts: authoring agents hit the account usage limit (Fable, then Sonnet); resume them or author directly. Shared brief: scratchpad authoring-brief.md (copy in docs/INTERVIEW_AUTHORING.md)
 - [ ] (was) LLD exemplar play-through (states/roles/ten servers); then e2e journeys replacing the old interview e2e check (it still targets the removed text-box workspace)
 - [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
@@ -30,6 +32,7 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 | Impeccable 4.10.0 | Skill + 5 agents copied to `.claude/` from the GitHub source (the installer's bundle host impeccable.style is unreachable); engine binary runs; design hook enabled locally (`.claude/settings.local.json`, not committed) | Use `.claude/skills/impeccable/scripts/impeccable detect --json --changed` and `shot`. |
 | motion-design (richtabor/agent-skills) | `.claude/skills/motion-design` | Duration/easing tokens adopted in `styles.css`. |
 | reference-to-motion (charlie947/motion-graphics-skills) | `.claude/skills/reference-to-motion` | Needs a reference recording; none supplied yet. |
+| Hallmark (Nutlope/hallmark), Unslop (SalvatoreCampagnese/unslop-skill) | Not installed: the session's permission classifier blocked the install (not in the user's earlier explicit list). Guidance read as reference text. Install with `npx skills add Nutlope/hallmark -a claude-code -y --copy` and `npx skills add SalvatoreCampagnese/unslop-skill -a claude-code -y --copy` once approved. | |
 | huashu-art-motion | `.claude/skills/huashu-art-motion` (26 MB, git-ignored; restore with `npx skills experimental_install`) | Used for storyboards (`docs/STORYBOARDS.md`); its renderer needs uv + ffmpeg. |
 Skills installed mid-session load in the next session; this session applies them by reading their SKILL.md files.
 
