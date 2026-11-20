@@ -212,7 +212,7 @@
 .miss-line { color: var(--fail); display: flex; gap: 6px; align-items: center; margin: 0; font-size: 14.5px; }
 .rule { margin: 0; font-size: 13.5px; color: var(--muted); }
 .rule-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-2); background: var(--paper-2); border-radius: 6px; padding: 1px 6px; margin-right: 6px; }
-.change-banner { display: flex; gap: 8px; align-items: flex-start; background: var(--active-soft); color: var(--ink); border-left: 3px solid var(--active); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 15px; }
+.change-banner { display: flex; gap: 8px; align-items: flex-start; background: var(--active-soft); color: var(--ink); border: 1px solid color-mix(in srgb, var(--active) 45%, transparent); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
 .change-banner .icon { color: var(--active); flex: none; margin-top: 2px; }
 .starter-offer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; }
 .starter-offer p { margin: 0; flex: 1 1 260px; font-size: 14.5px; }
@@ -294,7 +294,7 @@
 .msg.interviewer { background: var(--paper-2); border-top-left-radius: 4px; }
 .msg.you { background: var(--accent-soft); color: var(--ink); justify-self: end; max-width: 88%; border-top-right-radius: 4px; }
 .msg .who { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
-.msg.sound, .msg.partial, .msg.risky { border-left: 3px solid; }
+.msg.sound, .msg.partial, .msg.risky { border: 1px solid; }
 .msg.sound { border-color: var(--ok); } .msg.partial { border-color: var(--active); } .msg.risky { border-color: var(--fail); }
 .msg.sound .who::after { content: ' · sound'; color: var(--ok); }
 .msg.partial .who::after { content: ' · partly'; color: var(--active); }
@@ -322,19 +322,19 @@
 /* ── Debrief ────────────────────────────────────────────────────────────── */
 .debrief { display: grid; gap: 14px; max-width: 1000px; }
 .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-.db-card { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--line-strong); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.db-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
 .db-card h3 { margin: 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
 .db-card p { margin: 0; }
-.db-card.ok { border-top-color: var(--ok); } .db-card.ok h3 { color: var(--ok); }
-.db-card.warn { border-top-color: var(--active); } .db-card.warn h3 { color: var(--active); }
-.db-card.accent { border-top-color: var(--accent); } .db-card.accent h3 { color: var(--accent); }
+.db-card.ok { border-color: color-mix(in srgb, var(--ok) 40%, var(--line)); } .db-card.ok h3 { color: var(--ok); }
+.db-card.warn { border-color: color-mix(in srgb, var(--active) 40%, var(--line)); } .db-card.warn h3 { color: var(--active); }
+.db-card.accent { border-color: var(--accent-line); } .db-card.accent h3 { color: var(--accent); }
 .db-next { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .rub { margin-bottom: 10px; } .rub p { margin: 0 0 4px; }
 
 /* ── Picker ─────────────────────────────────────────────────────────────── */
 .iv-picker { max-width: 1180px; }
 .resume-list ul { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 8px; }
-.resume-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'main go' 'meta go'; gap: 2px 12px; align-items: center; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--accent-line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 16px; transition: background var(--dur-1); }
+.resume-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'main go' 'meta go'; gap: 2px 12px; align-items: center; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--accent-line); border-radius: 12px; padding: 12px 16px; transition: background var(--dur-1); }
 .resume-card:hover { background: var(--accent-soft); }
 .rc-main { grid-area: main; } .rc-meta { grid-area: meta; } .rc-go { grid-area: go; display: inline-flex; gap: 4px; align-items: center; font-weight: 650; color: var(--accent); }
 .iv-filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 16px; }
