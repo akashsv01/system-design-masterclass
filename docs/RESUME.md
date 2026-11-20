@@ -24,7 +24,7 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 - [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
 - [x] Journeys in e2e (phone width; desktop journeys in scratchpad iv1/iv2/nav/journey scripts), a11y clean, docs (DESIGN §1e D23–D31), pushed
-- Remaining for a later pass: Hallmark/Unslop install needs the owner’s approval; human editorial review of the 29 agent-authored scripts (authored by Sonnet subagents after Fable ran out of credits, audited structurally and played through, not reviewed line by line); critique #2 screenshots of the reader at all widths
+- Remaining for a later pass: Hallmark/Unslop install needs the owner’s approval; human editorial review of the 29 agent-authored scripts (authored by Sonnet subagents after Fable ran out of credits, audited structurally and played through, not reviewed line by line); (done) Hallmark Floor on the reader: sloplint 0 FAIL; Unslop 9/100 clean
 
 ### Authoring tools (installed 2026-11-20; not site dependencies — nothing added to package.json)
 | Tool | State | Notes |

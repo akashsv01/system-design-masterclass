@@ -313,7 +313,7 @@ export function Sources({ sources }: { sources: Source[] }) {
         {sources.map((s, i) => (
           <li key={i} style={{ marginBottom: 6 }}>
             {s.url ? <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a> : <cite>{s.title}</cite>}
-            {s.where && <> — {s.where}</>}
+            {s.where && <>, {s.where}</>}
             {s.note && <span className="muted"> · {s.note}</span>}
             {s.checked ? <span className="pill ok" style={{ marginLeft: 6 }}>checked against the source</span> : null}
           </li>

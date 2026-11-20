@@ -39,7 +39,7 @@ export function Home() {
             <h2 id="resume-title">{rec.title}</h2>
             <p className="where">{rec.reason}</p>
             {rec.kind === 'continue' && last?.count ? (
-              <div className="meter" role="img" aria-label={`Step ${(last.step ?? 0) + 1} of ${last.count}`}><span style={{ width: `${(((last.step ?? 0) + 1) / last.count) * 100}%` }} /></div>
+              <div className="meter" role="img" aria-label={`Step ${(last.step ?? 0) + 1} of ${last.count}`}><span style={{ transform: `scaleX(${((last.step ?? 0) + 1) / last.count})` }} /></div>
             ) : null}
             <div className="home-actions">
               <Link className="btn btn-primary btn-lg" to={rec.topic.route}>

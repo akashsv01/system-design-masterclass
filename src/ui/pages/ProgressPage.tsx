@@ -76,7 +76,7 @@ export function ProgressPage() {
                 <div key={m.id} className="skill-area">
                   <h3>{m.title}</h3>
                   <div className="meter" role="img" aria-label={`${ind} solved independently and ${help} with help, of ${all.length}`}>
-                    <span style={{ width: `${((ind + help) / all.length) * 100}%`, background: ind ? `linear-gradient(90deg, var(--ok) ${(ind / Math.max(1, ind + help)) * 100}%, var(--accent) 0)` : 'var(--accent)' }} />
+                    <span style={{ transform: `scaleX(${(ind + help) / all.length})`, background: ind ? `linear-gradient(90deg, var(--ok) ${(ind / Math.max(1, ind + help)) * 100}%, var(--accent) 0)` : 'var(--accent)' }} />
                   </div>
                   <p>{ind} independently · {help} with help · {all.length} in all</p>
                 </div>
