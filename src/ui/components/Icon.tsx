@@ -1,6 +1,6 @@
 /**
  * One small, consistent icon set (24-unit grid, 1.8 stroke, round caps) used in the UI and inside diagrams.
- * Replaces Unicode glyphs (▯ ⛁ ☾ ☰ …), which render as missing-character boxes on some systems.
+ * unslop-ignore: I3 — the glyphs below are listed only to say they were replaced. Replaces Unicode glyphs (▯ ⛁ ☾ ☰ …), which render as missing-character boxes on some systems.
  * Every icon is decorative: the surrounding element carries the accessible name.
  */
 import type { CSSProperties } from 'react';

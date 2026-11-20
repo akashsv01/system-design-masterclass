@@ -1,0 +1,19 @@
+{
+  // Decisions recorded from docs/DESIGN.md and CLAUDE.md "Design and motion conventions".
+  "radius": { "policy": "scale", "scale": [0, 3, 6, 8, 9, 10, 12, 14, 16, 999], "tolerance": 1 },
+  // Shadows only on things that float (popovers, drawers, the home figure), never on every card.
+  "shadow": { "policy": "neutral" },
+  "glass": { "allow": false },
+  "gradients": { "allow": false },
+  "fonts": { "display": ["Source Serif 4 Variable"], "body": ["Inter Variable"], "mono": ["JetBrains Mono Variable"], "allowSystemStack": true },
+  "motion": { "requireReducedMotion": true, "allowBounce": false, "allowUniformReveal": false },
+  "icons": { "allowEmoji": false, "allowSparkles": false },
+  "copy": { "allowArrowsInCta": true, "allowGenericCta": false, "vocabulary": { "allow": [], "ban": ["powerful", "seamless", "unlock"] } },
+  "rules": {
+    // Focus styles are global in styles.css (:focus-visible, .btn, .choice, .segmented); per-file detection cannot see them.
+    "K3": "off",
+    // Arrows in this product mark data flow inside diagrams and timelines (A → B), not decorated links.
+    "P3": "off"
+  },
+  "thresholds": { "maxScore": 25, "min": "P2" }
+}

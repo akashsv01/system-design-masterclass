@@ -1,0 +1,28 @@
+{
+  // System Design Masterclass — tokens in src/ui/styles.css (light theme; dark theme mirrors these roles).
+  "name": "System Design Masterclass",
+  "colors": {
+    "ground": "#f6f1e8",      // paper: the reading surface
+    "ground-2": "#ede5d6",    // paper-2: segmented controls, quiet fills
+    "surface": "#fffcf6",     // cards and workspaces
+    "ink": "#1b2430",
+    "ink-2": "#39444f",
+    "muted": "#5a626c",
+    "line": "#e0d6c4",
+    "line-strong": "#bfb19a",
+    "signal": "#1f4f82",      // accent: the one brand signal (actions, selection, current place)
+    "signal-soft": "#e1eaf4",
+    "signal-line": "#9fb9d5", // accent-line: borders of selected/current things
+    "active": "#9c5a00",      // semantic: in flight / changed / waiting
+    "active-soft": "#fbebcf",
+    "ok": "#24704a",          // semantic: confirmed / correct
+    "ok-soft": "#dcefe2",
+    "fail": "#ae342c",        // semantic: failed / wrong — not a brand accent
+    "fail-soft": "#f7deda",
+    "dark-ground": "#13171c", "dark-surface": "#1c2229", "dark-signal": "#8fb9e8",
+    "dark-active": "#f0b35a", "dark-active-soft": "#3a2d18", "dark-ok-soft": "#1b3326", "dark-fail-soft": "#3d201f", "dark-ok": "#72cb98", "dark-fail": "#f28b82"
+  },
+  "tolerance": { "hue": 12, "sat": 18, "light": 14 },
+  "neutralsAlwaysAllowed": true,
+  "allowOffPaletteDecoration": false
+}
