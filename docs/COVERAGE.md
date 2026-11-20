@@ -12,7 +12,7 @@ Four separate kinds of evidence, never merged:
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
 
-Audit: 0 error(s), 23 warning(s).
+Audit: 0 error(s), 19 warning(s).
 
 ## Start here
 
@@ -183,13 +183,9 @@ Audit: 0 error(s), 23 warning(s).
 - interview: case-chat has no interview script yet
 - interview: case-feed has no interview script yet
 - interview: case-autocomplete has no interview script yet
-- interview: case-payments has no interview script yet
-- interview: case-checkout has no interview script yet
-- interview: case-ride-matching has no interview script yet
 - interview: case-metrics has no interview script yet
 - interview: case-scheduler has no interview script yet
 - interview: case-crawler has no interview script yet
-- interview: case-collab-editor has no interview script yet
 - interview: lld-parking-lot has no interview script yet
 - interview: lld-elevator has no interview script yet
 - interview: lld-vending-machine has no interview script yet
