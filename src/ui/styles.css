@@ -49,6 +49,14 @@
   --t-fast: 120ms;
   --t: 200ms;
   --t-slow: 420ms;
+  /* Motion tokens (motion-design skill; CLAUDE.md "Design and motion conventions"). Repeated actions ≤ --dur-2. */
+  --dur-1: 120ms;   /* press, hover, small feedback */
+  --dur-2: 180ms;   /* chips, popovers, panels entering */
+  --dur-3: 240ms;   /* drawers, sheets */
+  --dur-teach: 700ms; /* one beat of a teaching animation (a hop, an operation) */
+  --ease-out: cubic-bezier(.165, .84, .44, 1);
+  --ease-in: cubic-bezier(.55, .055, .675, .19);
+  --ease-in-out: cubic-bezier(.645, .045, .355, 1);
   color-scheme: light;
 }
 
