@@ -705,3 +705,19 @@ button.snip-line:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(
 @keyframes drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
 @media (max-width: 600px) { .lesson-pager { grid-template-columns: 1fr; } .lesson-pager a.next { text-align: left; } .lesson-pager .next .dir { justify-content: flex-start; } .topics-toggle span { display: none; } .course-crumbs { padding: 0 16px; } }
 @media (prefers-reduced-motion: reduce) { .drawer, .drawer-scrim { animation: none; } }
+
+/* Home hero race and previews */
+.hero-race { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-2); padding: 14px 16px 16px; display: grid; gap: 10px; min-width: 0; }
+.race-panel { display: grid; gap: 10px; }
+.race-predict { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+.race-predict legend { font-weight: 650; font-size: 15.5px; margin-bottom: 8px; }
+.race-predict .choice-row { display: grid; gap: 6px; }
+.race-beats { margin: 0 0 6px; padding-left: 20px; display: grid; gap: 3px; font-size: 14.5px; }
+.race-beats li.done { color: var(--ink); }
+.race-beats li.now { font-weight: 600; }
+.race-result { margin: 4px 0 0; font-size: 15px; }
+.race-result strong { color: var(--fail); }
+.preview-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.preview-grid a { display: grid; gap: 6px; height: 100%; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; color: var(--ink); transition: border-color var(--dur-1); }
+.preview-grid a:hover { border-color: var(--accent-line); }
+.preview-grid strong { font-weight: 600; line-height: 1.4; }

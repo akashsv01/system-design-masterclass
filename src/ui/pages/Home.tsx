@@ -12,58 +12,8 @@ import { useRecord, useRecords } from '../../progress/ProgressProvider';
 import { MODULES, topicsInModule } from '../../content/curriculum';
 import { recommend, type LastActivity, type Mistake, type Review } from '../../progress/recommend';
 import type { LessonStatus } from '../../../shared/progress';
-import { Diagram, type Layout } from '../components/Diagram';
 import { Icon } from '../components/Icon';
-
-const TEASER_WIDE: Layout = {
-  width: 560,
-  height: 300,
-  nodes: {
-    maya: { x: 100, y: 70, w: 170 },
-    leo: { x: 100, y: 230, w: 170 },
-    server: { x: 300, y: 150, w: 120, h: 70 },
-    db: { x: 465, y: 150, w: 170, h: 80 },
-  },
-};
-const TEASER_NARROW: Layout = {
-  width: 360,
-  height: 330,
-  nodes: {
-    maya: { x: 95, y: 50, w: 160 },
-    leo: { x: 265, y: 50, w: 160 },
-    server: { x: 180, y: 165, w: 150, h: 64 },
-    db: { x: 180, y: 278, w: 200, h: 74 },
-  },
-};
-
-function Teaser() {
-  return (
-    <figure className="hero-figure" style={{ margin: 0 }}>
-      <Diagram
-        nodes={[
-          { id: 'maya', kind: 'client', label: 'Maya’s phone', value: 'F12 · 1 left', state: 'active' },
-          { id: 'leo', kind: 'client', label: 'Leo’s phone', value: 'F12 · 1 left', state: 'active' },
-          { id: 'server', kind: 'server', label: 'Booking system', state: 'placeholder' },
-          { id: 'db', kind: 'db', label: 'Seat F12', value: 'available' },
-        ]}
-        edges={[
-          { id: 'a', from: 'maya', to: 'server' },
-          { id: 'b', from: 'leo', to: 'server' },
-          { id: 'c', from: 'server', to: 'db' },
-        ]}
-        tokens={[
-          { id: 't1', from: 'maya', to: 'server', label: 'Reserve', tone: 'request', at: 0.55 },
-          { id: 't2', from: 'leo', to: 'server', label: 'Reserve', tone: 'request', at: 0.45 },
-        ]}
-        wide={TEASER_WIDE}
-        narrow={TEASER_NARROW}
-        breakpoint={420}
-        description="Two phones both show seat F12 with one left, and both send Reserve at the same moment toward a booking system that isn't drawn yet."
-      />
-      <figcaption>Both phones say “1 left”, and both buyers tap Reserve 5 ms apart. The first lesson follows both requests through the system.</figcaption>
-    </figure>
-  );
-}
+import { HeroRace } from '../home/HeroRace';
 
 export function Home() {
   const [last] = useRecord<LastActivity | null>('pref:last-activity', null);
@@ -110,13 +60,12 @@ export function Home() {
             <p className="kicker accent">A free, visual course in system design</p>
             <h1 id="hero-title">Two people tap Reserve on the last seat. Who gets it?</h1>
             <p className="lede">
-              Start with that question and one small booking system. You’ll follow a request from a phone to a server to a database and back,
-              predict what happens when two arrive together, and see why both buyers can be told “Confirmed”. Everything after that, from caches to
-              interviews, builds on the same reasoning.
+              Make your prediction, then run it. This free course teaches system design that way: small systems you can step through, change and
+              break, from your first database write to a design interview.
             </p>
             <div className="home-actions">
               <Link className="btn btn-primary btn-lg" to="/learn/first-booking">
-                Start from scratch <Icon name="arrow-right" />
+                Start learning <Icon name="arrow-right" />
               </Link>
               <Link className="secondary-link" to="/topics">Browse all topics</Link>
             </div>
@@ -124,9 +73,18 @@ export function Home() {
               No sign-up. Your work saves in this browser; sign in only if you want it on another device.
             </p>
           </div>
-          <Teaser />
+          <HeroRace />
         </section>
       )}
+
+      <section className="home-section previews" aria-labelledby="previews-title">
+        <h2 id="previews-title">What you’ll do here</h2>
+        <ul className="preview-grid">
+          <li><Link to="/learn/inside-a-request"><span className="kicker">Trace a request</span><strong>Follow one tap from a phone to a database and back, hop by hop.</strong></Link></li>
+          <li><Link to="/learn/replica-lag"><span className="kicker">Investigate a failure</span><strong>A user renamed themselves, yet the profile still shows the old name. Find out why.</strong></Link></li>
+          <li><Link to="/interview"><span className="kicker">Defend a design choice</span><strong>Build an answer on a canvas while an interviewer follows up on what you drew.</strong></Link></li>
+        </ul>
+      </section>
 
       <section className="home-section" aria-labelledby="zoom-title">
         <h2 id="zoom-title">One feature, two zoom levels</h2>
