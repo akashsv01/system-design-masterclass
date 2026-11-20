@@ -11,9 +11,12 @@
 Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-booking (HLD) and lld-parking-lot (LLD) at
 1280 and 390 (captures in the session scratchpad, findings in `docs/DESIGN_REVIEW.md` Review 7).
 - [x] Baseline play-through and findings
-- [ ] Engine: script schema, design graph + undo, follow-up rules, sims (trace/failure, timeline, states, data model, queue, roles), tests
-- [ ] Workspace builder (palette, drag, handles, tap “Connect to”, labelled direction, undo/redo, auto-arrange, keyboard list)
-- [ ] Session shell (interviewer brief, clarify/assume, guided vs mock, help ladder, my design vs worked solution, debrief, mobile tabs, resume, v1 record migration)
+- [x] Engine: script schema, design graph + undo, follow-up rules, sims (trace/failure, timeline, states, data model, queue, roles), tests (`tests/interview.test.ts`)
+- [x] Figma reference: file `vFFT0KMZsMwxiMMlqS1IyQ` (“SDM — Interview simulator workspace”): tokens, component states, desktop 1280 + phone 390
+- [x] Workspace builder (palette, drag, handles, tap “Connect to”, labelled direction, insert-into-arrow, undo/redo, arrange, keyboard list, floating actions / phone bottom sheet)
+- [x] Session shell (brief drawer/tab, clarify/assume, guided vs mock, help ladder, my design vs worked solution with adopt, debrief, phone tabs, v1 record migration)
+- [x] Verified in a browser at 1280 and iPhone 13: connect service→database, trace, insert a cache, replay — animation stops at the cache and the interviewer’s follow-ups name the learner’s parts (scratchpad `iv1.cjs`)
+- [ ] NEXT: LLD exemplar play-through (states/roles/ten servers); then e2e journeys replacing the old interview e2e check (it still targets the removed text-box workspace)
 - [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
 - [ ] Journeys in e2e (desktop + 390), a11y, screenshots, docs, push

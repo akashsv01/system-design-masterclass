@@ -9,7 +9,7 @@ import { CAPSTONE } from '../../content/capstone';
 import { topicById } from '../../content/curriculum';
 import { Caption, Controls, LessonShell, More, Sources, useStep } from '../components/Lesson';
 import { Workspace, EMPTY_DIAGRAM, type WsDiagram } from '../components/Workspace';
-import { Estimator } from './Interview';
+import { Estimator } from '../components/Estimator';
 import { Blocks } from '../lessons/GenericLesson';
 import { SaveStatus } from '../components/Draft';
 import { Rich } from '../components/Rich';
