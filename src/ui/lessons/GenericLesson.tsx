@@ -40,12 +40,12 @@ export default function GenericLesson({ id }: { id: string }) {
     if (step === practiceStep) raiseStatus(store, id, 'studied');
   }, [step, practiceStep, store, id]);
 
-  const module = MODULES.find((m) => m.id === topic.module);
+  const module = MODULES.find((m) => m.id === topic.category);
 
   return (
     <LessonShell
       id={id}
-      crumbs={<><Link to={`/topics#${topic.module}`}>{module?.title ?? lesson.area}</Link><span className="sep">/</span>{topic.short ?? topic.title}</>}
+      crumbs={<><Link to={`/topics#${topic.category}`}>{module?.title ?? lesson.area}</Link><span className="sep">/</span>{topic.short ?? topic.title}</>}
       title={topic.title}
       opening={<Rich text={lesson.opening} />}
     >

@@ -26,7 +26,10 @@ export interface Topic {
   title: string;
   /** Short label used in lists. */
   short?: string;
-  module: string;
+  /** Top-level category id (CATEGORIES in manifest.ts). */
+  category: string;
+  /** Module id within the category; the outline is Category → Module → Lesson. */
+  unit: string;
   kind: TopicKind;
   prereqs: string[];
   objective: string;
@@ -42,8 +45,21 @@ export interface TopicWithStatus extends Topic {
   statusNote: string;
 }
 
-export interface Module {
+/** A module inside a category: a short, ordered group of lessons, labs and cases. */
+export interface Unit {
+  id: string;
+  title: string;
+  /** Topic ids in recommended order. */
+  topics: string[];
+}
+
+/** A top-level category of the course outline. */
+export interface Category {
   id: string;
   title: string;
   blurb: string;
+  units: Unit[];
 }
+
+/** Category summary (id, title, blurb) for lists that don't need the modules. */
+export type Module = Pick<Category, 'id' | 'title' | 'blurb'>;

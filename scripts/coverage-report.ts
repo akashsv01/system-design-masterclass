@@ -10,6 +10,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { CURRICULUM, MODULES, piecesFor, CUSTOM_LESSONS } from '../src/content/curriculum';
+import { OUTLINE_PROBLEMS } from '../src/content/manifest';
 import { GENERIC_LESSONS } from '../src/content/lessons';
 import { CASES } from '../src/content/cases';
 import { LABS } from '../src/content/labs';
@@ -19,6 +20,12 @@ import type { Check } from '../src/content/lessonTypes';
 import { DECISIONS } from '../src/content/decisions';
 
 const errors: string[] = [];
+// Course outline (Category → Module → Lesson): every topic exactly once, no unknown ids, prerequisites earlier.
+for (const p of OUTLINE_PROBLEMS) errors.push(`outline: ${p}`);
+{
+  const pos = new Map(CURRICULUM.map((t, i) => [t.id, i]));
+  for (const t of CURRICULUM) for (const p of t.prereqs) if ((pos.get(p) ?? -1) > pos.get(t.id)!) errors.push(`outline: ${t.id} comes before its prerequisite ${p}`);
+}
 const warnings: string[] = [];
 const ids = new Set(CURRICULUM.map((t) => t.id));
 const routes = new Set(CURRICULUM.map((t) => t.route));
@@ -32,7 +39,7 @@ for (const t of CURRICULUM) {
     if (seen.has(k)) errors.push(`Duplicate ${kind} "${key}" (${seen.get(k)} and ${t.id})`);
     seen.set(k, t.id);
   }
-  if (!MODULES.some((m) => m.id === t.module)) errors.push(`${t.id}: unknown module ${t.module}`);
+  if (!MODULES.some((m) => m.id === t.category)) errors.push(`${t.id}: unknown category ${t.category}`);
   for (const p of t.prereqs) if (!ids.has(p)) errors.push(`${t.id}: missing prerequisite "${p}"`);
 }
 
@@ -156,7 +163,7 @@ lines.push(`- **Independent editorial review:** ${counts.reviewed ?? 0} topics (
 lines.push(`**${CURRICULUM.length} topics.** ` + ['planned', 'partial', 'implemented', 'verified', 'reviewed'].map((s) => `${s}: ${counts[s] ?? 0}`).join(' · '), '');
 lines.push(`Audit: ${errors.length} error(s), ${warnings.length} warning(s).`, '');
 for (const m of MODULES) {
-  const ts = CURRICULUM.filter((t) => t.module === m.id);
+  const ts = CURRICULUM.filter((t) => t.category === m.id);
   lines.push(`## ${m.title}`, '');
   lines.push('| Topic | Status | Format | Prerequisites | Objective | Sources (checked/total) |');
   lines.push('|---|---|---|---|---|---|');

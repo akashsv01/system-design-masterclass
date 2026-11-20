@@ -77,7 +77,7 @@ export function topicById(id: string): TopicWithStatus | undefined {
 }
 
 export function topicsInModule(moduleId: string): TopicWithStatus[] {
-  return CURRICULUM.filter((t) => t.module === moduleId);
+  return CURRICULUM.filter((t) => t.category === moduleId);
 }
 
 /** Recommended route: modules in order, topics in manifest order, with prerequisites satisfied. */

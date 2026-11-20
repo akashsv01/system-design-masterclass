@@ -30,7 +30,7 @@ export default function Coverage() {
             <table className="data">
               <thead><tr><th>Topic</th><th>Status</th><th>Format</th><th>Before this</th></tr></thead>
               <tbody>
-                {CURRICULUM.filter((t) => t.module === m.id).map((t) => (
+                {CURRICULUM.filter((t) => t.category === m.id).map((t) => (
                   <tr key={t.id}>
                     <td><Link to={t.route}>{t.short ?? t.title}</Link></td>
                     <td><span className={`pill ${t.status === 'verified' || t.status === 'reviewed' ? 'ok' : t.status === 'implemented' ? 'active' : ''}`}>{LABEL[t.status]}</span></td>

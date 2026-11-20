@@ -9,42 +9,90 @@
  * verified with pytest. Objectives describe understanding, prediction and decisions; required exercises
  * are small (predict, fill one condition, change a line, pick a line, choose a design, explain briefly).
  */
-import type { Module, Topic, TopicKind } from './types';
+import type { Category, Module, Topic, TopicKind } from './types';
 import { SRC, type SourceKey } from './sources';
 
-export const MODULES: Module[] = [
-  { id: 'start', title: 'Start here', blurb: 'One booking system, end to end. Client, server, database, and your first race condition.' },
-  { id: 'bridges', title: 'Bridges', blurb: 'Short refreshers on the programming ideas the course leans on: JSON, maps, linked lists, SQL, interfaces, threads.' },
-  { id: 'foundations', title: 'Foundations and networking', blurb: 'What happens between a tap and a reply, how to measure it, and how to estimate load.' },
-  { id: 'data', title: 'Data systems', blurb: 'How data is modelled, stored, indexed, copied and split — and what each choice costs.' },
-  { id: 'distributed', title: 'HLD and distributed systems', blurb: 'Designing systems from parts that fail independently: APIs, caches, queues, consistency and consensus.' },
-  { id: 'architecture', title: 'Architecture and operations', blurb: 'Service boundaries, security, observability, reliability targets, deployment and recovery.' },
-  { id: 'lld', title: 'LLD and machine coding', blurb: 'Objects, protocols, invariants, state machines, tests, concurrency and design patterns — in Python, tested with pytest.' },
-  { id: 'labs', title: 'Labs', blurb: 'Interactive experiments with a prediction, a control, an observable consequence and a fresh problem.' },
-  { id: 'cases-hld', title: 'HLD case studies', blurb: 'Ambiguous prompts worked into defensible designs, with failures and changing requirements.' },
-  { id: 'cases-lld', title: 'LLD case studies', blurb: 'Machine-coding problems: classes, states, invariants and tests.' },
-  { id: 'capstone', title: 'Capstone', blurb: 'An unfamiliar problem with a surprise requirement, compared against your first design.' },
+/**
+ * The course outline (brief §5): Category → Module → Lesson. It is the single source of truth for the
+ * navigator, the topic explorer, breadcrumbs, previous/next lesson and the recommended route. Every topic
+ * appears exactly once; order within a module is the recommended order (checked by audit:content).
+ */
+export const CATEGORIES: Category[] = [
+  { id: 'start', title: 'Start here', blurb: 'One booking system, end to end: client, server, database, and your first race condition.', units: [
+    { id: 'first-system', title: 'Your first system', topics: ['first-booking', 'hld-vs-lld'] },
+  ] },
+  { id: 'bridges', title: 'Programming bridges', blurb: 'Short refreshers on the programming ideas the course leans on.', units: [
+    { id: 'formats', title: 'JSON and SQL', topics: ['bridge-json', 'bridge-sql'] },
+    { id: 'structures', title: 'Maps and linked lists', topics: ['bridge-maps', 'bridge-linked-lists'] },
+    { id: 'code-together', title: 'Interfaces and threads', topics: ['bridge-interfaces', 'bridge-threads'] },
+  ] },
+  { id: 'foundations', title: 'Foundations and networking', blurb: 'What happens between a tap and a reply, how to measure it, and how to estimate load.', units: [
+    { id: 'request', title: 'Inside a request', topics: ['inside-a-request', 'tcp-udp', 'http-rest-rpc', 'realtime-delivery'] },
+    { id: 'machines', title: 'Processes, memory and disk', topics: ['processes-threads', 'memory-disk'] },
+    { id: 'capacity', title: 'Speed and capacity', topics: ['latency', 'lab-request-tracing', 'throughput-bandwidth', 'capacity-estimation'] },
+    { id: 'scale', title: 'Staying up and scaling out', topics: ['availability', 'stateless-scaling'] },
+  ] },
+  { id: 'data', title: 'Data systems', blurb: 'How data is modelled, stored, cached, copied and split, and what each choice costs.', units: [
+    { id: 'modeling', title: 'Modeling and queries', topics: ['access-patterns', 'normalization', 'indexes', 'data-models'] },
+    { id: 'storage', title: 'Storage and transactions', topics: ['storage-engines', 'transactions', 'locking-mvcc', 'concurrent-reservations'] },
+    { id: 'replication', title: 'Replication', topics: ['replica-lag', 'failover', 'lab-stale-reads'] },
+    { id: 'caching', title: 'Caching', topics: ['caching', 'cache-invalidation', 'lru-cache', 'lab-cache', 'lab-lru'] },
+    { id: 'partitioning', title: 'Partitioning', topics: ['sharding', 'consistent-hashing', 'lab-hot-spots'] },
+  ] },
+  { id: 'distributed', title: 'Distributed systems (HLD)', blurb: 'Designing systems from parts that fail independently: APIs, traffic, failures, ordering, agreement and messaging.', units: [
+    { id: 'interfaces', title: 'Requirements and APIs', topics: ['requirements', 'api-design'] },
+    { id: 'traffic', title: 'Traffic and edges', topics: ['proxies-gateways', 'load-balancing', 'cdn', 'lab-load-balancing'] },
+    { id: 'failures', title: 'When calls fail', topics: ['timeouts', 'retries', 'idempotency', 'lab-payment-retries'] },
+    { id: 'agreement', title: 'Time, order and agreement', topics: ['clocks-ordering', 'consistency-models', 'cap-quorums', 'consensus'] },
+    { id: 'messaging', title: 'Messaging and streams', topics: ['queues', 'logs-delivery', 'backpressure', 'batch-stream', 'lab-queue-backlog'] },
+    { id: 'multi-service', title: 'Transactions across services', topics: ['distributed-transactions', 'cqrs-event-sourcing'] },
+  ] },
+  { id: 'architecture', title: 'Architecture and operations', blurb: 'Service boundaries, security, observability, reliability targets, deployment, recovery and cost.', units: [
+    { id: 'boundaries', title: 'Services and boundaries', topics: ['monolith-microservices', 'schema-evolution', 'multitenancy', 'multi-region'] },
+    { id: 'security', title: 'Security and limits', topics: ['authn-authz', 'encryption-privacy', 'rate-limiting'] },
+    { id: 'operations', title: 'Running in production', topics: ['observability', 'slos', 'deployments', 'backups-dr', 'cost'] },
+  ] },
+  { id: 'lld', title: 'Low-level design (LLD)', blurb: 'Objects, invariants, state machines, tests, concurrency and design patterns, in short Python.', units: [
+    { id: 'objects', title: 'Objects and responsibilities', topics: ['responsibilities', 'polymorphism-composition', 'cohesion-coupling', 'solid'] },
+    { id: 'rules', title: 'Rules, models and diagrams', topics: ['contracts-invariants', 'domain-objects', 'dependency-injection', 'uml', 'state-machines'] },
+    { id: 'correctness', title: 'Tests, refactoring, concurrency', topics: ['testing', 'refactoring-lesson', 'concurrency-lld'] },
+    { id: 'patterns', title: 'Design patterns', topics: ['gof-reference', 'pattern-strategy', 'pattern-observer', 'pattern-state', 'pattern-decorator', 'pattern-factory-builder', 'pattern-adapter', 'pattern-command'] },
+  ] },
+  { id: 'cases', title: 'Design cases', blurb: 'Ambiguous prompts worked into defensible designs, at the HLD and LLD zoom levels, ending in a capstone.', units: [
+    { id: 'commerce', title: 'Booking and payments', topics: ['case-ticket-booking', 'lld-booking', 'case-payments', 'case-checkout', 'lld-shopping-cart'] },
+    { id: 'realtime', title: 'Messaging and live updates', topics: ['case-notifications', 'lld-notifications', 'case-live-scores', 'lld-live-scores', 'case-chat', 'case-collab-editor'] },
+    { id: 'products', title: 'Products at scale', topics: ['case-url-shortener', 'case-feed', 'case-autocomplete', 'case-file-sync', 'case-video', 'case-ride-matching'] },
+    { id: 'platform', title: 'Platform services', topics: ['case-rate-limiter', 'lld-rate-limiter', 'case-scheduler', 'lld-scheduler', 'case-metrics', 'case-crawler', 'lld-logger'] },
+    { id: 'classics', title: 'Machine-coding classics', topics: ['lld-parking-lot', 'lld-elevator', 'lld-vending-machine', 'lld-library', 'lld-expense-sharing', 'lld-lru', 'lld-board-game'] },
+    { id: 'capstone', title: 'Capstone', topics: ['capstone'] },
+  ] },
 ];
+
+/** Category summaries, in outline order. */
+export const MODULES: Module[] = CATEGORIES.map(({ id, title, blurb }) => ({ id, title, blurb }));
 
 const ROUTE: Record<TopicKind, string> = {
   lesson: '/learn/', bridge: '/learn/', lab: '/labs/', 'case-hld': '/cases/', 'case-lld': '/cases/', pattern: '/patterns/', capstone: '/capstone/',
 };
 
+type RawTopic = Omit<Topic, 'category' | 'unit'>;
+
+/** `_group` is the topic's pre-outline grouping, kept only so the entries below read as before; the outline decides placement. */
 function T(
   id: string,
   title: string,
-  module: string,
+  _group: string,
   kind: TopicKind,
   prereqs: string[],
   objective: string,
   covers: string[],
   sources: SourceKey[],
   short?: string,
-): Topic {
-  return { id, title, short, module, kind, prereqs, objective, covers, sources: sources.map((k) => SRC[k]), route: ROUTE[kind] + id };
+): RawTopic {
+  return { id, title, short, kind, prereqs, objective, covers, sources: sources.map((k) => SRC[k]), route: ROUTE[kind] + id };
 }
 
-export const TOPICS: Topic[] = [
+const RAW_TOPICS: RawTopic[] = [
   // ---------------- Start here ----------------
   T('first-booking', 'Two buyers see one seat left. Who gets it?', 'start', 'lesson', [],
     'Trace one request through client, server and database, and explain why two overlapping reservations can both succeed.',
@@ -374,3 +422,22 @@ export const TOPICS: Topic[] = [
     'Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design.',
     ['requirements', 'capacity estimation', 'API contracts', 'failure reasoning'], ['sdi1', 'sdi2'], 'Capstone'),
 ];
+
+const RAW_BY_ID = new Map(RAW_TOPICS.map((t) => [t.id, t]));
+/** Topics not placed in the outline, or placed twice, or outline ids with no topic: reported by audit:content. */
+export const OUTLINE_PROBLEMS: string[] = [];
+{
+  const seen = new Map<string, string>();
+  for (const c of CATEGORIES) for (const u of c.units) for (const id of u.topics) {
+    if (!RAW_BY_ID.has(id)) OUTLINE_PROBLEMS.push(`outline ${c.id} › ${u.id} lists unknown topic "${id}"`);
+    if (seen.has(id)) OUTLINE_PROBLEMS.push(`topic "${id}" appears twice in the outline (${seen.get(id)} and ${c.id} › ${u.id})`);
+    seen.set(id, `${c.id} › ${u.id}`);
+  }
+  for (const t of RAW_TOPICS) if (!seen.has(t.id)) OUTLINE_PROBLEMS.push(`topic "${t.id}" is not placed in the outline`);
+}
+
+/** Every topic, in outline order (the recommended route), with its category and module. */
+export const TOPICS: Topic[] = CATEGORIES.flatMap((c) =>
+  c.units.flatMap((u) => u.topics.filter((id) => RAW_BY_ID.has(id)).map((id) => ({ ...RAW_BY_ID.get(id)!, category: c.id, unit: u.id }))),
+);
+

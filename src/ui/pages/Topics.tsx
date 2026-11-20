@@ -37,7 +37,7 @@ export function Topics() {
   }, []);
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    return CURRICULUM.filter((t) => (!mod || t.module === mod) && (!s || [t.title, t.short ?? '', t.objective, DECISIONS[t.id] ?? '', ...t.covers].join(' ').toLowerCase().includes(s)));
+    return CURRICULUM.filter((t) => (!mod || t.category === mod) && (!s || [t.title, t.short ?? '', t.objective, DECISIONS[t.id] ?? '', ...t.covers].join(' ').toLowerCase().includes(s)));
   }, [q, mod]);
   // The next topic on the recommended route: the first one the learner hasn't opened.
   const nextOnRoute = CURRICULUM.find((t) => !statuses[t.id] && t.status !== 'planned')?.id;
@@ -69,9 +69,9 @@ export function Topics() {
         <li><span className="state independent" />Solved independently</li>
       </ul>
       {MODULES.map((m) => {
-        const items = filtered.filter((t) => t.module === m.id);
+        const items = filtered.filter((t) => t.category === m.id);
         if (!items.length) return null;
-        const all = CURRICULUM.filter((t) => t.module === m.id);
+        const all = CURRICULUM.filter((t) => t.category === m.id);
         const solved = all.filter((t) => statuses[t.id] === 'independent' || statuses[t.id] === 'hinted').length;
         return (
           <section key={m.id} id={m.id} className="module-block" aria-labelledby={`h-${m.id}`}>

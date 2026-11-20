@@ -67,7 +67,7 @@ export default function CaseStudyPage({ id }: { id: string }) {
     <EvidenceScope required={cs.checks.map((c) => c.id)}>
       <LessonShell
         id={id}
-        crumbs={<><Link to={`/topics#${topic.module}`}>{isLld ? 'LLD case studies' : 'HLD case studies'}</Link><span className="sep">/</span>{topic.short ?? topic.title}</>}
+        crumbs={<><Link to={`/topics#${topic.category}`}>{isLld ? 'LLD case studies' : 'HLD case studies'}</Link><span className="sep">/</span>{topic.short ?? topic.title}</>}
         title={topic.title}
         opening={<><strong>The prompt:</strong> “{cs.prompt}”{paired && <> <span className="muted">Paired with <Link to={paired.route}>{paired.title}</Link>, the same feature at the other zoom level.</span></>}</>}
       >

@@ -69,7 +69,7 @@ export function ProgressPage() {
           <p className="muted small" style={{ marginTop: -6 }}>Counted only from graded checks. “Independently” means right first time with no hint, reveal or retry.</p>
           <div className="skill-grid">
             {MODULES.map((m) => {
-              const all = CURRICULUM.filter((t) => t.module === m.id);
+              const all = CURRICULUM.filter((t) => t.category === m.id);
               const ind = all.filter((t) => statuses[t.id] === 'independent').length;
               const help = all.filter((t) => statuses[t.id] === 'hinted').length;
               return (
