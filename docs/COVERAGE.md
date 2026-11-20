@@ -12,7 +12,7 @@ Four separate kinds of evidence, never merged:
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
 
-Audit: 0 error(s), 3 warning(s).
+Audit: 0 error(s), 2 warning(s).
 
 ## Start here
 
@@ -181,5 +181,4 @@ Audit: 0 error(s), 3 warning(s).
 ## Audit warnings
 
 - interview: lld-logger has no interview script yet
-- interview: lld-scheduler has no interview script yet
 - interview: lld-live-scores has no interview script yet
