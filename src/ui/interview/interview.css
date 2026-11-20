@@ -382,3 +382,5 @@
 .builder.portrait .wide-only { display: none; }
 .builder.portrait .narrow-only { display: inline; }
 .iv-tabs button { white-space: nowrap; }
+.db-growth { display: flex; gap: 8px; align-items: flex-start; margin: 0; color: var(--ink-2); }
+.guard .segmented { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }

@@ -92,8 +92,8 @@ export default function Practice() {
 
       <h2>Work on your own</h2>
       <ul className="card-list">
-        <li><Link className="title" to="/topics#cases-hld">HLD case studies in independent mode</Link><p>17 prompts. The reference design stays hidden until you save your own answer at each stage; a failure and a changed requirement follow.</p></li>
-        <li><Link className="title" to="/topics#cases-lld">LLD case studies in independent mode</Link><p>14 designs: responsibilities, states, invariants and the one condition that keeps them true, with tested Python references.</p></li>
+        <li><Link className="title" to="/topics#cases">HLD case studies in independent mode</Link><p>17 prompts. The reference design stays hidden until you save your own answer at each stage; a failure and a changed requirement follow.</p></li>
+        <li><Link className="title" to="/topics#cases">LLD case studies in independent mode</Link><p>14 designs: responsibilities, states, invariants and the one condition that keeps them true, with tested Python references.</p></li>
         <li><Link className="title" to="/interview">Mock interview</Link><p>Timed or untimed, HLD or LLD, with a sketch workspace, an estimator, a changed requirement and a transparent rubric.</p></li>
         <li><Link className="title" to="/capstone/capstone">Capstone</Link><p>An unfamiliar system with a surprise requirement, compared with the first design you saved in the course.</p></li>
       </ul>

@@ -640,3 +640,68 @@ button.snip-line:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(
   .iv-notes { position: sticky; top: calc(var(--header-h) + 16px); }
   .iv-notes textarea { min-height: 380px; }
 }
+
+/* ── Course navigator: Topics page, desktop sidebar, phone drawer ───────────────────────── */
+.topics-toggle { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; margin-right: 8px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: background var(--dur-1), border-color var(--dur-1); }
+.topics-toggle:hover { border-color: var(--line-strong); }
+.topics-toggle[aria-expanded='true'] { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent); }
+.course { display: flex; align-items: flex-start; min-width: 0; }
+.course-main { flex: 1 1 auto; min-width: 0; }
+.course-side { flex: 0 0 300px; position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); border-right: 1px solid var(--line); background: var(--paper); }
+.course-side .course-nav { height: 100%; }
+.course-crumbs { max-width: 980px; margin: 18px auto -10px; padding: 0 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 14px; color: var(--muted); }
+.course-crumbs a { color: var(--ink-2); text-decoration: none; }
+.course-crumbs a:hover { color: var(--accent); text-decoration: underline; }
+.course-crumbs [aria-current] { color: var(--ink); font-weight: 600; }
+.lesson-pager { max-width: 980px; margin: 0 auto 64px; padding: 20px 24px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lesson-pager a { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; color: var(--ink); min-width: 0; transition: border-color var(--dur-1); }
+.lesson-pager a:hover { border-color: var(--accent-line); }
+.lesson-pager a.next { text-align: right; }
+.lesson-pager .dir { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.lesson-pager .next .dir { justify-content: flex-end; }
+.lesson-pager .t { font-weight: 650; overflow-wrap: anywhere; }
+.course-nav { display: flex; flex-direction: column; min-height: 0; }
+.cn-search { display: flex; gap: 8px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); background: inherit; }
+.v-page .cn-search { padding: 0 0 12px; border: 0; position: sticky; top: var(--header-h); z-index: 2; background: var(--paper); padding-top: 8px; }
+.cn-search label { flex: 1 1 auto; position: relative; display: flex; align-items: center; min-width: 0; }
+.cn-search label .icon { position: absolute; left: 11px; color: var(--muted); pointer-events: none; }
+.cn-search input { width: 100%; padding-left: 36px; }
+.cn-scroll { overflow: auto; flex: 1 1 auto; padding: 8px 8px 24px; overscroll-behavior: contain; }
+.v-page .cn-scroll { overflow: visible; padding: 0; }
+.cn-tree, .cn-units, .cn-lessons, .cn-results { list-style: none; margin: 0; padding: 0; }
+.cn-cat, .cn-unit, .cn-lesson { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background var(--dur-1); }
+.cn-cat:hover, .cn-unit:hover, .cn-lesson:hover { background: var(--paper-2); }
+.cn-cat { padding: 7px 8px; font-weight: 650; font-size: 15px; }
+.cn-unit { padding: 6px 8px 6px 22px; font-weight: 600; font-size: 14px; color: var(--ink-2); }
+.cn-lesson { padding: 6px 8px 6px 40px; font-size: 14px; }
+.cn-lesson.current { background: var(--accent-soft); color: var(--accent); font-weight: 650; box-shadow: inset 3px 0 0 var(--accent); }
+.cn-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.cn-meta { flex: none; font-size: 12px; color: var(--muted); font-weight: 500; }
+.cn-here { color: var(--accent); }
+.cn-lesson-text { flex: 1 1 auto; min-width: 0; display: grid; }
+.cn-decision { font-size: 13px; color: var(--muted); font-weight: 400; }
+.cn-dot { flex: none; display: inline-block; width: 11px; height: 11px; border-radius: 999px; border: 1.5px solid var(--line-strong); }
+.cn-dot.started { border-color: var(--accent); background: linear-gradient(90deg, var(--accent-line) 50%, transparent 50%); }
+.cn-dot.done { border-color: var(--ok); background: var(--ok); }
+.evidence-key .cn-dot { margin-right: 6px; vertical-align: -1px; }
+.cn-blurb { margin: 0 8px 6px 32px; font-size: 14px; color: var(--muted); }
+.v-page .cn-cat { font-family: var(--serif); font-size: 19px; padding: 10px 8px; }
+.v-page .cn-cat-li { border-bottom: 1px solid var(--line); padding: 4px 0; }
+.cn-results a { display: grid; gap: 1px; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ink); }
+.cn-results a:hover, .cn-results a:focus-visible { background: var(--paper-2); }
+.cn-title { font-weight: 600; }
+.cn-title mark { background: var(--active-soft); color: inherit; border-radius: 3px; }
+.cn-path { font-size: 12.5px; color: var(--muted); }
+.cn-count { margin: 4px 8px 8px; }
+.continue-link { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; padding: 12px 14px; border: 1px solid var(--accent-line); border-left: 4px solid var(--accent); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; color: var(--ink); }
+.continue-link > span { display: grid; min-width: 0; }
+.continue-link.compact { margin: 4px 4px 10px; padding: 8px 10px; }
+.drawer-root { position: fixed; inset: 0; z-index: 50; }
+.drawer-scrim { position: absolute; inset: 0; background: rgba(15, 20, 26, 0.42); animation: fade-in var(--dur-3) var(--ease-out); }
+.drawer { position: absolute; top: 0; left: 0; bottom: 0; width: min(380px, 88vw); background: var(--paper); box-shadow: var(--shadow-2); display: flex; flex-direction: column; animation: drawer-in var(--dur-3) var(--ease-out); }
+.drawer .course-nav { flex: 1 1 auto; min-height: 0; }
+.drawer-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.drawer-head strong { font-size: 17px; flex: 1 1 auto; }
+@keyframes drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
+@media (max-width: 600px) { .lesson-pager { grid-template-columns: 1fr; } .lesson-pager a.next { text-align: left; } .lesson-pager .next .dir { justify-content: flex-start; } .topics-toggle span { display: none; } .course-crumbs { padding: 0 16px; } }
+@media (prefers-reduced-motion: reduce) { .drawer, .drawer-scrim { animation: none; } }

@@ -11,6 +11,8 @@
 import { writeFileSync } from 'node:fs';
 import { CURRICULUM, MODULES, piecesFor, CUSTOM_LESSONS } from '../src/content/curriculum';
 import { OUTLINE_PROBLEMS } from '../src/content/manifest';
+import { SCRIPTS } from '../src/content/interview/scripts';
+import { auditScript } from '../src/content/interview/audit';
 import { GENERIC_LESSONS } from '../src/content/lessons';
 import { CASES } from '../src/content/cases';
 import { LABS } from '../src/content/labs';
@@ -20,6 +22,13 @@ import type { Check } from '../src/content/lessonTypes';
 import { DECISIONS } from '../src/content/decisions';
 
 const errors: string[] = [];
+// Interview scripts (interview brief §10): every published case has an audited script.
+const INTERVIEW: string[] = [];
+for (const id of Object.keys(CASES)) {
+  const sc = SCRIPTS[id];
+  if (!sc) { INTERVIEW.push(`interview: ${id} has no interview script yet`); continue; }
+}
+
 // Course outline (Category → Module → Lesson): every topic exactly once, no unknown ids, prerequisites earlier.
 for (const p of OUTLINE_PROBLEMS) errors.push(`outline: ${p}`);
 {
@@ -27,6 +36,10 @@ for (const p of OUTLINE_PROBLEMS) errors.push(`outline: ${p}`);
   for (const t of CURRICULUM) for (const p of t.prereqs) if ((pos.get(p) ?? -1) > pos.get(t.id)!) errors.push(`outline: ${t.id} comes before its prerequisite ${p}`);
 }
 const warnings: string[] = [];
+for (const sc of Object.values(SCRIPTS)) { const r = auditScript(sc); errors.push(...r.errors.map((x) => `interview: ${x}`)); warnings.push(...r.warnings.map((x) => `interview: ${x}`)); }
+// Missing scripts are errors once the whole library is scripted; until then they are reported as warnings.
+(Object.keys(SCRIPTS).length >= Object.keys(CASES).length ? errors : warnings).push(...INTERVIEW);
+
 const ids = new Set(CURRICULUM.map((t) => t.id));
 const routes = new Set(CURRICULUM.map((t) => t.route));
 const STATIC_ROUTES = ['/', '/topics', '/practice', '/interview', '/progress', '/coverage', '/patterns', '/capstone'];

@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
-import { Link, NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from 'react';
+import { Link, NavLink, Route, Routes, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useProgress } from '../progress/ProgressProvider';
 import { AccountDialog } from './pages/Account';
 import { Home } from './pages/Home';
@@ -9,6 +9,7 @@ import { topicById } from '../content/curriculum';
 import { GENERIC_LESSONS } from '../content/lessons';
 import { CASES } from '../content/cases';
 import { Icon } from './components/Icon';
+import { CourseLayout, NavProvider, TopicsToggle } from './nav/CourseLayout';
 
 const CUSTOM: Record<string, React.LazyExoticComponent<ComponentType>> = {
   'first-booking': lazy(() => import('./lessons/FirstBooking')),
@@ -116,9 +117,10 @@ function Header() {
   }, []);
   return (
     <header className={`site-header ${tucked && !open && !account ? 'tucked' : ''}`}>
+      <TopicsToggle />
       <Brand />
       <nav className={`nav ${open ? 'open' : ''}`} aria-label="Main">
-        <NavLink to="/topics">Topics</NavLink>
+        <NavLink to="/topics">All topics</NavLink>
         <NavLink to="/practice">Practice</NavLink>
         <NavLink to="/interview">Interview</NavLink>
         <NavLink to="/progress">Progress</NavLink>
@@ -140,7 +142,6 @@ function LessonRoute() {
   const topic = topicById(id);
   useEffect(() => {
     document.title = topic ? `${topic.short ?? topic.title} · System Design Masterclass` : 'System Design Masterclass';
-    window.scrollTo(0, 0);
   }, [id, topic]);
   const Custom = CUSTOM[id];
   if (Custom) return <Custom />;
@@ -192,18 +193,45 @@ function NotFound() {
   );
 }
 
-/** New page, new reading position: start at the top unless the link targets a section. */
+/**
+ * New page, new reading position — except when the learner comes back (browser Back, or a “Continue” link):
+ * then the page returns to where they were. Positions are remembered per address for this tab.
+ */
 function ScrollToTop() {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, state } = useLocation();
+  const navType = useNavigationType();
+  // Save the position when the learner leaves (a link click or Back/Forward), before the old page unmounts and
+  // the browser clamps the scroll. Saving on every scroll would record that clamped 0.
+  const current = useRef(pathname);
+  useEffect(() => { current.current = pathname; }, [pathname]);
   useEffect(() => {
-    if (!hash) window.scrollTo(0, 0);
-  }, [pathname, hash]);
+    const saveNow = () => { try { sessionStorage.setItem(`sdm:scroll:${current.current}`, String(Math.round(window.scrollY))); } catch { /* ignore */ } };
+    const onClick = (e: MouseEvent) => { if ((e.target as Element | null)?.closest?.('a[href]')) saveNow(); };
+    document.addEventListener('click', onClick, true);
+    window.addEventListener('popstate', saveNow);
+    window.addEventListener('pagehide', saveNow);
+    return () => { document.removeEventListener('click', onClick, true); window.removeEventListener('popstate', saveNow); window.removeEventListener('pagehide', saveNow); };
+  }, []);
+  useEffect(() => {
+    if (hash) return;
+    let saved = 0;
+    try { saved = Number(sessionStorage.getItem(`sdm:scroll:${pathname}`) ?? 0); } catch { /* ignore */ }
+    const restore = (navType === 'POP' || (state as { restore?: boolean } | null)?.restore) && saved > 0;
+    if (!restore) { window.scrollTo(0, 0); return; }
+    // Lessons load lazily: retry until the page is tall enough to reach the saved position.
+    let tries = 0;
+    const tick = () => {
+      if (document.documentElement.scrollHeight - window.innerHeight >= saved - 2 || tries++ > 40) window.scrollTo(0, saved);
+      else setTimeout(tick, 25);
+    };
+    tick();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
 export function App() {
   return (
-    <>
+    <NavProvider>
       <ScrollToTop />
       <a className="skip-link" href="#main">Skip to content</a>
       <Header />
@@ -212,19 +240,21 @@ export function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/topics" element={<Topics />} />
-            <Route path="/learn/:id" element={<LessonRoute />} />
-            <Route path="/labs/:id" element={<LabPage />} />
-            <Route path="/cases/:id" element={<CaseRoute />} />
-            <Route path="/patterns/:id?" element={<PatternsPage />} />
+            <Route element={<CourseLayout />}>
+              <Route path="/learn/:id" element={<LessonRoute />} />
+              <Route path="/labs/:id" element={<LabPage />} />
+              <Route path="/cases/:id" element={<CaseRoute />} />
+              <Route path="/patterns/:id?" element={<PatternsPage />} />
+              <Route path="/capstone/:id?" element={<CapstonePage />} />
+            </Route>
             <Route path="/practice" element={<PracticePage />} />
             <Route path="/interview/:id?" element={<InterviewPage />} />
-            <Route path="/capstone/:id?" element={<CapstonePage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/coverage" element={<CoveragePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>
-    </>
+    </NavProvider>
   );
 }

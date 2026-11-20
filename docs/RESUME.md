@@ -16,7 +16,9 @@ Baseline: `main` @ `ce05e7d` (unchanged since). Play-through of case-ticket-book
 - [x] Workspace builder (palette, drag, handles, tap “Connect to”, labelled direction, insert-into-arrow, undo/redo, arrange, keyboard list, floating actions / phone bottom sheet)
 - [x] Session shell (brief drawer/tab, clarify/assume, guided vs mock, help ladder, my design vs worked solution with adopt, debrief, phone tabs, v1 record migration)
 - [x] Verified in a browser at 1280 and iPhone 13: connect service→database, trace, insert a cache, replay — animation stops at the cache and the interviewer’s follow-ups name the learner’s parts (scratchpad `iv1.cjs`)
-- [ ] NEXT: LLD exemplar play-through (states/roles/ten servers); then e2e journeys replacing the old interview e2e check (it still targets the removed text-box workspace)
+- [x] LLD exemplar play-through (states stuck→fixed, roles, ten servers, debrief grounded in the attempt)
+- [ ] Remaining 29 scripts: authoring agents hit the account usage limit (Fable, then Sonnet); resume them or author directly. Shared brief: scratchpad authoring-brief.md (copy in docs/INTERVIEW_AUTHORING.md)
+- [ ] (was) LLD exemplar play-through (states/roles/ten servers); then e2e journeys replacing the old interview e2e check (it still targets the removed text-box workspace)
 - [ ] Exemplars end to end: case-ticket-booking (HLD) and lld-booking (LLD)
 - [ ] Remaining 29 cases carried through; interview audit in `audit:content`
 - [ ] Journeys in e2e (desktop + 390), a11y, screenshots, docs, push
@@ -34,7 +36,8 @@ Skills installed mid-session load in the next session; this session applies them
 ## Workbench progress (2026-11-20) — paused after the outline model (`9cd02ad`)
 - [x] Baseline run, newcomer find-and-return test, captures at 1280/820/390/360, critique #1 (design-critique skill + Fable reviewer; Impeccable not installed)
 - [x] Reference navigation study; two compositions (home, reader) explored and chosen
-- [~] Category → Module → Lesson outline in the manifest (done, audited); navigator (sidebar, drawer, search, memory, resume); prev/next lesson
+- [x] Category → Module → Lesson outline in the manifest (done, audited); navigator (sidebar 1100px+, Topics drawer below, search with paths, remembered expansion/scroll, breadcrumb, prev/next, `pref:last` continue, scroll restore on Back) — acceptance test passes at 1280 and iPhone 13 (scratchpad nav.cjs)
+- [ ] (was) navigator (sidebar, drawer, search, memory, resume); prev/next lesson
 - [ ] Homepage experiment carried into lesson 1; previews; mobile composition
 - [ ] Reader/identity pass; quantitative lesson, lab, independent case; labs/practice/interview/progress; critique #2
 - [ ] Verification (navigation acceptance test, e2e, a11y, widths, themes, motion), docs, push

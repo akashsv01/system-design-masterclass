@@ -12,7 +12,7 @@ Four separate kinds of evidence, never merged:
 
 **124 topics.** planned: 0 · partial: 0 · implemented: 0 · verified: 124 · reviewed: 0
 
-Audit: 0 error(s), 0 warning(s).
+Audit: 0 error(s), 29 warning(s).
 
 ## Start here
 
@@ -177,3 +177,35 @@ Audit: 0 error(s), 0 warning(s).
 | [LRU cache (machine coding)](/cases/lld-lru) | verified | case | lru-cache, testing | Decide responsibilities, states and invariants for LRU cache (machine coding); read the worked Python design and complete small checks against it. | 0/2 |
 | [Board game (tic-tac-toe → Connect Four)](/cases/lld-board-game) | verified | case | polymorphism-composition, testing | Decide responsibilities, states and invariants for Board game (tic-tac-toe → Connect Four); read the worked Python design and complete small checks against it. | 0/2 |
 | [Capstone](/capstone/capstone) | verified | custom | case-ticket-booking, lld-booking, case-notifications | Design an unfamiliar system end to end under time pressure, adapt to a surprise requirement, and compare with your first design. | 0/2 |
+
+## Audit warnings
+
+- interview: case-notifications has no interview script yet
+- interview: case-live-scores has no interview script yet
+- interview: case-url-shortener has no interview script yet
+- interview: case-rate-limiter has no interview script yet
+- interview: case-chat has no interview script yet
+- interview: case-feed has no interview script yet
+- interview: case-autocomplete has no interview script yet
+- interview: case-file-sync has no interview script yet
+- interview: case-video has no interview script yet
+- interview: case-payments has no interview script yet
+- interview: case-checkout has no interview script yet
+- interview: case-ride-matching has no interview script yet
+- interview: case-metrics has no interview script yet
+- interview: case-scheduler has no interview script yet
+- interview: case-crawler has no interview script yet
+- interview: case-collab-editor has no interview script yet
+- interview: lld-parking-lot has no interview script yet
+- interview: lld-elevator has no interview script yet
+- interview: lld-vending-machine has no interview script yet
+- interview: lld-library has no interview script yet
+- interview: lld-expense-sharing has no interview script yet
+- interview: lld-logger has no interview script yet
+- interview: lld-notifications has no interview script yet
+- interview: lld-lru has no interview script yet
+- interview: lld-rate-limiter has no interview script yet
+- interview: lld-scheduler has no interview script yet
+- interview: lld-shopping-cart has no interview script yet
+- interview: lld-board-game has no interview script yet
+- interview: lld-live-scores has no interview script yet

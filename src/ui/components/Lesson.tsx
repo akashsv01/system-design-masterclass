@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { InCourseLayout } from '../nav/CourseLayout';
 /**
  * Calm lesson reader primitives (docs/DESIGN.md D2, D4, D7, D10, D12–D18).
  * One column: title → opening → stage → active-step caption → controls → disclosures.
@@ -31,10 +33,12 @@ export function LessonShell({
   children: ReactNode;
 }) {
   useMarkStarted(id);
+  // Inside the course layout the breadcrumb comes from the outline (Category › Module › Lesson).
+  const inLayout = useContext(InCourseLayout);
   return (
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
-        {crumbs && <div className="crumbs">{crumbs}</div>}
+        {crumbs && !inLayout && <div className="crumbs">{crumbs}</div>}
         <h1 id="lesson-title">{title}</h1>
         <p className="opening">{opening}</p>
       </header>

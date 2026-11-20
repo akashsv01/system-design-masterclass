@@ -15,5 +15,5 @@
     "tsBuildInfoFile": "./node_modules/.tmp/node.tsbuildinfo"
   },
   "include": ["server", "scripts", "tests", "vite.config.ts", "shared", "src/sim"],
-  "exclude": ["scripts/coverage-report.ts", "scripts/scope-terms.ts"]
+  "exclude": ["scripts/coverage-report.ts", "scripts/scope-terms.ts", "scripts/check-interview-script.ts"]
 }
